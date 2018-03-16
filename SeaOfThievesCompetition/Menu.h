@@ -2,6 +2,7 @@
 #include <SFML\Graphics\View.hpp>
 #include <SFML\Graphics\Text.hpp>
 #include "SFML\Graphics\Sprite.hpp"
+#include "SFML\System\Clock.hpp"
 
 namespace sf
 {
@@ -30,4 +31,7 @@ private:
 
 	sf::Sprite myPressEnterPrompt;
 	sf::Texture myPressEnterTexture;
+
+	sf::Clock myDeltaTimer;
+	float myTotalTime;
 };
