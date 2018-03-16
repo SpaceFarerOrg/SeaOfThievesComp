@@ -17,6 +17,11 @@ public:
 
 	bool GetShouldRun() const;
 private:
+	void HandleWindowEvents();
+
+	bool myShouldClose;
+	bool myIsWindowActive;
+
 	static bool myIsInGame;
 	static bool myHasChangedState;
 	sf::RenderWindow* myWindow;

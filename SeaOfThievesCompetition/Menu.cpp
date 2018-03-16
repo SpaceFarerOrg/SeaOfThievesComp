@@ -26,7 +26,6 @@ void CMenu::SetWindow(sf::RenderWindow * aWindow)
 
 void CMenu::Update()
 {
-	HandleWindowEvents();
 
 	myCamera.setCenter((float)myWindow->getSize().x/2.f, (float)myWindow->getSize().y/2.f);
 	myWindow->setView(myCamera);
@@ -45,18 +44,4 @@ void CMenu::Update()
 bool CMenu::GetShouldRun() const
 {
 	return myShouldRun;
-}
-
-void CMenu::HandleWindowEvents()
-{
-	sf::Event e;
-
-	while (myWindow->pollEvent(e))
-	{
-		if (e.type == sf::Event::Closed)
-		{
-			myShouldRun = false;
-		}
-	}
-
 }

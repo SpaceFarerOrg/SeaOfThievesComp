@@ -84,7 +84,6 @@ private:
 
 	CAnimation myAnimation;
 
-	void HandleWindowEvents();
 	bool myShouldRun;
 
 	sf::Music myBackgroundMusic;

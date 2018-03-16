@@ -70,10 +70,11 @@ void CGame::Update()
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
 	myDeltaTimer.restart();
 
+	dt = dt > 1.f ? 1.f : dt;
+
 	myCamera.setCenter(myShip.GetPosition());
 	myWindow->setView(myCamera);
 
-	HandleWindowEvents();
 
 
 	for (CAnimation& wave : myWaves)
@@ -169,7 +170,7 @@ void CGame::CreateWorld()
 		if (myMap[i] == GOLD_ISLAND)
 		{
 			myIslands.push_back(CIsland());
-			myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], myTextureBank[(size_t)ETexture::Cross], TranslateMapPointToWorldPosition(i), true);
+			myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], TranslateMapPointToWorldPosition(i), true);
 			myGoldIslandIndex = myIslands.size() - 1;
 		}
 
@@ -196,7 +197,7 @@ void CGame::CreateWorld()
 			{
 				myMap[i] = ISLAND;
 				myIslands.push_back(CIsland());
-				myIslands.back().Init(myTextureBank[(size_t)ETexture::Island], myTextureBank[(size_t)ETexture::Cross], TranslateMapPointToWorldPosition(i));
+				myIslands.back().Init(myTextureBank[(size_t)ETexture::Island], TranslateMapPointToWorldPosition(i));
 				myIslands.back().SetIndexInMap(i);
 			}
 		}
@@ -329,19 +330,6 @@ void CGame::LoadTextures()
 	myTextureBank[(size_t)ETexture::Map].loadFromFile("sprites/map.png");
 	myTextureBank[(size_t)ETexture::MapIsland].loadFromFile("sprites/mapIsland.png");
 	myTextureBank[(size_t)ETexture::MapGoldIsland].loadFromFile("sprites/mapGoldIsland.png");
-}
-
-void CGame::HandleWindowEvents()
-{
-	sf::Event e;
-
-	while (myWindow->pollEvent(e))
-	{
-		if (e.type == sf::Event::Closed)
-		{
-			myShouldRun = false;
-		}
-	}
 }
 
 bool CGame::GetShouldRun() const

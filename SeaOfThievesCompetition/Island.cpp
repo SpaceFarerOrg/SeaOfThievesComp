@@ -11,11 +11,8 @@ CIsland::CIsland()
 	myHasTreasure = false;
 }
 
-void CIsland::Init(sf::Texture & aTexture, sf::Texture& myCrossTexture, const sf::Vector2f & aPosition, bool aIsGoldIsland)
+void CIsland::Init(sf::Texture & aTexture, const sf::Vector2f & aPosition, bool aIsGoldIsland)
 {
-	myCrossSprite.setTexture(myCrossTexture);
-	myCrossSprite.setPosition(aPosition.x + 32.f, aPosition.y + 32.f);
-
 	mySprite.setTexture(aTexture);
 	mySprite.setPosition(aPosition);
 
@@ -75,9 +72,4 @@ void CIsland::Loot()
 void CIsland::Render(sf::RenderWindow & aWindow)
 {
 	aWindow.draw(mySprite);
-
-	if (myHasTreasure)
-	{
-		aWindow.draw(myCrossSprite);
-	}
 }

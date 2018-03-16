@@ -17,7 +17,6 @@ public:
 
 	bool GetShouldRun() const;
 private:
-	void HandleWindowEvents();
 	bool myShouldRun;
 
 	sf::RenderWindow* myWindow;

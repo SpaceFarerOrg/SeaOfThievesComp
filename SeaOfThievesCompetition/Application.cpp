@@ -1,11 +1,14 @@
 #include "Application.h"
 #include <SFML\Graphics\RenderWindow.hpp>
+#include <SFML\Window\Event.hpp>
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
 
 void CApplication::Init()
 {
+	myShouldClose = false;
+	myIsWindowActive = true;
 	myWindow = new sf::RenderWindow();
 
 	sf::VideoMode vm;
@@ -14,7 +17,7 @@ void CApplication::Init()
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
 
 	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::Close);
-	
+
 	myGame.SetWindow(myWindow);
 	myMenu.SetWindow(myWindow);
 
@@ -25,22 +28,27 @@ void CApplication::Init()
 
 void CApplication::Update()
 {
-	myWindow->clear({ 95,189,197 });
-	if (myHasChangedState)
+	if (myIsWindowActive)
 	{
-		myHasChangedState = false;
-		myGame.GenerateWorld();
+		myWindow->clear({ 95,189,197 });
+		if (myHasChangedState)
+		{
+			myHasChangedState = false;
+			myGame.GenerateWorld();
+		}
+
+		if (myIsInGame)
+		{
+			myGame.Update();
+		}
+		else
+		{
+			myMenu.Update();
+		}
+		myWindow->display();
 	}
 
-	if (myIsInGame)
-	{
-		myGame.Update();
-	}
-	else
-	{
-		myMenu.Update();
-	}
-	myWindow->display();
+	HandleWindowEvents();
 }
 
 void CApplication::StartGame()
@@ -57,11 +65,28 @@ void CApplication::EnterMenu()
 
 bool CApplication::GetShouldRun() const
 {
-	if (myIsInGame)
+	return !myShouldClose;
+}
+
+void CApplication::HandleWindowEvents()
+{
+	sf::Event e;
+
+	while (myWindow->pollEvent(e))
 	{
-		return myGame.GetShouldRun();
+		if (e.type == sf::Event::Closed)
+		{
+			myShouldClose = true;
+		}
+
+		if (e.type == sf::Event::LostFocus)
+		{
+			myIsWindowActive = false;
+		}
+
+		if (e.type == sf::Event::GainedFocus)
+		{
+			myIsWindowActive = true;
+		}
 	}
-
-
-	return myMenu.GetShouldRun();
 }

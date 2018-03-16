@@ -11,7 +11,7 @@ class CIsland
 {
 public:
 	CIsland();
-	void Init(sf::Texture& aTexture, sf::Texture& aCrossTexture,const sf::Vector2f& aPosition, bool aIsGoldIsland = false);
+	void Init(sf::Texture& aTexture, const sf::Vector2f& aPosition, bool aIsGoldIsland = false);
 	
 	bool IsColliding(const sf::Vector2f& aOtherCollider);
 	bool IsInLootingRange(const sf::Vector2f& aPosition);
@@ -30,7 +30,6 @@ private:
 	bool myIsGoldIsland;
 	bool myHasTreasure;
 	sf::Sprite mySprite;
-	sf::Sprite myCrossSprite;
 	sf::Transformable myTransform;
 
 };
