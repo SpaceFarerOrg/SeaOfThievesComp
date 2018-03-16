@@ -13,6 +13,7 @@
 #include <SFML\Graphics\View.hpp>
 #include "Defines.h"
 #include "UIMap.h"
+#include "Whirlwind.h"
 
 namespace sf
 {
@@ -41,6 +42,7 @@ private:
 		Map,
 		MapIsland,
 		MapGoldIsland,
+		Whirlwind,
 		Count,
 	};
 
@@ -50,46 +52,54 @@ private:
 	void CheckShipCollisionVsIslands();
 	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
+	void LoadTextures();
+
+	void PlaceWhirlwind(int aIndex = -1);
+	void UpdateWhirlwinds(float aDT);
+
+	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
+
 	bool myPlayerCanLoot;
 	bool myPlayerCanSell;
+	bool myIsOutsideOfMap;
+	bool myShouldRun;
 
+	float myIsOutsideOfMapTimer;
+	
 	sf::Text myPressSpaceToLoot;
 	sf::Text myPressSpaceToSellTreasure;
 	sf::Text myYouAreOutsideOfMap;
 	sf::Font myFont;
 
-	bool myIsOutsideOfMap;
-	float myIsOutsideOfMapTimer;
-
-	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
 	std::vector<CIsland> myIslands;
 	std::vector<CAnimation> myWaves;
+
+	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
+	std::array<sf::Texture, (size_t)ETexture::Count> myTextureBank;
+	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	sf::RenderWindow* myWindow;
 
 	CTreasury myTreasury;
 
-	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
-
 	sf::View myCamera;
 
-	void LoadTextures();
-
-	std::array<sf::Texture, (size_t)ETexture::Count> myTextureBank;
 	CShip myShip;
 
 	CUIMap myUIMap;
+	
+	CWhirlwind testWW;
 
 	size_t myGoldIslandIndex;
+	size_t mySpawnPointIndex;
 
-	CAnimation myAnimation;
-
-	bool myShouldRun;
+	float myTargetRightOffset;
+	float myCurrentRightOffset;
 
 	sf::Music myBackgroundMusic;
 	sf::Music myBackgroundSound;
-	sf::Sound myCashSound;
 	sf::SoundBuffer myCashSoundBuffer;
+	sf::Sound myCashSound;
 
 	sf::Clock myDeltaTimer;
 };

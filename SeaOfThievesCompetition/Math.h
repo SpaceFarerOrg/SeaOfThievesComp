@@ -29,6 +29,13 @@ namespace Math
 		return sqrtf(aVec.x * aVec.x + aVec.y * aVec.y);
 	}
 
+	static void Normalize(sf::Vector2f& aVec)
+	{
+		float l = Length(aVec);
+		aVec.x /= l;
+		aVec.y /= l;
+	}
+
 	static bool Chance(short aPercent)
 	{
 		std::uniform_int_distribution<> dist(0, 100);

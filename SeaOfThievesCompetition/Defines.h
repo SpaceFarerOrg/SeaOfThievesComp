@@ -6,3 +6,4 @@
 #define SPAWN_POSITION 1
 #define GOLD_ISLAND 2
 #define ISLAND 3
+#define WHIRLWIND_STAY_TIME 25.f

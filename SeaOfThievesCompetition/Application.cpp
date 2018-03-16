@@ -12,8 +12,10 @@ void CApplication::Init()
 	myWindow = new sf::RenderWindow();
 
 	sf::VideoMode vm;
-	vm.height = 896;
-	vm.width = 896;
+	vm = sf::VideoMode::getDesktopMode();
+	
+	//vm.height = 896;
+	//vm.width = 896;
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
 
 	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::Close);

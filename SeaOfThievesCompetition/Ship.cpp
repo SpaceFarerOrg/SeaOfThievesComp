@@ -8,7 +8,7 @@ void CShip::Init(sf::Texture & aTexture)
 {
 	mySprite.setTexture(aTexture);
 
-	mySprite.setOrigin({ 32.f, 32.f });
+	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
 
 	myAccelration = 100.f;
 	myTurnSpeed = 50.f;
@@ -68,10 +68,13 @@ void CShip::Update(float aDT)
 	}
 
 	sf::Vector2f direction;
-	direction.x = cosf(Math::ToRadians(myRotation - 90.f));
-	direction.y = sinf(Math::ToRadians(myRotation - 90.f));
+	direction.x = cosf(Math::ToRadians(myRotation));
+	direction.y = sinf(Math::ToRadians(myRotation));
+
 
 	myTransform.move(direction * mySpeed * aDT);
+	myTransform.move(myWhirlwindDrag * aDT);
+
 	myTransform.setRotation(myRotation);
 }
 
@@ -146,6 +149,11 @@ void CShip::SetHoldsTreasure(bool aDoesIt)
 bool CShip::GetHasTreasure() const
 {
 	return myHasTreasure;
+}
+
+void CShip::SetWhirlwindDrag(const sf::Vector2f & aDrag)
+{
+	myWhirlwindDrag = aDrag;
 }
 
 bool CShip::GetIsStill() const

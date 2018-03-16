@@ -139,6 +139,7 @@
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Treasury.cpp" />
     <ClCompile Include="UIMap.cpp" />
+    <ClCompile Include="Whirlwind.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Treasury.h" />
     <ClInclude Include="UIMap.h" />
+    <ClInclude Include="Whirlwind.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

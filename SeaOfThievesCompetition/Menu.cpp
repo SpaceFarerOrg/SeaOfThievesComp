@@ -27,6 +27,7 @@ void CMenu::SetWindow(sf::RenderWindow * aWindow)
 void CMenu::Update()
 {
 
+	myCamera.setSize(myWindow->getSize().x, myWindow->getSize().y);
 	myCamera.setCenter((float)myWindow->getSize().x/2.f, (float)myWindow->getSize().y/2.f);
 	myWindow->setView(myCamera);
 

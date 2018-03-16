@@ -5,6 +5,7 @@ CTreasury::CTreasury()
 {
 	myFont.loadFromFile("font/font.ttf");
 	myText.setFont(myFont);
+	myText.setCharacterSize(50);
 	myGold = 0;
 }
 
@@ -27,7 +28,7 @@ void CTreasury::Render(sf::RenderWindow & aWindow)
 
 	myText.setOrigin(ox, oy);
 
-	myText.setPosition(aWindow.getView().getCenter().x, aWindow.getView().getCenter().y - aWindow.getView().getSize().y / 2.f);
+	myText.setPosition(aWindow.getView().getCenter().x, aWindow.getView().getCenter().y - aWindow.getView().getSize().y / 2.f + 10.f);
 
 	aWindow.draw(myText);
 }

@@ -18,6 +18,7 @@ void CGame::Init()
 
 	myCashSoundBuffer.loadFromFile("audio/earnMoney.ogg");
 	myCashSound.setBuffer(myCashSoundBuffer);
+	myCashSound.setVolume(45);
 
 	myBackgroundMusic.openFromFile("audio/song.ogg");
 	myBackgroundMusic.setLoop(true);
@@ -63,19 +64,20 @@ void CGame::Init()
 
 	myShouldRun = true;
 
+	testWW.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
+
 }
 
 void CGame::Update()
 {
+
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
 	myDeltaTimer.restart();
 
 	dt = dt > 1.f ? 1.f : dt;
 
-	myCamera.setCenter(myShip.GetPosition());
+	myCamera.setSize(myWindow->getSize().x, myWindow->getSize().y);
 	myWindow->setView(myCamera);
-
-
 
 	for (CAnimation& wave : myWaves)
 	{
@@ -93,29 +95,35 @@ void CGame::Update()
 	myShip.Update(dt);
 	myShip.Render(*myWindow);
 
-	myAnimation.Update(dt);
-	myAnimation.Render(*myWindow);
+	UpdateWhirlwinds(dt);
 
 	myTreasury.Render(*myWindow);
 
 	ShowPressButtonPrompt();
 	EnsurePlayerKeepingOnMap(dt);
 
+	myTargetRightOffset = 0.f;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M))
 	{
 		myUIMap.Render(*myWindow);
+		myTargetRightOffset = myUIMap.GetWidth() / 2.f;
 	}
+
+	myCurrentRightOffset = Math::Lerp(myCurrentRightOffset, myTargetRightOffset, 10.f * dt);
+
+	myCamera.setCenter(myShip.GetPosition().x - myCurrentRightOffset, myShip.GetPosition().y);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape) || myShip.GetIsDead())
 	{
 		CApplication::EnterMenu();
 	}
-
-
 }
 
 void CGame::GenerateWorld()
 {
+	myCurrentRightOffset = 0.f;
+
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
 		if (myMap[i] == ISLAND)
@@ -125,6 +133,8 @@ void CGame::GenerateWorld()
 	}
 
 	myShip.Respawn();
+
+	myWhirlwinds.clear();
 
 	myTreasury.SetGold(0);
 	myIslands.clear();
@@ -177,6 +187,7 @@ void CGame::CreateWorld()
 		if (myMap[i] == SPAWN_POSITION)
 		{
 			myShip.SetPosition(TranslateMapPointToWorldPosition(i));
+			mySpawnPointIndex = i;
 		}
 
 		if (myMap[i] == SEA)
@@ -199,6 +210,10 @@ void CGame::CreateWorld()
 				myIslands.push_back(CIsland());
 				myIslands.back().Init(myTextureBank[(size_t)ETexture::Island], TranslateMapPointToWorldPosition(i));
 				myIslands.back().SetIndexInMap(i);
+			}
+			else if (Math::Chance(1))
+			{
+				PlaceWhirlwind();
 			}
 		}
 	}
@@ -243,7 +258,6 @@ void CGame::CheckShipCollisionVsIslands()
 				}
 			}
 		}
-
 	}
 }
 
@@ -327,9 +341,81 @@ void CGame::LoadTextures()
 	myTextureBank[(size_t)ETexture::GoldIsland].loadFromFile("sprites/goldIsland.png");
 	myTextureBank[(size_t)ETexture::Cross].loadFromFile("sprites/cross.png");
 
+	myTextureBank[(size_t)ETexture::Whirlwind].loadFromFile("sprites/whirlwind.png");
+
 	myTextureBank[(size_t)ETexture::Map].loadFromFile("sprites/map.png");
 	myTextureBank[(size_t)ETexture::MapIsland].loadFromFile("sprites/mapIsland.png");
 	myTextureBank[(size_t)ETexture::MapGoldIsland].loadFromFile("sprites/mapGoldIsland.png");
+
+	for (size_t i = 0; i < myTextureBank.size(); ++i)
+	{
+		myTextureBank[i].setSmooth(true);
+	}
+}
+
+void CGame::PlaceWhirlwind(int aIndex)
+{
+	if (aIndex == -1)
+	{
+		myWhirlwinds.push_back(std::pair<CWhirlwind, float>(CWhirlwind(), 0.f));
+		myWhirlwinds.back().first.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
+	}
+
+	auto& ww = aIndex == -1 ? myWhirlwinds.back() : myWhirlwinds[aIndex];
+	ww.second = 0.f;
+
+
+	bool placed = false;
+	while (!placed)
+	{
+		int indexInMap = Math::GetRandomInRange(0, myMap.size() - 1);
+
+		if (myMap[indexInMap] == SEA)
+		{
+			if (Math::Length(TranslateMapPointToWorldPosition(indexInMap) - TranslateMapPointToWorldPosition(mySpawnPointIndex)) > 700.f)
+			{
+				placed = true;
+				ww.first.SetShouldFade(false);
+				ww.first.SetPosition(TranslateMapPointToWorldPosition(indexInMap));
+			}
+		}
+
+	}
+}
+
+void CGame::UpdateWhirlwinds(float aDT)
+{
+	sf::Vector2f drag;
+
+	bool shouldKillPlayer = false;
+
+	for (size_t i = 0; i < myWhirlwinds.size(); ++i)
+	{
+		myWhirlwinds[i].first.Update(aDT);
+		myWhirlwinds[i].second += aDT;
+
+		if (myWhirlwinds[i].second >= WHIRLWIND_STAY_TIME)
+		{
+			myWhirlwinds[i].first.SetShouldFade(true);
+
+			if (myWhirlwinds[i].first.GetCanChangePosition())
+			{
+				PlaceWhirlwind(i);
+			}
+
+		}
+
+		drag += myWhirlwinds[i].first.GetDragTo(myShip.GetPosition(), shouldKillPlayer);
+
+		myWhirlwinds[i].first.Render(*myWindow);
+	}
+
+	if (shouldKillPlayer)
+	{
+		myShip.Sink();
+	}
+
+	myShip.SetWhirlwindDrag(drag);
 }
 
 bool CGame::GetShouldRun() const

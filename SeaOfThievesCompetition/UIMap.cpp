@@ -27,18 +27,21 @@ void CUIMap::Render(sf::RenderWindow & aWindow)
 {
 	CreateDrawableMap();
 
-	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width / 2.f, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
+	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
 	myGeneratedMapSprite.setPosition(aWindow.getView().getCenter());
 
 	aWindow.draw(myGeneratedMapSprite);
+}
+
+float CUIMap::GetWidth() const
+{
+	return myGeneratedMapSprite.getGlobalBounds().width;
 }
 
 void CUIMap::CreateDrawableMap()
 {
 	myGeneratedMap.clear({ 0,0,0,0 });
 	myGeneratedMap.draw(myMapSprite);
-
-
 
 	int chunkSize = 700 / MAP_AXIS_SIZE;
 	float offsetFromEdge = (myMapSprite.getGlobalBounds().width - 700.f) / 2.f;

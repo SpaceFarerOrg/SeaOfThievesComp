@@ -38,6 +38,8 @@ public:
 	void SetHoldsTreasure(bool aDoesIt);
 	bool GetHasTreasure() const;
 
+	void SetWhirlwindDrag(const sf::Vector2f& aDrag);
+
 	bool GetIsStill() const;
 
 	void SetPosition(const sf::Vector2f& aPosition);
@@ -50,6 +52,8 @@ private:
 	float myCurrentOpacity;
 
 	std::array<CAnimation, (size_t)EWaves::Count> myWaves;
+
+	sf::Vector2f myWhirlwindDrag;
 
 	sf::Transformable myTransform;
 	sf::Sprite mySprite;
