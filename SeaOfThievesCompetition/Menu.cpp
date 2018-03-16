@@ -10,11 +10,26 @@ void CMenu::Init()
 	myText.setFont(myFont);
 
 	/*Menu Text*/
-	sf::String a = "Press enter to generate island and start\n";
-	sf::String controllers = "\nControlls:\n\tSpeed Up & Down - Up & Down Arrow\n\tTurn Left & Right - Left & Right Arrow\n\tMap - M\n\tReturn To Menu - Esc";
-	sf::String about = "\n\nCollect bounty, sell for gold at the habited island\nUpgrade your ship and become a Pirate Legend";
+	//sf::String a = "Press enter to generate island and start\n";
+	//sf::String controllers = "\nControlls:\n\tSpeed Up & Down - Up & Down Arrow\n\tTurn Left & Right - Left & Right Arrow\n\tMap - M\n\tReturn To Menu - Esc";
+	//sf::String about = "\n\nCollect bounty, sell for gold at the habited island\nUpgrade your ship and become a Pirate Legend";
+	//
+	//myText.setString(a + controllers + about);
 
-	myText.setString(a + controllers + about);
+	myMenuTexture.loadFromFile("sprites/controls.png");
+	myMenuSprite.setTexture(myMenuTexture);
+
+	myPressEnterTexture.loadFromFile("sprites/pressEnter.png");
+	myPressEnterPrompt.setTexture(myPressEnterTexture);
+
+	myPressEnterPrompt.setOrigin(myPressEnterTexture.getSize().x / 2, myPressEnterTexture.getSize().y / 2);
+
+	myMenuSprite.setPosition(0, 0);
+	myMenuSprite.setScale((float)myWindow->getSize().x / myMenuTexture.getSize().x, (float)myWindow->getSize().y / myMenuTexture.getSize().y);
+
+	myPressEnterPrompt.setScale(myMenuSprite.getScale());
+
+	myPressEnterPrompt.setPosition(myWindow->getSize().x / 2, myWindow->getSize().y - 1 * myPressEnterTexture.getSize().y);
 
 	myShouldRun = true;
 }
@@ -31,15 +46,17 @@ void CMenu::Update()
 	myCamera.setCenter((float)myWindow->getSize().x/2.f, (float)myWindow->getSize().y/2.f);
 	myWindow->setView(myCamera);
 
-	myText.setOrigin(myText.getGlobalBounds().width / 2.f, myText.getGlobalBounds().height / 2.f);
-	myText.setPosition(myCamera.getCenter());
+	//myText.setOrigin(myText.getGlobalBounds().width / 2.f, myText.getGlobalBounds().height / 2.f);
+	//myText.setPosition(myCamera.getCenter());
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
 	{
 		CApplication::StartGame();
 	}
 
-	myWindow->draw(myText);
+	//myWindow->draw(myText);
+	myWindow->draw(myMenuSprite);
+	myWindow->draw(myPressEnterPrompt);
 }
 
 bool CMenu::GetShouldRun() const

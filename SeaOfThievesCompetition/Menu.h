@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML\Graphics\View.hpp>
 #include <SFML\Graphics\Text.hpp>
+#include "SFML\Graphics\Sprite.hpp"
 
 namespace sf
 {
@@ -23,4 +24,10 @@ private:
 	sf::View myCamera;
 	sf::Font myFont;
 	sf::Text myText;
+
+	sf::Sprite myMenuSprite;
+	sf::Texture myMenuTexture;
+
+	sf::Sprite myPressEnterPrompt;
+	sf::Texture myPressEnterTexture;
 };
