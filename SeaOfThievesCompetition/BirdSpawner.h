@@ -26,11 +26,16 @@ private:
 		std::vector<sf::Vector2f> myPositions;
 	};
 
-	SFormation myCurrentFormation;
+	SFormation* myCurrentFormation;
 	sf::Vector2f myPosition;
 	sf::Vector2f myDirection;
 	float mySpeed;
 
 	sf::Texture myBirdTexture;
 	sf::Sprite myBirdSprite;
+
+	std::vector<SFormation> myFormationPool;
+
+	SFormation* GetRandomFormation();
+	void CreateFormations();
 };
