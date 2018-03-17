@@ -138,6 +138,8 @@
     <ClCompile Include="Island.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
+    <ClCompile Include="MultiplayerShip.cpp" />
+    <ClCompile Include="Network.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Treasury.cpp" />
     <ClCompile Include="UIMap.cpp" />
@@ -153,6 +155,10 @@
     <ClInclude Include="Island.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Menu.h" />
+    <ClInclude Include="MultiplayerShip.h" />
+    <ClInclude Include="Network.h" />
+    <ClInclude Include="NetworkMessages.h" />
+    <ClInclude Include="NpcShip.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Treasury.h" />
     <ClInclude Include="UIMap.h" />

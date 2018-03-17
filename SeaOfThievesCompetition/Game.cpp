@@ -4,6 +4,7 @@
 #include <SFML\System\Vector2.hpp>
 #include "Math.h"
 #include "Application.h"
+#include "Network.h"
 #include <iostream>
 
 void CGame::SetWindow(sf::RenderWindow * aWindow)
@@ -63,6 +64,9 @@ void CGame::Init()
 
 	myUIMap.Init(myTextureBank[(size_t)ETexture::Map], myTextureBank[(size_t)ETexture::MapIsland], myTextureBank[(size_t)ETexture::MapGoldIsland], myTextureBank[(size_t)ETexture::Cross], myMap);
 
+	myShipSprite.setTexture(myTextureBank[(size_t)ETexture::Ship]);
+	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
+
 	myShouldRun = true;
 
 	testWW.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
@@ -73,7 +77,6 @@ void CGame::Init()
 
 void CGame::Update()
 {
-
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
 	myDeltaTimer.restart();
 
@@ -88,6 +91,8 @@ void CGame::Update()
 		wave.Render(*myWindow);
 	}
 
+	UpdateWhirlwinds(dt);
+
 	for (CIsland& island : myIslands)
 	{
 		island.Render(*myWindow);
@@ -100,7 +105,7 @@ void CGame::Update()
 	myShip.Update(dt);
 	myShip.Render(*myWindow);
 
-	UpdateWhirlwinds(dt);
+	DisplayOtherShips();
 
 	myTreasury.Render(*myWindow);
 
@@ -135,16 +140,22 @@ void CGame::Update()
 	}
 }
 
+void CGame::DisplayOtherShips()
+{
+	const std::vector<SClient> otherShips = CNetworking::GetInstance().GetPlayerList();
+
+	for (const SClient& other : otherShips)
+	{
+		myShipSprite.setPosition(other.myTransform.getPosition());
+		myShipSprite.setRotation(other.myTransform.getRotation());
+
+		myWindow->draw(myShipSprite);
+	}
+}
+
 void CGame::GenerateWorld()
 {
-
-	for (size_t i = 0; i < myMap.size(); ++i)
-	{
-		if (myMap[i] == ISLAND)
-		{
-			myMap[i] = 0;
-		}
-	}
+	ClearMapFromIslands();
 
 	myShip.Respawn();
 
@@ -155,6 +166,40 @@ void CGame::GenerateWorld()
 	myWaves.clear();
 	CreateWorld();
 	PlaceTreasure();
+	myUIMap.SetMap(myMap);
+}
+
+void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+{
+	myIslands.clear();
+	myWhirlwinds.clear();
+	ClearMapFromIslands();
+
+	myMap = aMap;
+
+	for (size_t i = 0; i < myMap.size(); ++i)
+	{
+		ETexture islandTexture;
+		if (myMap[i] == ISLAND_1)
+		{
+			islandTexture = ETexture::Island;
+			myIslands.push_back(CIsland());
+			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+		}
+		if (myMap[i] == ISLAND_2)
+		{
+			islandTexture = ETexture::IslandTwo;
+			myIslands.push_back(CIsland());
+			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+		}
+		if (myMap[i] == ISLAND_3)
+		{
+			islandTexture = ETexture::IslandThree;
+			myIslands.push_back(CIsland());
+			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+		}
+	}
+
 	myUIMap.SetMap(myMap);
 }
 
@@ -185,12 +230,6 @@ void CGame::CreateWorld()
 {
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
-		//if (myMap[i] == ISLAND)
-		//{
-		//	myIslands.push_back(CIsland());
-		//	myIslands.back().Init(myTextureBank[(size_t)ETexture::Island], myTextureBank[(size_t)ETexture::Cross], TranslateMapPointToWorldPosition(i));
-		//}
-
 		if (myMap[i] == GOLD_ISLAND)
 		{
 			myIslands.push_back(CIsland());
@@ -206,69 +245,59 @@ void CGame::CreateWorld()
 
 		if (myMap[i] == SEA)
 		{
-			if (Math::Chance(25))
-			{
-				myWaves.push_back(CAnimation());
-				myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 64, 0.5f);
-				myWaves.back().RandomizeStartFrame();
-
-				sf::Vector2f position = TranslateMapPointToWorldPosition(i);
-				position.x += 32.f;
-				position.y += 32.f;
-
-				myWaves.back().SetPosition(position);
-			}
-			else if (Math::Chance(5))
-			{
-				myMap[i] = ISLAND;
-				myIslands.push_back(CIsland());
-				myIslands.back().Init(myTextureBank[(size_t)ETexture::Island], TranslateMapPointToWorldPosition(i));
-				myIslands.back().SetIndexInMap(i);
-			}
-			else if (Math::Chance(1))
+			if (Math::Chance(1))
 			{
 				PlaceWhirlwind();
 			}
 		}
 	}
+
+	CreateIslands();
+	CreateWaves();
+
+	CNetworking::GetInstance().SetMap(myMap);
 }
 
 void CGame::CheckShipCollisionVsIslands()
 {
-	sf::FloatRect shipRect = myShip.GetCollider();
 
 	myPlayerCanLoot = false;
 	myPlayerCanSell = false;
 
+	const std::array<sf::Vector2f, 4>& cp = myShip.GetCollisionPoints();
+
 	for (size_t i = 0; i < myIslands.size(); ++i)
 	{
-		if (myIslands[i].IsColliding(myShip.GetPosition()))
+		for (const sf::Vector2f& pos : cp)
 		{
-			myShip.Sink();
-		}
-		else if (myIslands[i].HasTreasure())
-		{
-			if (myIslands[i].IsInLootingRange(myShip.GetPosition()))
+			if (myIslands[i].IsColliding(pos))
 			{
-				myPlayerCanLoot = true;
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
+				myShip.Sink();
+			}
+			else if (myIslands[i].HasTreasure())
+			{
+				if (myIslands[i].IsInLootingRange(pos))
 				{
-					myIslands[i].Loot();
-					myShip.SetHoldsTreasure(true);
+					myPlayerCanLoot = true;
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
+					{
+						myIslands[i].Loot();
+						myShip.SetHoldsTreasure(true);
+					}
 				}
 			}
-		}
-		else if (myIslands[i].IsGoldIsland() && myShip.GetHasTreasure())
-		{
-			if (myIslands[i].IsInLootingRange(myShip.GetPosition()))
+			else if (myIslands[i].IsGoldIsland() && myShip.GetHasTreasure())
 			{
-				myPlayerCanSell = true;
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
+				if (myIslands[i].IsInLootingRange(pos))
 				{
-					myShip.SetHoldsTreasure(false);
-					myTreasury.GiveGold(100);
-					PlaceTreasure();
-					myCashSound.play();
+					myPlayerCanSell = true;
+					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
+					{
+						myShip.SetHoldsTreasure(false);
+						myTreasury.GiveGold(100);
+						PlaceTreasure();
+						myCashSound.play();
+					}
 				}
 			}
 		}
@@ -351,9 +380,12 @@ void CGame::LoadTextures()
 	myTextureBank[(size_t)ETexture::Ship].loadFromFile("sprites/playerShip.png");
 	myTextureBank[(size_t)ETexture::Waves].loadFromFile("sprites/waterWaves.png");
 	myTextureBank[(size_t)ETexture::ShipWavesBig].loadFromFile("sprites/shipWavesBig.png");
-	myTextureBank[(size_t)ETexture::Island].loadFromFile("sprites/island1.png");
 	myTextureBank[(size_t)ETexture::GoldIsland].loadFromFile("sprites/goldIsland.png");
 	myTextureBank[(size_t)ETexture::Cross].loadFromFile("sprites/cross.png");
+
+	myTextureBank[(size_t)ETexture::Island].loadFromFile("sprites/island1.png");
+	myTextureBank[(size_t)ETexture::IslandTwo].loadFromFile("sprites/island2.png");
+	myTextureBank[(size_t)ETexture::IslandThree].loadFromFile("sprites/island3.png");
 
 	myTextureBank[(size_t)ETexture::Whirlwind].loadFromFile("sprites/whirlwind.png");
 
@@ -364,6 +396,67 @@ void CGame::LoadTextures()
 	for (size_t i = 0; i < myTextureBank.size(); ++i)
 	{
 		myTextureBank[i].setSmooth(true);
+	}
+}
+
+void CGame::ClearMapFromIslands()
+{
+	for (int& pointInMap : myMap)
+	{
+		if (pointInMap != SPAWN_POSITION && pointInMap != GOLD_ISLAND)
+		{
+			pointInMap = 0;
+		}
+	}
+}
+
+void CGame::CreateIslands()
+{
+	size_t numberOfIsles = Math::GetRandomInRange(MIN_ISLAND_COUNT, MAX_ISLAND_COUNT);
+
+	for (size_t i = 0; i < numberOfIsles; ++i)
+	{
+		bool placedIsland = false;
+
+		while (!placedIsland)
+		{
+			size_t indexInMap = Math::GetRandomInRange(0, myMap.size() - 1);
+
+			if (indexInMap != mySpawnPointIndex && indexInMap != myGoldIslandIndex && myMap[indexInMap] < ISLAND_1)
+			{
+				size_t texture = Math::GetRandomInRange(0, 2);
+
+				size_t islandType = ISLAND_1 + texture;
+
+				size_t firstIsle = (size_t)ETexture::Island;
+
+				firstIsle += texture;
+
+				myMap[indexInMap] = islandType;
+				myIslands.push_back(CIsland());
+				myIslands.back().Init(myTextureBank[firstIsle], TranslateMapPointToWorldPosition(indexInMap));
+				myIslands.back().SetIndexInMap(indexInMap);
+
+				placedIsland = true;
+			}
+
+		}
+
+	}
+
+}
+
+void CGame::CreateWaves()
+{
+	for (size_t i = 0; i < myMap.size(); ++i)
+	{
+		if (myMap[i] != ISLAND && i != myGoldIslandIndex)
+		{
+			myWaves.push_back(CAnimation());
+			myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 600, 0.5f);
+			myWaves.back().RandomizeStartFrame();
+			myWaves.back().SetPosition(TranslateMapPointToWorldPosition(i));
+		}
 	}
 }
 

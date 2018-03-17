@@ -3,6 +3,7 @@
 #include <SFML\Graphics\Text.hpp>
 #include "SFML\Graphics\Sprite.hpp"
 #include "SFML\System\Clock.hpp"
+#include "Network.h"
 #include "Button.h"
 
 namespace sf
@@ -29,6 +30,8 @@ private:
 	};
 
 	bool myShouldRun;
+
+	bool myIsNetwork;
 
 	sf::RenderWindow* myWindow;
 	sf::View myCamera;

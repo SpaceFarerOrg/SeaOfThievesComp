@@ -5,6 +5,10 @@
 #include <array>
 #include <SFML\Graphics\Rect.hpp>
 
+#define CC_MID 0
+#define CC_FRONT 1
+#define CC_END 2
+
 namespace sf
 {
 	class RenderWindow;
@@ -27,12 +31,12 @@ public:
 
 	void Respawn();
 
-	sf::Rect<float> GetCollider() const;
 	void Sink();
 
 	bool GetIsDead() const;
 	bool GetIsSinking() const;
 
+	const std::array<sf::Vector2f, 4>& GetCollisionPoints() const;
 	bool GetIsControlled() const;
 
 	sf::Vector2f GetPosition() const;
@@ -52,6 +56,9 @@ private:
 	bool myIsSinking;
 	bool myIsDead;
 	float myCurrentOpacity;
+	
+	std::array<sf::Vector2f, 4> myCollisionPoints;
+	std::array<sf::Vector2f, 4> myTransformedCP;
 
 	std::array<CAnimation, (size_t)EWaves::Count> myWaves;
 

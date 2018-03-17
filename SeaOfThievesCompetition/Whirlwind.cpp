@@ -39,14 +39,7 @@ void CWhirlwind::Update(float aDT)
 
 	mySprite.setScale(myCurrentScale, myCurrentScale);
 
-	myRotation += 50.f * aDT;
-
-	if (myRotation > 360.f)
-	{
-		float diff = myRotation - 360.f;
-
-		myRotation = diff;
-	}
+	myRotation -= 50.f * aDT;
 
 	mySprite.setRotation(myRotation);
 }
@@ -96,6 +89,7 @@ sf::Vector2f CWhirlwind::GetDragTo(const sf::Vector2f & aPosition, bool& aShould
 	drag = mySprite.getPosition() - aPosition;
 	Math::Normalize(drag);
 	drag *= (600.f) * myCurrentScale - distance;
+	drag *= 0.75f;
 
 	if (distance < 1.f)
 	{

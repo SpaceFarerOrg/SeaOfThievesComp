@@ -1,6 +1,8 @@
 #pragma once
 #include <SFML\Graphics\Sprite.hpp>
 #include <SFML\System\Vector2.hpp>
+#include "Defines.h"
+#include <sfml\Graphics\CircleShape.hpp>
 
 namespace sf
 {
@@ -31,5 +33,8 @@ private:
 	bool myHasTreasure;
 	sf::Sprite mySprite;
 	sf::Transformable myTransform;
+
+	float myRangeToLoot;
+	float myRangeToDie;
 
 };

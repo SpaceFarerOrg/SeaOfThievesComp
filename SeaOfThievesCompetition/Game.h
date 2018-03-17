@@ -27,8 +27,10 @@ public:
 	void SetWindow(sf::RenderWindow* aWindow);
 	void Init();
 	void Update();
+	void DisplayOtherShips();
 
 	void GenerateWorld();
+	void LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 
 	bool GetShouldRun() const;
 private:
@@ -36,6 +38,8 @@ private:
 	{
 		Ship,
 		Island,
+		IslandTwo,
+		IslandThree,
 		GoldIsland,
 		Waves,
 		ShipWavesBig,
@@ -54,6 +58,11 @@ private:
 	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
 	void LoadTextures();
+
+	void ClearMapFromIslands();
+
+	void CreateIslands();
+	void CreateWaves();
 
 	void PlaceWhirlwind(int aIndex = -1);
 	void UpdateWhirlwinds(float aDT);
@@ -79,7 +88,11 @@ private:
 	std::array<sf::Texture, (size_t)ETexture::Count> myTextureBank;
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
+	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
+
+
 	sf::RenderWindow* myWindow;
+	sf::Sprite myShipSprite;
 
 	CTreasury myTreasury;
 

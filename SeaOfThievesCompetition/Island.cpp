@@ -2,9 +2,6 @@
 #include <SFML\Graphics\RenderWindow.hpp>
 #include "Math.h"
 
-#define RANGE_TO_LOOT 95.f
-#define RANGE_TO_SINK 64.f
-
 CIsland::CIsland()
 {
 	myIsGoldIsland = false;
@@ -15,23 +12,25 @@ void CIsland::Init(sf::Texture & aTexture, const sf::Vector2f & aPosition, bool 
 {
 	mySprite.setTexture(aTexture);
 	mySprite.setPosition(aPosition);
+	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
+
+	myRangeToLoot = (mySprite.getGlobalBounds().width / 2.f) + 70.f;
+	myRangeToDie = (mySprite.getGlobalBounds().width / 3.5f);
 
 	myIsGoldIsland = aIsGoldIsland;
 }
 
 bool CIsland::IsColliding(const sf::Vector2f& aPosition)
 {
-	sf::Vector2f islandPos = { mySprite.getPosition().x + 64.f, mySprite.getPosition().y + 64.f };
-	return Math::Length(islandPos-aPosition) < RANGE_TO_SINK;
+	sf::Vector2f islandPos = mySprite.getPosition();
+	return Math::Length(islandPos-aPosition) < myRangeToDie;
 }
 
 bool CIsland::IsInLootingRange(const sf::Vector2f & aPosition)
 {
 	sf::Vector2f positionToCheckFrom = mySprite.getPosition();
-	positionToCheckFrom.x += 64.f;
-	positionToCheckFrom.y += 64.f;
 
-	if (Math::Length(positionToCheckFrom - aPosition) < RANGE_TO_LOOT)
+	if (Math::Length(positionToCheckFrom - aPosition) < myRangeToLoot)
 	{
 		return true;
 	}

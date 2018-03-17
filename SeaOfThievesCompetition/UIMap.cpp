@@ -64,7 +64,9 @@ void CUIMap::CreateDrawableMap()
 		float posX = (float)((i % MAP_AXIS_SIZE)*chunkSize) + offsetFromEdge;
 		float posY = (float)((i / MAP_AXIS_SIZE)*chunkSize) + offsetFromEdge;
 		
-		if (myMap[i] == ISLAND)
+		bool isIsland = myMap[i] == ISLAND_1 || myMap[i] == ISLAND_2 || myMap[i] == ISLAND_3;
+
+		if (isIsland)
 		{
 			myIslandSprite.setPosition(posX, posY);
 			myGeneratedMap.draw(myIslandSprite);
