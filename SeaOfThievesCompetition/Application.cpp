@@ -2,6 +2,7 @@
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML\Window\Event.hpp>
 #include "Button.h"
+#include "SFML\Window\Mouse.hpp"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
@@ -30,6 +31,12 @@ void CApplication::Init()
 	myGame.Init();
 	myMenu.Init();
 
+	myCursorTexture.loadFromFile("sprites/cursor.png");
+	myCursorSprite.setTexture(myCursorTexture);
+
+	myWindow->setMouseCursorVisible(false);
+
+	myScreenSpaceView = myWindow->getView();
 	myNetworkThread = std::thread([&]()->void { UpdateNetworking(); });
 }
 
@@ -62,6 +69,11 @@ void CApplication::Update()
 		{
 			myMenu.Update();
 		}
+
+		sf::Vector2i mPos = sf::Mouse::getPosition(*myWindow);
+		myCursorSprite.setPosition(mPos.x, mPos.y);
+		myWindow->setView(myScreenSpaceView);
+		myWindow->draw(myCursorSprite);
 
 		myWindow->display();
 	}

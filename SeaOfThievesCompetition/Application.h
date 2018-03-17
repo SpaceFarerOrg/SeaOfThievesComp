@@ -1,6 +1,7 @@
 #pragma once
 #include "Game.h"
 #include "Menu.h"
+#include "SFML\Graphics\Sprite.hpp"
 #include <SFML\Network\UdpSocket.hpp>
 #include <thread>
 
@@ -35,4 +36,8 @@ private:
 	sf::RenderWindow* myWindow;
 	CGame myGame;
 	CMenu myMenu;
+
+	sf::Texture myCursorTexture;
+	sf::Sprite myCursorSprite;
+	sf::View myScreenSpaceView;
 };
