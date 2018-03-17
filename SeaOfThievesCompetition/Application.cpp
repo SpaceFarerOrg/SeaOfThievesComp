@@ -1,6 +1,7 @@
 #include "Application.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML\Window\Event.hpp>
+#include "Button.h"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
@@ -20,12 +21,14 @@ void CApplication::Init()
 
 	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::Close);
 
+	CButton::SetWindow(myWindow);
+	CButton::SetFont("font/font.ttf");
+
 	myGame.SetWindow(myWindow);
 	myMenu.SetWindow(myWindow);
 
 	myGame.Init();
 	myMenu.Init();
-
 }
 
 void CApplication::Update()

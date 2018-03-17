@@ -22,11 +22,11 @@ void CGame::Init()
 
 	myBackgroundMusic.openFromFile("audio/song.ogg");
 	myBackgroundMusic.setLoop(true);
-	//	myBackgroundMusic.play();
+	//myBackgroundMusic.play();
 
 	myBackgroundSound.openFromFile("audio/bgSound.ogg");
 	myBackgroundSound.setLoop(true);
-	//	myBackgroundSound.play();
+	//myBackgroundSound.play();
 
 		/*
 		Map Legend

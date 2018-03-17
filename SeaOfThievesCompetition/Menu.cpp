@@ -4,6 +4,8 @@
 #include "Application.h"
 #include <SFML\Window\Event.hpp>
 
+CMenu::EMenuState CMenu::myMenuState = CMenu::EMenuState::Controls;
+
 void CMenu::Init()
 {
 	myFont.loadFromFile("font/font.ttf");
@@ -19,20 +21,29 @@ void CMenu::Init()
 	myMenuTexture.loadFromFile("sprites/controls.png");
 	myMenuSprite.setTexture(myMenuTexture);
 
-	myPressEnterTexture.loadFromFile("sprites/pressEnter.png");
-	myPressEnterPrompt.setTexture(myPressEnterTexture);
-
-	myPressEnterPrompt.setOrigin(myPressEnterTexture.getSize().x / 2, myPressEnterTexture.getSize().y / 2);
-
 	myMenuSprite.setPosition(0, 0);
 	myMenuSprite.setScale((float)myWindow->getSize().x / myMenuTexture.getSize().x, (float)myWindow->getSize().y / myMenuTexture.getSize().y);
 
-	myPressEnterPrompt.setScale(myMenuSprite.getScale());
-
-	myPressEnterPrompt.setPosition(myWindow->getSize().x / 2, myWindow->getSize().y - 2 * myPressEnterTexture.getSize().y);
+	myConnectTexture.loadFromFile("sprites/connect.png");
+	myConnectSprite.setTexture(myConnectTexture);
+	myConnectSprite.setScale(myMenuSprite.getScale());
 
 	myShouldRun = true;
 	myTotalTime = 0.f;
+
+	CButton button;
+	float x = (float)myWindow->getSize().x * 8.2f / 10.f;
+	float y = (float)myWindow->getSize().y / 3.5f;
+	float increment = (float)myWindow->getSize().y / 10.f;
+
+	button.Init("Play", {x, y}, []() { CMenu::myMenuState = CMenu::EMenuState::StartGame; });
+	myButtons.push_back(button);
+
+	button.Init("Controls", { x, y + increment }, []() { CMenu::myMenuState = CMenu::EMenuState::Controls; });
+	myButtons.push_back(button);
+
+	button.Init("Connect", { x, y + 2 * increment }, []() { CMenu::myMenuState = CMenu::EMenuState::Connect; });
+	myButtons.push_back(button);
 }
 
 void CMenu::SetWindow(sf::RenderWindow * aWindow)
@@ -47,23 +58,33 @@ void CMenu::Update()
 	dt = dt > 1.f ? 1.f : dt;
 	myTotalTime += dt;
 
-	myPressEnterPrompt.setRotation(4.f * sinf(myTotalTime));
-
 	myCamera.setSize(myWindow->getSize().x, myWindow->getSize().y);
 	myCamera.setCenter((float)myWindow->getSize().x/2.f, (float)myWindow->getSize().y/2.f);
 	myWindow->setView(myCamera);
-
-	//myText.setOrigin(myText.getGlobalBounds().width / 2.f, myText.getGlobalBounds().height / 2.f);
-	//myText.setPosition(myCamera.getCenter());
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
 	{
 		CApplication::StartGame();
 	}
 
-	//myWindow->draw(myText);
-	myWindow->draw(myMenuSprite);
-	myWindow->draw(myPressEnterPrompt);
+	switch (myMenuState)
+	{
+	case EMenuState::StartGame:
+		CApplication::StartGame();
+		break;
+	case EMenuState::Controls:
+		myWindow->draw(myMenuSprite);
+		break;
+	case EMenuState::Connect:
+		myWindow->draw(myConnectSprite);
+		break;
+	}
+
+	for (CButton& button : myButtons)
+	{
+		button.Update(dt);
+		button.Render(myWindow);
+	}
 }
 
 bool CMenu::GetShouldRun() const
