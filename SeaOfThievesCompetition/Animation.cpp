@@ -16,7 +16,9 @@ void CAnimation::Init(sf::Texture & aTexture, short aFrameSize, float aFrameTime
 
 void CAnimation::RandomizeStartFrame()
 {
+	myCurrentFrame = 0;
 	myCurrentFrame = Math::GetRandomInRange(0, 2);
+	myCurrentFrameTime = myFrameTime * (float)Math::GetRandomInRange(0, 100) / 100.f;
 	SetAppropriateFrame();
 }
 
