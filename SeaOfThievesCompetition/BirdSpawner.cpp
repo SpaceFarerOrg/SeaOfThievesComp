@@ -8,11 +8,8 @@ void CBirdSpawner::Init()
 	myBirdSprite.setTexture(myBirdTexture);
 	myBirdSprite.setOrigin(myBirdTexture.getSize().x / 2, myBirdTexture.getSize().y / 2);
 
-	myCurrentFormation.myPositions = {
-			sf::Vector2f(0,0),
-		sf::Vector2f(-100, 64), sf::Vector2f(100, 64),
-		sf::Vector2f(-200, 128), sf::Vector2f(200, 128)
-	};
+	CreateFormations();
+	myCurrentFormation = GetRandomFormation();
 
 	myDirection = sf::Vector2f(1, 0);
 
@@ -49,8 +46,8 @@ void CBirdSpawner::Render(sf::RenderWindow * aRenderWindow)
 
 	// Shadowz
 	myBirdSprite.setColor(sf::Color(0, 0, 0, 150));
-	myBirdSprite.setScale(0.25f, 0.25f);
-	for (sf::Vector2f pos : myCurrentFormation.myPositions)
+	myBirdSprite.setScale(0.35f, 0.35f);
+	for (sf::Vector2f pos : myCurrentFormation->myPositions)
 	{
 		sf::Vector2f rotatedPos = myPosition + pos;
 		Math::RotateVectorAroundPoint(rotatedPos, myPosition, Math::ToRadians(myBirdSprite.getRotation()));
@@ -62,11 +59,34 @@ void CBirdSpawner::Render(sf::RenderWindow * aRenderWindow)
 	// Real Birdz
 	myBirdSprite.setColor(sf::Color(255, 255, 255, 255));
 	myBirdSprite.setScale(1, 1);
-	for (sf::Vector2f pos : myCurrentFormation.myPositions)
+	for (sf::Vector2f pos : myCurrentFormation->myPositions)
 	{
 		sf::Vector2f rotatedPos = myPosition + pos;
 		Math::RotateVectorAroundPoint(rotatedPos, myPosition, Math::ToRadians(myBirdSprite.getRotation()));
 		myBirdSprite.setPosition(rotatedPos);
 		aRenderWindow->draw(myBirdSprite);
 	}
+}
+
+CBirdSpawner::SFormation * CBirdSpawner::GetRandomFormation()
+{
+	int index = Math::GetRandomInRange(0, myFormationPool.size() - 1);
+	return &myFormationPool[index];
+}
+
+void CBirdSpawner::CreateFormations()
+{
+	myFormationPool.push_back({ {
+								sf::Vector2f(0,0),
+					sf::Vector2f(-100, 64), sf::Vector2f(100, 64),
+		sf::Vector2f(-200, 128),						sf::Vector2f(200, 128)
+		} });
+
+	myFormationPool.push_back({ {
+								sf::Vector2f(0,0),
+					sf::Vector2f(-100, 64), sf::Vector2f(100, 64),
+			sf::Vector2f(-200, 128), sf::Vector2f(0, 128),	sf::Vector2f(200, 128),
+					sf::Vector2f(-100, 196), sf::Vector2f(100, 196),
+								sf::Vector2f(0, 260)
+		} });
 }

@@ -88,6 +88,9 @@ private:
 	std::array<sf::Texture, (size_t)ETexture::Count> myTextureBank;
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
+	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
+
+
 	sf::RenderWindow* myWindow;
 	sf::Sprite myShipSprite;
 

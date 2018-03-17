@@ -29,7 +29,6 @@ void CGame::Init()
 	myBackgroundSound.setLoop(true);
 	//myBackgroundSound.play();
 
-
 		/*
 		Map Legend
 		1 - Spawn position

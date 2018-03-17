@@ -133,6 +133,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="BirdSpawner.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Island.cpp" />
     <ClCompile Include="main.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="BirdSpawner.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Island.h" />

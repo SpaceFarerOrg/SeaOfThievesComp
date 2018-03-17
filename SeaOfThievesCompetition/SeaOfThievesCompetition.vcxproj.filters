@@ -48,10 +48,14 @@
     <ClCompile Include="BirdSpawner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MultiplayerShip.cpp">
+=======
+    <ClCompile Include="Button.cpp">
+>>>>>>> f10015f65037edc2ffb3247a84fb257fd15f5daf
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -92,6 +96,7 @@
     <ClInclude Include="BirdSpawner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="NpcShip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -104,5 +109,10 @@
     <ClInclude Include="MultiplayerShip.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+=======
+    <ClInclude Include="Button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+>>>>>>> f10015f65037edc2ffb3247a84fb257fd15f5daf
   </ItemGroup>
 </Project>
