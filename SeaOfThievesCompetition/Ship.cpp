@@ -16,6 +16,7 @@ void CShip::Init(sf::Texture & aTexture)
 
 	myIsSinking = false;
 	myIsDead = false;
+	myIsControlled = false;
 }
 
 void CShip::Update(float aDT)
@@ -40,22 +41,28 @@ void CShip::Update(float aDT)
 		animation.Update(aDT);
 	}
 
+	myIsControlled = false;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
 		mySpeed += myAccelration * aDT;
+		myIsControlled = true;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
 		mySpeed -= myAccelration * aDT;
+		myIsControlled = true;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		myRotation += myTurnSpeed * aDT;
+		myIsControlled = true;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
 		myRotation -= myTurnSpeed * aDT;
+		myIsControlled = true;
 	}
 
 	if (mySpeed > myMaxSpeed)
@@ -134,6 +141,11 @@ bool CShip::GetIsDead() const
 bool CShip::GetIsSinking() const
 {
 	return myIsSinking;
+}
+
+bool CShip::GetIsControlled() const
+{
+	return myIsControlled;
 }
 
 sf::Vector2f CShip::GetPosition() const

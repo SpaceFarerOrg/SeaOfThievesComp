@@ -33,6 +33,8 @@ public:
 	bool GetIsDead() const;
 	bool GetIsSinking() const;
 
+	bool GetIsControlled() const;
+
 	sf::Vector2f GetPosition() const;
 
 	void SetHoldsTreasure(bool aDoesIt);
@@ -62,4 +64,5 @@ private:
 	float myAccelration;
 	float myRotation;
 	float myTurnSpeed;
+	bool myIsControlled;
 };

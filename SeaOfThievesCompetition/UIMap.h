@@ -20,6 +20,8 @@ public:
 	void SetTreasureIsland(size_t aIndexOfIsland);
 	void Render(sf::RenderWindow& aWindow);
 	float GetWidth() const;
+	void SetAlpha(float aAlpha);
+	float GetAlpha();
 private:
 	void CreateDrawableMap();
 	
@@ -33,4 +35,5 @@ private:
 	sf::Sprite myIslandSprite;
 	sf::Sprite myGoldIslandSprite;
 	sf::Sprite myCrossSprite;
+	float myAlpha;
 };

@@ -17,7 +17,19 @@ namespace Math
 
 	static float Lerp(float aStartValue, float aEndValue, float aPercentage)
 	{
-		return (1.f - aPercentage) * aStartValue + (aPercentage * aEndValue);//(aStartValue + aPercentage * (aEndValue - aStartValue));
+		return /*(1.f - aPercentage) * aStartValue + (aPercentage * aEndValue);*/(aStartValue + aPercentage * (aEndValue - aStartValue));
+	}
+
+	static sf::Color Lerp(const sf::Color& aStartValue, const sf::Color& aEndValue, float aPercentage)
+	{
+		sf::Color newColor = aStartValue;
+
+		newColor.r = (sf::Uint8)Lerp((float)newColor.r, (float)aEndValue.r, aPercentage);
+		newColor.g = (sf::Uint8)Lerp((float)newColor.g, (float)aEndValue.g, aPercentage);
+		newColor.b = (sf::Uint8)Lerp((float)newColor.b, (float)aEndValue.b, aPercentage);
+		newColor.a = (sf::Uint8)Lerp((float)newColor.a, (float)aEndValue.a, aPercentage);
+
+		return newColor;
 	}
 
 	static short GetRandomInRange(short aMin, short aMax)

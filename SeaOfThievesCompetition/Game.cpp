@@ -4,6 +4,7 @@
 #include <SFML\System\Vector2.hpp>
 #include "Math.h"
 #include "Application.h"
+#include <iostream>
 
 void CGame::SetWindow(sf::RenderWindow * aWindow)
 {
@@ -108,17 +109,25 @@ void CGame::Update()
 	ShowPressButtonPrompt();
 	EnsurePlayerKeepingOnMap(dt);
 
-	myTargetRightOffset = 0.f;
+	float mapAlpha = myUIMap.GetAlpha();
+
+	if (myShip.GetIsControlled())
+	{
+		mapAlpha = Math::Lerp(mapAlpha, 0.75f, dt * 4.f);
+	}
+	else
+	{
+		mapAlpha = Math::Lerp(mapAlpha, 1.0f, dt * 4.f);
+	}
+
+	myUIMap.SetAlpha(mapAlpha);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M))
 	{
 		myUIMap.Render(*myWindow);
-		myTargetRightOffset = myUIMap.GetWidth() / 2.f;
 	}
 
-	myCurrentRightOffset = Math::Lerp(myCurrentRightOffset, myTargetRightOffset, 10.f * dt);
-
-	myCamera.setCenter(myShip.GetPosition().x - myCurrentRightOffset, myShip.GetPosition().y);
+	myCamera.setCenter(myShip.GetPosition().x, myShip.GetPosition().y);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape) || myShip.GetIsDead())
 	{
@@ -128,7 +137,6 @@ void CGame::Update()
 
 void CGame::GenerateWorld()
 {
-	myCurrentRightOffset = 0.f;
 
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
