@@ -100,6 +100,20 @@ void CNetworking::SendMyTranslation(sf::Transformable & aTransform)
 	mySocket.send(p, myServerAdress, SERVER_PORT);
 }
 
+void CNetworking::SendWhirlwindSpawn(const sf::Vector2f & aPosition)
+{
+	SWhirlwindMessage msg;
+	msg.myX = aPosition.x;
+	msg.myY = aPosition.y;
+
+	sf::Packet p = msg.GetAsPacket();
+	
+	for (size_t i = 1; i < myClients.size(); ++i)
+	{
+		mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+	}
+}
+
 void CNetworking::SetMap(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 {
 	myMap = aMap;
@@ -113,6 +127,11 @@ const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& CNetworking::GetMap() const
 const std::vector<SClient>& CNetworking::GetPlayerList()
 {
 	return myClients;
+}
+
+void CNetworking::SetGame(CGame * aGame)
+{
+	myGame = aGame;
 }
 
 bool CNetworking::GetIsNetworkEnabled() const
@@ -193,6 +212,12 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		SClient& client = myClients[msg.mySenderID];
 		client.myTransform.setRotation(msg.myRotation);
 		client.myTransform.setPosition(msg.myX, msg.myY);
+	}
+	if (aType == EMessageType::Whirlwind)
+	{
+		SWhirlwindMessage msg;
+		msg.OpenPacket(aPacket);
+		myGame->PlaceWhirlwind({ msg.myX, msg.myY });
 	}
 }
 

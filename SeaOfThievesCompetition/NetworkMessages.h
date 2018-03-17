@@ -10,6 +10,7 @@ enum class EMessageType
 	Welcome,
 	Transform,
 	MapChange,
+	Whirlwind,
 };
 
 struct SNetMessage
@@ -110,6 +111,32 @@ struct STransformMessage : public SNetMessage
 	}
 	
 	float myRotation;
+	float myX;
+	float myY;
+};
+
+struct SWhirlwindMessage : public SNetMessage
+{
+	SWhirlwindMessage()
+	{
+		myType = EMessageType::Whirlwind;
+	}
+
+	void OpenPacket(sf::Packet& aPacket) override
+	{
+		aPacket >> myX;
+		aPacket >> myY;
+	}
+
+	sf::Packet GetAsPacket() override
+	{
+		sf::Packet packet;
+		packet << (short)myType;
+		packet << myX;
+		packet << myY;
+		return std::move(packet);
+	}
+
 	float myX;
 	float myY;
 };

@@ -67,9 +67,14 @@ void CGame::Init()
 	myShipSprite.setTexture(myTextureBank[(size_t)ETexture::Ship]);
 	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
 
-	myShouldRun = true;
+	for (auto& p : myWhirlwindBuffer)
+	{
+		p.first.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
+	}
+	myNextAvailibleWW = 0;
+	mySpawnNewWWTimer = 0.f;
 
-	testWW.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
+	myShouldRun = true;
 
 	myBirdSpawner.Init();
 
@@ -137,6 +142,18 @@ void CGame::Update()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape) || myShip.GetIsDead())
 	{
 		CApplication::EnterMenu();
+	}
+
+	if (!CNetworking::GetInstance().GetIsClient())
+	{
+		mySpawnNewWWTimer += dt;
+		if (mySpawnNewWWTimer >= 10.f)
+		{
+			sf::Vector2f pos = GetWhirlwindSpawnPos();
+			PlaceWhirlwind(pos);
+			CNetworking::GetInstance().SendWhirlwindSpawn(pos);
+		}
+
 	}
 }
 
@@ -243,13 +260,6 @@ void CGame::CreateWorld()
 			mySpawnPointIndex = i;
 		}
 
-		if (myMap[i] == SEA)
-		{
-			if (Math::Chance(1))
-			{
-				PlaceWhirlwind();
-			}
-		}
 	}
 
 	CreateIslands();
@@ -362,6 +372,21 @@ void CGame::EnsurePlayerKeepingOnMap(float aDT)
 	}
 }
 
+sf::Vector2f CGame::GetWhirlwindSpawnPos()
+{
+	while (true)
+	{
+		size_t indexInMap = Math::GetRandomInRange(0, myMap.size() - 1);
+
+		if (myMap[indexInMap] == SEA)
+		{
+			sf::Vector2f pos = TranslateMapPointToWorldPosition(indexInMap);
+
+			return std::move(pos);
+		}
+	}
+}
+
 sf::Vector2f CGame::TranslateMapPointToWorldPosition(size_t aMapIndex)
 {
 	int x = aMapIndex % MAP_AXIS_SIZE;
@@ -460,34 +485,17 @@ void CGame::CreateWaves()
 	}
 }
 
-void CGame::PlaceWhirlwind(int aIndex)
+void CGame::PlaceWhirlwind(const sf::Vector2f& aPosition)
 {
-	if (aIndex == -1)
-	{
-		myWhirlwinds.push_back(std::pair<CWhirlwind, float>(CWhirlwind(), 0.f));
-		myWhirlwinds.back().first.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
-	}
+	auto& wwToPlace = myWhirlwindBuffer[myNextAvailibleWW];
 
-	auto& ww = aIndex == -1 ? myWhirlwinds.back() : myWhirlwinds[aIndex];
-	ww.second = 0.f;
+	wwToPlace.first.SetShouldFade(false);
+	wwToPlace.first.SetPosition(aPosition);
+	wwToPlace.second = 0.f;
 
+	++myNextAvailibleWW;
 
-	bool placed = false;
-	while (!placed)
-	{
-		int indexInMap = Math::GetRandomInRange(0, myMap.size() - 1);
-
-		if (myMap[indexInMap] == SEA)
-		{
-			if (Math::Length(TranslateMapPointToWorldPosition(indexInMap) - TranslateMapPointToWorldPosition(mySpawnPointIndex)) > 700.f)
-			{
-				placed = true;
-				ww.first.SetShouldFade(false);
-				ww.first.SetPosition(TranslateMapPointToWorldPosition(indexInMap));
-			}
-		}
-
-	}
+	myNextAvailibleWW %= myWhirlwindBuffer.size();
 }
 
 void CGame::UpdateWhirlwinds(float aDT)
@@ -496,25 +504,25 @@ void CGame::UpdateWhirlwinds(float aDT)
 
 	bool shouldKillPlayer = false;
 
-	for (size_t i = 0; i < myWhirlwinds.size(); ++i)
+	for (size_t i = 0; i < myWhirlwindBuffer.size(); ++i)
 	{
-		myWhirlwinds[i].first.Update(aDT);
-		myWhirlwinds[i].second += aDT;
+		myWhirlwindBuffer[i].first.Update(aDT);
+		myWhirlwindBuffer[i].second += aDT;
 
-		if (myWhirlwinds[i].second >= WHIRLWIND_STAY_TIME)
+		if (myWhirlwindBuffer[i].second >= WHIRLWIND_STAY_TIME)
 		{
-			myWhirlwinds[i].first.SetShouldFade(true);
-
-			if (myWhirlwinds[i].first.GetCanChangePosition())
+			myWhirlwindBuffer[i].first.SetShouldFade(true);
+			
+			if (myWhirlwindBuffer[i].first.GetCanChangePosition())
 			{
-				PlaceWhirlwind(i);
+				myWhirlwindBuffer[i].first.SetPosition(TRASH_PILE);
 			}
-
 		}
 
-		drag += myWhirlwinds[i].first.GetDragTo(myShip.GetPosition(), shouldKillPlayer);
 
-		myWhirlwinds[i].first.Render(*myWindow);
+		drag += myWhirlwindBuffer[i].first.GetDragTo(myShip.GetPosition(), shouldKillPlayer);
+
+		myWhirlwindBuffer[i].first.Render(*myWindow);
 	}
 
 	if (shouldKillPlayer)

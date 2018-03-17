@@ -17,5 +17,7 @@
 
 #define WHIRLWIND_BUFFER_SIZE 10
 
+#define TRASH_PILE {-9000.f, -9000.f}
+
 #define RANGE_TO_LOOT 550.f
 #define RANGE_TO_SINK 512.f

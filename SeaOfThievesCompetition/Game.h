@@ -33,6 +33,8 @@ public:
 	void LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 
 	bool GetShouldRun() const;
+
+	void PlaceWhirlwind(const sf::Vector2f& aPosition);
 private:
 	enum class ETexture
 	{
@@ -64,9 +66,9 @@ private:
 	void CreateIslands();
 	void CreateWaves();
 
-	void PlaceWhirlwind(int aIndex = -1);
 	void UpdateWhirlwinds(float aDT);
 
+	sf::Vector2f GetWhirlwindSpawnPos();
 	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
 
 	bool myPlayerCanLoot;
@@ -89,6 +91,8 @@ private:
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
+	size_t myNextAvailibleWW;
+	float mySpawnNewWWTimer;
 
 
 	sf::RenderWindow* myWindow;

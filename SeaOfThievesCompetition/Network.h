@@ -6,6 +6,7 @@
 #include <array>
 #include "Defines.h"
 #include <SFML\Graphics\Transformable.hpp>
+#include "Game.h"
 #define SERVER_PORT (unsigned short)54000
 
 struct SClient
@@ -25,15 +26,21 @@ public:
 	void Update();
 
 	void SendMyTranslation(sf::Transformable& aTransform);
+	void SendWhirlwindSpawn(const sf::Vector2f& aPosition);
+	
 	void SetMap(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 	const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& GetMap() const;
 
 	const std::vector<SClient>& GetPlayerList();
 
+	void SetGame(CGame* aGame);
+
 	bool GetIsNetworkEnabled() const;
 	bool GetIsClient() const;
 private:
 	CNetworking();
+
+	CGame* myGame;
 
 	void UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType);
 	void UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType);
