@@ -66,6 +66,8 @@ void CGame::Init()
 
 	testWW.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
 
+	myBirdSpawner.Init();
+
 }
 
 void CGame::Update()
@@ -91,6 +93,8 @@ void CGame::Update()
 		island.Render(*myWindow);
 	}
 
+	myBirdSpawner.Update(dt, myWindow->getView().getCenter());
+
 	CheckShipCollisionVsIslands();
 
 	myShip.Update(dt);
@@ -98,6 +102,8 @@ void CGame::Update()
 
 
 	myTreasury.Render(*myWindow);
+
+	myBirdSpawner.Render(myWindow);
 
 	ShowPressButtonPrompt();
 	EnsurePlayerKeepingOnMap(dt);

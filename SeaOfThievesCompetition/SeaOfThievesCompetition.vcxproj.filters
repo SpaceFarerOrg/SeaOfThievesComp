@@ -45,6 +45,9 @@
     <ClCompile Include="Whirlwind.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BirdSpawner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -79,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="Whirlwind.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BirdSpawner.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

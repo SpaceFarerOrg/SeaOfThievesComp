@@ -14,6 +14,7 @@
 #include "Defines.h"
 #include "UIMap.h"
 #include "Whirlwind.h"
+#include "BirdSpawner.h"
 
 namespace sf
 {
@@ -105,6 +106,8 @@ private:
 	sf::Music myBackgroundSound;
 	sf::SoundBuffer myCashSoundBuffer;
 	sf::Sound myCashSound;
+
+	CBirdSpawner myBirdSpawner;
 
 	sf::Clock myDeltaTimer;
 };

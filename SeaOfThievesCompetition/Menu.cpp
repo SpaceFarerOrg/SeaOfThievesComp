@@ -29,9 +29,10 @@ void CMenu::Init()
 
 	myPressEnterPrompt.setScale(myMenuSprite.getScale());
 
-	myPressEnterPrompt.setPosition(myWindow->getSize().x / 2, myWindow->getSize().y - 1 * myPressEnterTexture.getSize().y);
+	myPressEnterPrompt.setPosition(myWindow->getSize().x / 2, myWindow->getSize().y - 2 * myPressEnterTexture.getSize().y);
 
 	myShouldRun = true;
+	myTotalTime = 0.f;
 }
 
 void CMenu::SetWindow(sf::RenderWindow * aWindow)
@@ -41,6 +42,12 @@ void CMenu::SetWindow(sf::RenderWindow * aWindow)
 
 void CMenu::Update()
 {
+	float dt = myDeltaTimer.getElapsedTime().asSeconds();
+	myDeltaTimer.restart();
+	dt = dt > 1.f ? 1.f : dt;
+	myTotalTime += dt;
+
+	myPressEnterPrompt.setRotation(4.f * sinf(myTotalTime));
 
 	myCamera.setSize(myWindow->getSize().x, myWindow->getSize().y);
 	myCamera.setCenter((float)myWindow->getSize().x/2.f, (float)myWindow->getSize().y/2.f);
