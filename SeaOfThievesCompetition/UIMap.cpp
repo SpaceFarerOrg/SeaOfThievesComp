@@ -1,10 +1,12 @@
 #include "UIMap.h"
 #include <sfml\Graphics\RenderWindow.hpp>
 
-void CUIMap::Init(sf::Texture & aMapTexture, sf::Texture & aMapIslandTexture, sf::Texture & aMapGoldIslandTexture, sf::Texture & aCrossTexture, std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CUIMap::Init(sf::Texture & aMapTexture, sf::Texture & aMapIslandTexture, sf::Texture& aMapIslandTwoTexture, sf::Texture& aMapIslandThreeTexture, sf::Texture & aMapGoldIslandTexture, sf::Texture & aCrossTexture, std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 {
 	myMapSprite.setTexture(aMapTexture);
 	myIslandSprite.setTexture(aMapIslandTexture);
+	myIsland2Sprite.setTexture(aMapIslandTwoTexture);
+	myIsland3Sprite.setTexture(aMapIslandThreeTexture);
 	myGoldIslandSprite.setTexture(aMapGoldIslandTexture);
 	myCrossSprite.setTexture(aCrossTexture);
 	myMap = aMap;
@@ -56,8 +58,8 @@ void CUIMap::CreateDrawableMap()
 	myGeneratedMap.clear({ 0,0,0,0 });
 	myGeneratedMap.draw(myMapSprite);
 
-	int chunkSize = 700 / MAP_AXIS_SIZE;
-	float offsetFromEdge = (myMapSprite.getGlobalBounds().width / 2) / 2.f;
+	int chunkSize = 500 / MAP_AXIS_SIZE;
+	float offsetFromEdge = 150.f;//(myMapSprite.getGlobalBounds().width / 2) / 2.f;
 
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
@@ -69,9 +71,23 @@ void CUIMap::CreateDrawableMap()
 		if (isIsland)
 		{
 			myIslandSprite.setPosition(posX, posY);
-			myGeneratedMap.draw(myIslandSprite);
+			myIsland2Sprite.setPosition(posX, posY);
+			myIsland3Sprite.setPosition(posX, posY);
+
+			if (myMap[i] == ISLAND_1)
+			{
+				myGeneratedMap.draw(myIslandSprite);
+			}
+			if (myMap[i] == ISLAND_2)
+			{
+				myGeneratedMap.draw(myIsland2Sprite);
+			}
+			if (myMap[i] == ISLAND_3)
+			{
+				myGeneratedMap.draw(myIsland3Sprite);
+			}
 		}
-		else if (myMap[i] == GOLD_ISLAND)
+		if (myMap[i] == GOLD_ISLAND)
 		{
 			myGoldIslandSprite.setPosition(posX, posY);
 			myGeneratedMap.draw(myGoldIslandSprite);

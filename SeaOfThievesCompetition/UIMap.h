@@ -15,7 +15,7 @@ namespace sf
 class CUIMap
 {
 public:
-	void Init(sf::Texture& aMapTexture, sf::Texture& aMapIslandTexture, sf::Texture& aMapGoldIslandTexture, sf::Texture& aCrossTexture, std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
+	void Init(sf::Texture& aMapTexture, sf::Texture& aMapIslandTexture, sf::Texture& aMapIslandTwoTexture, sf::Texture& aMapIslandThreeTexture, sf::Texture& aMapGoldIslandTexture, sf::Texture& aCrossTexture, std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 	void SetMap(std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 	void SetTreasureIsland(size_t aIndexOfIsland);
 	void Render(sf::RenderWindow& aWindow);
@@ -31,9 +31,16 @@ private:
 	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
 	sf::Transformable myTransform;
 	size_t myIndexOfTreasureIsland;
+
 	sf::Sprite myMapSprite;
+	
 	sf::Sprite myIslandSprite;
+	sf::Sprite myIsland2Sprite;
+	sf::Sprite myIsland3Sprite;
+	
 	sf::Sprite myGoldIslandSprite;
 	sf::Sprite myCrossSprite;
+	
+
 	float myAlpha;
 };

@@ -47,7 +47,10 @@ private:
 		ShipWavesBig,
 		Cross,
 		Map,
+		
 		MapIsland,
+		MapIslandTwo,
+		MapIslandThree,
 		MapGoldIsland,
 		Whirlwind,
 		Count,

@@ -24,11 +24,11 @@ void CGame::Init()
 
 	myBackgroundMusic.openFromFile("audio/song.ogg");
 	myBackgroundMusic.setLoop(true);
-	//myBackgroundMusic.play();
+	myBackgroundMusic.play();
 
 	myBackgroundSound.openFromFile("audio/bgSound.ogg");
 	myBackgroundSound.setLoop(true);
-	//myBackgroundSound.play();
+	myBackgroundSound.play();
 
 		/*
 		Map Legend
@@ -62,7 +62,7 @@ void CGame::Init()
 	myShip.Init(myTextureBank[(size_t)ETexture::Ship]);
 	myShip.SetWavesTextures(myTextureBank[(size_t)ETexture::ShipWavesBig], myTextureBank[(size_t)ETexture::ShipWavesBig]);
 
-	myUIMap.Init(myTextureBank[(size_t)ETexture::Map], myTextureBank[(size_t)ETexture::MapIsland], myTextureBank[(size_t)ETexture::MapGoldIsland], myTextureBank[(size_t)ETexture::Cross], myMap);
+	myUIMap.Init(myTextureBank[(size_t)ETexture::Map], myTextureBank[(size_t)ETexture::MapIsland], myTextureBank[(size_t)ETexture::MapIslandTwo], myTextureBank[(size_t)ETexture::MapIslandThree],myTextureBank[(size_t)ETexture::MapGoldIsland], myTextureBank[(size_t)ETexture::Cross], myMap);
 
 	myShipSprite.setTexture(myTextureBank[(size_t)ETexture::Ship]);
 	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
@@ -152,6 +152,7 @@ void CGame::Update()
 			sf::Vector2f pos = GetWhirlwindSpawnPos();
 			PlaceWhirlwind(pos);
 			CNetworking::GetInstance().SendWhirlwindSpawn(pos);
+			mySpawnNewWWTimer = 0.f;
 		}
 
 	}
@@ -215,6 +216,10 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
 		}
+		if (myMap[i] == SPAWN_POSITION)
+		{
+			mySpawnPointIndex = i;
+		}
 	}
 
 	myUIMap.SetMap(myMap);
@@ -222,6 +227,11 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 
 void CGame::ShowPressButtonPrompt()
 {
+	if (myShip.GetIsSinking())
+	{
+		return;
+	}
+
 	if (myPlayerCanLoot)
 	{
 		myPressSpaceToLoot.setString("Stop & Press Space To Loot");
@@ -416,6 +426,8 @@ void CGame::LoadTextures()
 
 	myTextureBank[(size_t)ETexture::Map].loadFromFile("sprites/map.png");
 	myTextureBank[(size_t)ETexture::MapIsland].loadFromFile("sprites/mapIsland.png");
+	myTextureBank[(size_t)ETexture::MapIslandTwo].loadFromFile("sprites/mapIsland2.png");
+	myTextureBank[(size_t)ETexture::MapIslandThree].loadFromFile("sprites/mapIsland3.png");
 	myTextureBank[(size_t)ETexture::MapGoldIsland].loadFromFile("sprites/mapGoldIsland.png");
 
 	for (size_t i = 0; i < myTextureBank.size(); ++i)
