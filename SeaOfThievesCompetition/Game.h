@@ -107,9 +107,6 @@ private:
 	size_t myGoldIslandIndex;
 	size_t mySpawnPointIndex;
 
-	float myTargetRightOffset;
-	float myCurrentRightOffset;
-
 	sf::Music myBackgroundMusic;
 	sf::Music myBackgroundSound;
 	sf::SoundBuffer myCashSoundBuffer;

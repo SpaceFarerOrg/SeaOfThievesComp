@@ -23,6 +23,8 @@ void CShip::Init(sf::Texture & aTexture)
 	myCollisionPoints[1] = { mySprite.getPosition().x - mySprite.getOrigin().x * 0.85f, mySprite.getPosition().y };
 	myCollisionPoints[2] = { mySprite.getPosition().x, mySprite.getPosition().y + mySprite.getOrigin().y * 0.55f };
 	myCollisionPoints[3] = { mySprite.getPosition().x, mySprite.getPosition().y - mySprite.getOrigin().y * 0.55f};
+
+	myIsControlled = false;
 }
 
 void CShip::Update(float aDT)
@@ -52,22 +54,28 @@ void CShip::Update(float aDT)
 		animation.Update(aDT);
 	}
 
+	myIsControlled = false;
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
 		mySpeed += myAccelration * aDT;
+		myIsControlled = true;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 	{
 		mySpeed -= myAccelration * aDT;
+		myIsControlled = true;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 	{
 		myRotation += myTurnSpeed * aDT;
+		myIsControlled = true;
 	}
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 	{
 		myRotation -= myTurnSpeed * aDT;
+		myIsControlled = true;
 	}
 
 	if (mySpeed > myMaxSpeed)
@@ -146,6 +154,11 @@ bool CShip::GetIsSinking() const
 const std::array<sf::Vector2f, 4>& CShip::GetCollisionPoints() const
 {
 	return myTransformedCP;
+}
+
+bool CShip::GetIsControlled() const
+{
+	return myIsControlled;
 }
 
 sf::Vector2f CShip::GetPosition() const

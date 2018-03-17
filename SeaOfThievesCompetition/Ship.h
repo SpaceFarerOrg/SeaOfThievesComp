@@ -37,6 +37,8 @@ public:
 	bool GetIsSinking() const;
 
 	const std::array<sf::Vector2f, 4>& GetCollisionPoints() const;
+	bool GetIsControlled() const;
+
 	sf::Vector2f GetPosition() const;
 
 	void SetHoldsTreasure(bool aDoesIt);
@@ -69,4 +71,5 @@ private:
 	float myAccelration;
 	float myRotation;
 	float myTurnSpeed;
+	bool myIsControlled;
 };

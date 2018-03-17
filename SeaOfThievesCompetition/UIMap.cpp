@@ -11,6 +11,8 @@ void CUIMap::Init(sf::Texture & aMapTexture, sf::Texture & aMapIslandTexture, sf
 
 	myGeneratedMap.create(850, 850);
 	myGeneratedMapSprite.setTexture(myGeneratedMap.getTexture());
+
+	myAlpha = 1.0f;
 }
 
 void CUIMap::SetMap(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
@@ -27,7 +29,8 @@ void CUIMap::Render(sf::RenderWindow & aWindow)
 {
 	CreateDrawableMap();
 
-	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
+	myGeneratedMapSprite.setColor(sf::Color(255,255,255, 255.f * myAlpha));
+	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width / 2, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
 	myGeneratedMapSprite.setPosition(aWindow.getView().getCenter());
 
 	aWindow.draw(myGeneratedMapSprite);
@@ -38,13 +41,23 @@ float CUIMap::GetWidth() const
 	return myGeneratedMapSprite.getGlobalBounds().width;
 }
 
+void CUIMap::SetAlpha(float aAlpha)
+{
+	myAlpha = aAlpha;
+}
+
+float CUIMap::GetAlpha()
+{
+	return myAlpha;
+}
+
 void CUIMap::CreateDrawableMap()
 {
 	myGeneratedMap.clear({ 0,0,0,0 });
 	myGeneratedMap.draw(myMapSprite);
 
 	int chunkSize = 700 / MAP_AXIS_SIZE;
-	float offsetFromEdge = (myMapSprite.getGlobalBounds().width - 700.f) / 2.f;
+	float offsetFromEdge = (myMapSprite.getGlobalBounds().width / 2) / 2.f;
 
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
