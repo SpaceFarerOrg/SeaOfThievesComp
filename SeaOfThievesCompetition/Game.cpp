@@ -478,7 +478,7 @@ void CGame::CreateWaves()
 		if (myMap[i] != ISLAND && i != myGoldIslandIndex)
 		{
 			myWaves.push_back(CAnimation());
-			myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 600, 0.5f);
+			myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 600, 0.25f);
 			myWaves.back().RandomizeStartFrame();
 			myWaves.back().SetPosition(TranslateMapPointToWorldPosition(i));
 		}
