@@ -4,6 +4,7 @@
 #include <cmath>
 #include "Math.h"
 #include <SFML\Graphics\RectangleShape.hpp>
+#include "Network.h"
 
 void CShip::Init(sf::Texture & aTexture)
 {
@@ -86,6 +87,11 @@ void CShip::Update(float aDT)
 	myTransform.move(myWhirlwindDrag * aDT);
 
 	myTransform.setRotation(myRotation);
+
+	if (CNetworking::GetInstance().GetIsNetworkEnabled())
+	{
+		CNetworking::GetInstance().SendMyTranslation(myTransform);
+	}
 }
 
 void CShip::Render(sf::RenderWindow & aWindow)

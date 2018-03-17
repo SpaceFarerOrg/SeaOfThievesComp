@@ -6,6 +6,11 @@
 #define SPAWN_POSITION 1
 #define GOLD_ISLAND 2
 #define ISLAND 3
+
+#define ISLAND_1 4
+#define ISLAND_2 5
+#define ISLAND_3 6
+
 #define WHIRLWIND_STAY_TIME 25.f
 #define MIN_ISLAND_COUNT 15
 #define MAX_ISLAND_COUNT 25

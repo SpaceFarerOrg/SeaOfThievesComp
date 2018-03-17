@@ -33,6 +33,7 @@ void CMenu::Init()
 
 	myShouldRun = true;
 	myTotalTime = 0.f;
+
 }
 
 void CMenu::SetWindow(sf::RenderWindow * aWindow)
@@ -40,6 +41,7 @@ void CMenu::SetWindow(sf::RenderWindow * aWindow)
 	myWindow = aWindow;
 }
 
+#include <iostream>
 void CMenu::Update()
 {
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
@@ -59,6 +61,19 @@ void CMenu::Update()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Return))
 	{
 		CApplication::StartGame();
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N) && CNetworking::GetInstance().GetIsNetworkEnabled() == false)
+	{
+		CNetworking::GetInstance().StartServer();
+	}
+	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::M) && CNetworking::GetInstance().GetIsNetworkEnabled() == false)
+	{
+		std::string ip;
+		std::cout << "Enter ip" << std::endl;
+		std::cin >> ip;
+		sf::IpAddress ipa(ip);
+
+		CNetworking::GetInstance().ConnectToServer(ipa);
 	}
 
 	//myWindow->draw(myText);

@@ -27,8 +27,10 @@ public:
 	void SetWindow(sf::RenderWindow* aWindow);
 	void Init();
 	void Update();
+	void DisplayOtherShips();
 
 	void GenerateWorld();
+	void LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 
 	bool GetShouldRun() const;
 private:
@@ -56,6 +58,8 @@ private:
 	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
 	void LoadTextures();
+
+	void ClearMapFromIslands();
 
 	void CreateIslands();
 	void CreateWaves();
@@ -85,6 +89,7 @@ private:
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	sf::RenderWindow* myWindow;
+	sf::Sprite myShipSprite;
 
 	CTreasury myTreasury;
 

@@ -39,14 +39,7 @@ void CWhirlwind::Update(float aDT)
 
 	mySprite.setScale(myCurrentScale, myCurrentScale);
 
-	myRotation += 50.f * aDT;
-
-	if (myRotation > 360.f)
-	{
-		float diff = myRotation - 360.f;
-
-		myRotation = diff;
-	}
+	myRotation -= 50.f * aDT;
 
 	mySprite.setRotation(myRotation);
 }

@@ -26,19 +26,30 @@ void CApplication::Init()
 	myGame.Init();
 	myMenu.Init();
 
+	myNetworkThread = std::thread([&]()->void { UpdateNetworking(); });
 }
 
 void CApplication::Update()
 {
 	if (myIsWindowActive)
 	{
+		bool isMultiplayerClient = CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient();
+
 		myWindow->clear({ 95,189,197 });
 		if (myHasChangedState)
 		{
 			myHasChangedState = false;
-			myGame.GenerateWorld();
-		}
 
+			if (!isMultiplayerClient)
+			{
+				myGame.GenerateWorld();
+			}
+			else
+			{
+				myGame.LoadMapFromServer(CNetworking::GetInstance().GetMap());
+			}
+		}
+		
 		if (myIsInGame)
 		{
 			myGame.Update();
@@ -47,10 +58,16 @@ void CApplication::Update()
 		{
 			myMenu.Update();
 		}
+
 		myWindow->display();
 	}
 
 	HandleWindowEvents();
+}
+
+void CApplication::ShutDown()
+{
+	myNetworkThread.join();
 }
 
 void CApplication::StartGame()
@@ -68,6 +85,15 @@ void CApplication::EnterMenu()
 bool CApplication::GetShouldRun() const
 {
 	return !myShouldClose;
+}
+
+void CApplication::UpdateNetworking()
+{
+	while (!myShouldClose)
+	{
+		CNetworking::GetInstance().Update();
+		std::this_thread::yield();
+	}
 }
 
 void CApplication::HandleWindowEvents()

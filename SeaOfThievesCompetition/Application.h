@@ -1,6 +1,8 @@
 #pragma once
 #include "Game.h"
 #include "Menu.h"
+#include <SFML\Network\UdpSocket.hpp>
+#include <thread>
 
 namespace sf
 {
@@ -12,12 +14,18 @@ class CApplication
 public:
 	void Init();
 	void Update();
+	void ShutDown();
+	
 	static void StartGame();
 	static void EnterMenu();
 
 	bool GetShouldRun() const;
 private:
+	void UpdateNetworking();
+
 	void HandleWindowEvents();
+	
+	std::thread myNetworkThread;
 
 	bool myShouldClose;
 	bool myIsWindowActive;
