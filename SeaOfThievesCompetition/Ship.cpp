@@ -3,6 +3,7 @@
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <cmath>
 #include "Math.h"
+#include <SFML\Graphics\RectangleShape.hpp>
 
 void CShip::Init(sf::Texture & aTexture)
 {
@@ -16,10 +17,20 @@ void CShip::Init(sf::Texture & aTexture)
 
 	myIsSinking = false;
 	myIsDead = false;
+
+	myCollisionPoints[0] = { mySprite.getPosition().x + mySprite.getOrigin().x / 2.f, mySprite.getPosition().y };
+	myCollisionPoints[1] = { mySprite.getPosition().x - mySprite.getOrigin().x * 0.85f, mySprite.getPosition().y };
+	myCollisionPoints[2] = { mySprite.getPosition().x, mySprite.getPosition().y + mySprite.getOrigin().y * 0.55f };
+	myCollisionPoints[3] = { mySprite.getPosition().x, mySprite.getPosition().y - mySprite.getOrigin().y * 0.55f};
 }
 
 void CShip::Update(float aDT)
 {
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		myTransformedCP[i] = myTransform.getTransform().transformPoint(myCollisionPoints[i]);
+	}
+
 	if (myIsSinking)
 	{
 		myCurrentOpacity -= 50.f * aDT;
@@ -30,7 +41,7 @@ void CShip::Update(float aDT)
 			myIsDead = true;
 		}
 
-		mySprite.setColor({ 255,255,255, (sf::Uint8)myCurrentOpacity});
+		mySprite.setColor({ 255,255,255, (sf::Uint8)myCurrentOpacity });
 		return;
 	}
 
@@ -71,7 +82,6 @@ void CShip::Update(float aDT)
 	direction.x = cosf(Math::ToRadians(myRotation));
 	direction.y = sinf(Math::ToRadians(myRotation));
 
-
 	myTransform.move(direction * mySpeed * aDT);
 	myTransform.move(myWhirlwindDrag * aDT);
 
@@ -83,6 +93,8 @@ void CShip::Render(sf::RenderWindow & aWindow)
 	mySprite.setRotation(myTransform.getRotation());
 	mySprite.setPosition(myTransform.getPosition());
 
+
+
 	if (mySpeed > 20.f)
 	{
 		CAnimation& currentWaves = myWaves[(size_t)EWaves::Small];
@@ -92,28 +104,17 @@ void CShip::Render(sf::RenderWindow & aWindow)
 		currentWaves.Render(aWindow);
 	}
 	aWindow.draw(mySprite);
-
 }
 
 void CShip::Respawn()
 {
 	mySprite.setColor({ 255,255,255,255 });
-	myRotation = 0.f;
+	myRotation = -45.f;
+	mySpeed = 0.f;
 	myIsSinking = false;
 	myIsDead = false;
 }
 
-sf::Rect<float> CShip::GetCollider() const
-{
-	sf::FloatRect rect;
-	rect.height = 32.f;
-	rect.width = 32.f;
-	rect.left = myTransform.getPosition().x - rect.width / 2.f;
-	rect.top = myTransform.getPosition().y - rect.height / 2.f;
-
-
-	return std::move(rect);
-}
 
 void CShip::Sink()
 {
@@ -134,6 +135,11 @@ bool CShip::GetIsDead() const
 bool CShip::GetIsSinking() const
 {
 	return myIsSinking;
+}
+
+const std::array<sf::Vector2f, 4>& CShip::GetCollisionPoints() const
+{
+	return myTransformedCP;
 }
 
 sf::Vector2f CShip::GetPosition() const
@@ -171,3 +177,4 @@ void CShip::SetWavesTextures(sf::Texture & aSmallWaves, sf::Texture & aBigWaves)
 	myWaves[(size_t)EWaves::Small].Init(aSmallWaves, 64, 0.1f);
 	myWaves[(size_t)EWaves::Big].Init(aBigWaves, 64, 0.1f);
 }
+

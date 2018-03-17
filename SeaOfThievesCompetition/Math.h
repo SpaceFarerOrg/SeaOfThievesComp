@@ -23,6 +23,12 @@ namespace Math
 
 		return rnum;
 	}
+	
+	struct SCircle
+	{
+		sf::Vector2f myPosition;
+		float myRadius;
+	};
 
 	static float Length(const sf::Vector2f& aVec)
 	{

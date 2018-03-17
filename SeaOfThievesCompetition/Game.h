@@ -35,6 +35,8 @@ private:
 	{
 		Ship,
 		Island,
+		IslandTwo,
+		IslandThree,
 		GoldIsland,
 		Waves,
 		ShipWavesBig,
@@ -53,6 +55,9 @@ private:
 	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
 	void LoadTextures();
+
+	void CreateIslands();
+	void CreateWaves();
 
 	void PlaceWhirlwind(int aIndex = -1);
 	void UpdateWhirlwinds(float aDT);

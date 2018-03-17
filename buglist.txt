@@ -1,0 +1,1 @@
+Whirlwinds can spawn under islands (or islands on top of whirlwinds)
