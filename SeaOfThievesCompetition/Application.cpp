@@ -17,6 +17,12 @@ void CApplication::Init()
 	sf::VideoMode vm;
 	vm = sf::VideoMode::getDesktopMode();
 
+	myFont.loadFromFile("font/font.ttf");
+	myConnectMessage.setFont(myFont);
+	myConnectMessage.setOutlineThickness(2.f);
+	myConnectMessage.setFillColor(sf::Color(250, 253, 193));
+	myConnectMessage.setOutlineColor(sf::Color::Black);
+
 	//vm.height = 896;
 	//vm.width = 896;
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
@@ -83,6 +89,31 @@ void CApplication::Update()
 		myWindow->setView(myScreenSpaceView);
 		myWindow->draw(myCursorSprite);
 
+		if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
+		{
+			myConnectMessage.setString("Online: Connected");
+		}
+		else if (CNetworking::GetInstance().GetIsNetworkEnabled() && !CNetworking::GetInstance().GetIsClient())
+		{
+			myConnectMessage.setString("Online: Is Server");
+		}
+		else
+		{
+			myConnectMessage.setString("Online: Disconnected");
+		}
+
+		if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
+		{
+			time_t r = CNetworking::GetInstance().GetLastRecieveTime();
+
+			if (time(nullptr) - r > 10)
+			{
+				CNetworking::GetInstance().Disconnect();
+			}
+		}
+
+		myWindow->draw(myConnectMessage);
+
 		myWindow->display();
 	}
 
@@ -91,6 +122,7 @@ void CApplication::Update()
 
 void CApplication::ShutDown()
 {
+	CNetworking::GetInstance().Disconnect();
 	myNetworkThread.join();
 }
 

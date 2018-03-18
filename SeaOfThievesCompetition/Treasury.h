@@ -12,6 +12,7 @@ public:
 	CTreasury();
 	void SetGold(short aAmount);
 	void GiveGold(short aAmount);
+	short GetGold() const;
 	void Render(sf::RenderWindow& aWindow);
 private:
 	short myGold;

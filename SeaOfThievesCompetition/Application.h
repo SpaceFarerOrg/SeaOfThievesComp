@@ -39,6 +39,9 @@ private:
 
 	CTextBox* myMenuTextBox;
 
+	sf::Font myFont;
+	sf::Text myConnectMessage;
+
 	sf::Texture myCursorTexture;
 	sf::Sprite myCursorSprite;
 	sf::View myScreenSpaceView;

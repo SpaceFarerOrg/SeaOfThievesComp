@@ -19,6 +19,11 @@ void CTreasury::GiveGold(short aAmount)
 	myGold += aAmount;
 }
 
+short CTreasury::GetGold() const
+{
+	return myGold;
+}
+
 void CTreasury::Render(sf::RenderWindow & aWindow)
 {
 	myText.setString("Gold: " + std::to_string(myGold));

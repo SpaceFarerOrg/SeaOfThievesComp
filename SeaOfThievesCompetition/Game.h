@@ -123,4 +123,3 @@ private:
 
 	sf::Clock myDeltaTimer;
 };
-

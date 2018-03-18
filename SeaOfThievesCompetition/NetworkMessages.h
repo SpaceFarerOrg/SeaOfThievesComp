@@ -3,14 +3,17 @@
 #include <SFML\System\String.hpp>
 #include <SFML\Graphics\Transformable.hpp>
 #include "Defines.h"
+#include <ctime>
 
 enum class EMessageType
 {
 	Connect,
+	Disconnect,
 	Welcome,
 	Transform,
 	MapChange,
 	Whirlwind,
+	Ping,
 };
 
 struct SNetMessage
@@ -78,7 +81,7 @@ struct SWelcomeMessage : public SNetMessage
 
 		return std::move(packet);
 	}
-	
+
 	unsigned int myCurrentPlayerCount;
 	int myCurrentMap[MAP_AXIS_SIZE * MAP_AXIS_SIZE];
 	unsigned int myID;
@@ -109,7 +112,7 @@ struct STransformMessage : public SNetMessage
 		packet << myY;
 		return std::move(packet);
 	}
-	
+
 	float myRotation;
 	float myX;
 	float myY;
@@ -139,4 +142,53 @@ struct SWhirlwindMessage : public SNetMessage
 
 	float myX;
 	float myY;
+};
+
+struct SDisconnectMessage : public SNetMessage
+{
+	SDisconnectMessage()
+	{
+		myType = EMessageType::Disconnect;
+	}
+
+	void OpenPacket(sf::Packet& aPacket) override
+	{
+		aPacket >> myDisconnectedClient;
+	}
+
+	sf::Packet GetAsPacket() override
+	{
+		sf::Packet packet;
+		packet << (short)myType;
+		packet << myDisconnectedClient;
+		return std::move(packet);
+	}
+
+	size_t myDisconnectedClient;
+};
+
+struct SPingMessage : public SNetMessage
+{
+	SPingMessage()
+	{
+		myType = EMessageType::Ping;
+		myTimeStamp = time(nullptr);
+	}
+
+	void OpenPacket(sf::Packet& aPacket) override
+	{
+		aPacket >> mySenderID;
+		aPacket >> myTimeStamp;
+	}
+
+	sf::Packet GetAsPacket() override
+	{
+		sf::Packet packet;
+		packet << (short)myType;
+		packet << mySenderID;
+		packet << myTimeStamp;
+		return std::move(packet);
+	}
+
+	time_t myTimeStamp;
 };

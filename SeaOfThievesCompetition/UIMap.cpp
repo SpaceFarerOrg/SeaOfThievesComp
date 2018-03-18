@@ -11,7 +11,20 @@ void CUIMap::Init(sf::Texture & aMapTexture, sf::Texture & aMapIslandTexture, sf
 	myCrossSprite.setTexture(aCrossTexture);
 	myMap = aMap;
 
-	myGeneratedMap.create(850, 850);
+	myIslandSprite.setScale(0.65f, 0.65f);
+	myIsland2Sprite.setScale(0.65f, 0.65f);
+	myIsland3Sprite.setScale(0.65f, 0.65f);
+	myGoldIslandSprite.setScale(0.65f, 0.65f);
+
+	myGoldIslandSprite.setOrigin(myGoldIslandSprite.getGlobalBounds().width / 2.f, myGoldIslandSprite.getGlobalBounds().height / 2.f);
+	myIslandSprite.setOrigin(myIslandSprite.getGlobalBounds().width / 2.f, myIslandSprite.getGlobalBounds().height / 2.f);
+	myIsland2Sprite.setOrigin(myIsland2Sprite.getGlobalBounds().width / 2.f, myIsland2Sprite.getGlobalBounds().height / 2.f);
+	myIsland3Sprite.setOrigin(myIsland3Sprite.getGlobalBounds().width / 2.f, myIsland3Sprite.getGlobalBounds().height / 2.f);
+
+	myMapSprite.setScale(1.f, 1.f);
+
+
+	myGeneratedMap.create(myMapSprite.getGlobalBounds().width, myMapSprite.getGlobalBounds().height);
 	myGeneratedMapSprite.setTexture(myGeneratedMap.getTexture());
 
 	myAlpha = 1.0f;
@@ -58,8 +71,8 @@ void CUIMap::CreateDrawableMap()
 	myGeneratedMap.clear({ 0,0,0,0 });
 	myGeneratedMap.draw(myMapSprite);
 
-	int chunkSize = 500 / MAP_AXIS_SIZE;
-	float offsetFromEdge = 150.f;//(myMapSprite.getGlobalBounds().width / 2) / 2.f;
+	int chunkSize = 600 / MAP_AXIS_SIZE;
+	float offsetFromEdge = 180.f;//(myMapSprite.getGlobalBounds().width / 2) / 2.f;
 
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{

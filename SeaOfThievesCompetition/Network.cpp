@@ -7,8 +7,16 @@ CNetworking & CNetworking::GetInstance()
 	return instance;
 }
 
+void CNetworking::SetName(const sf::String & aName)
+{
+	myName = aName;
+}
+
 void CNetworking::StartServer()
 {
+	if (myIsNetworkEnabled)
+		return;
+
 	myIsNetworkEnabled = true;
 	mySocket.setBlocking(true);
 	myIsClient = false;
@@ -17,28 +25,77 @@ void CNetworking::StartServer()
 		std::cout << "Failed to bind server port" << std::endl;
 	}
 
+
 	myClients.push_back(SClient());
 }
 
 void CNetworking::ConnectToServer(sf::IpAddress aIp)
 {
-	myIsNetworkEnabled = true;
-	mySocket.setBlocking(true);
-	myIsClient = true;
+	if (myIsNetworkEnabled)
+		return;
 
-	if (!mySocket.bind(sf::Socket::AnyPort) == sf::Socket::Done)
+	if (mySocket.bind(sf::Socket::AnyPort) == sf::Socket::Error)
 	{
-		std::cout << "Failed to bind server port" << std::endl;
+		std::cout << "Failed to bind client port" << std::endl;
+		myIsNetworkEnabled = false;
+		myIsClient = false;
+		mySocket.unbind();
+		return;
 	}
 
+	myLastPingTime = time(nullptr);
+	mySocket.setBlocking(true);
+	myLastRecieveTime = time(nullptr);
+	myIsNetworkEnabled = true;
+	myIsClient = true;
+
+
+	//std::cout << "Tried connect to server" << std::endl;
+	mySelector.add(mySocket);
+
 	SConnectMessage msg;
+	msg.myText = myName;
 	sf::Packet p = msg.GetAsPacket();
+
 
 	myServerAdress = aIp;
 
 	if (!mySocket.send(p, myServerAdress, SERVER_PORT) == sf::Socket::Done)
 	{
 		std::cout << "Failed to send connect message" << std::endl;
+	}
+}
+
+void CNetworking::Disconnect()
+{
+	if (!myIsNetworkEnabled)
+		return;
+
+	if (myIsClient)
+	{
+		SDisconnectMessage msg;
+		msg.myDisconnectedClient = myClientID;
+		sf::Packet p = msg.GetAsPacket();
+
+		mySocket.send(p, myServerAdress, SERVER_PORT);
+		mySocket.unbind();
+		myIsNetworkEnabled = false;
+		myIsClient = false;
+	}
+	else if (!myIsClient)
+	{
+		SDisconnectMessage msg;
+		msg.myDisconnectedClient = 0;
+		sf::Packet p = msg.GetAsPacket();
+
+		for (size_t i = 0; i < myClients.size(); ++i)
+		{
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+
+		mySocket.unbind();
+		myIsNetworkEnabled = false;
+		myIsClient = false;
 	}
 }
 
@@ -53,8 +110,11 @@ void CNetworking::Update()
 	sf::IpAddress ip;
 	unsigned short port;
 
-	if (mySocket.receive(p, ip, port) == sf::Socket::Status::Done)
+	if (mySocket.receive(p, ip, port) == sf::Socket::Done)
 	{
+		myLastRecieveTime = time(nullptr);
+		mySocket.receive(p, ip, port);
+
 		short shortType;
 		p >> shortType;
 		EMessageType type = (EMessageType)shortType;
@@ -107,7 +167,7 @@ void CNetworking::SendWhirlwindSpawn(const sf::Vector2f & aPosition)
 	msg.myY = aPosition.y;
 
 	sf::Packet p = msg.GetAsPacket();
-	
+
 	for (size_t i = 1; i < myClients.size(); ++i)
 	{
 		mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
@@ -122,6 +182,11 @@ void CNetworking::SetMap(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMa
 const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& CNetworking::GetMap() const
 {
 	return myMap;
+}
+
+time_t CNetworking::GetLastRecieveTime()
+{
+	return myLastRecieveTime;
 }
 
 const std::vector<SClient>& CNetworking::GetPlayerList()
@@ -146,6 +211,7 @@ bool CNetworking::GetIsClient() const
 
 CNetworking::CNetworking()
 {
+	myName = "Kocklice";
 	myIsNetworkEnabled = false;
 	myIsClient = false;
 	myClientID = 0;
@@ -153,6 +219,16 @@ CNetworking::CNetworking()
 
 void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType)
 {
+	for (size_t i = 1; i < myClients.size(); ++i)
+	{
+		if (time(nullptr) - myClients[i].myLastPing > 2)
+		{
+			SPingMessage ping;
+			sf::Packet p = ping.GetAsPacket();
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+	}
+
 	if (aType == EMessageType::Connect)
 	{
 		SConnectMessage msg;
@@ -179,16 +255,45 @@ void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 			mySocket.send(p, client.myIP, client.myPort);
 		}
 	}
+	if (aType == EMessageType::Disconnect)
+	{
+		SDisconnectMessage msg;
+		msg.OpenPacket(aPacket);
+
+		myClients.erase(myClients.begin() + msg.myDisconnectedClient);
+
+		SDisconnectMessage sendM;
+		sendM.myDisconnectedClient = msg.myDisconnectedClient;
+		sf::Packet p = sendM.GetAsPacket();
+
+		for (size_t i = 0; i < myClients.size(); ++i)
+		{
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+	}
+	if (aType == EMessageType::Ping)
+	{
+		SPingMessage msg;
+		msg.OpenPacket(aPacket);
+
+		myClients[msg.mySenderID].myLastPing = msg.myTimeStamp;
+	}
+
 }
 
 void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType)
 {
+	if (time(nullptr) - myLastPingTime > 5)
+	{
+		Disconnect();
+	}
+
 	if (aType == EMessageType::Welcome)
 	{
 		SWelcomeMessage msg;
 		msg.OpenPacket(aPacket);
 		myClientID = msg.myID;
-		
+
 		for (size_t i = 0; i < msg.myCurrentPlayerCount; ++i)
 		{
 			myClients.push_back(SClient());
@@ -204,6 +309,11 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 	if (aType == EMessageType::Connect)
 	{
 		myClients.push_back(SClient());
+
+		SConnectMessage msg;
+		msg.OpenPacket(aPacket);
+		myClients.back().myName = msg.myText;
+
 	}
 	if (aType == EMessageType::Transform)
 	{
@@ -219,6 +329,32 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		msg.OpenPacket(aPacket);
 		myGame->PlaceWhirlwind({ msg.myX, msg.myY });
 	}
+	if (aType == EMessageType::Disconnect)
+	{
+		SDisconnectMessage msg;
+		msg.OpenPacket(aPacket);
+
+		if (msg.mySenderID == 0)
+		{
+			Disconnect();
+			myClients.clear();
+		}
+		else
+		{
+			myClients.erase(myClients.begin() + msg.mySenderID);
+		}
+	}
+	if (aType == EMessageType::Ping)
+	{
+		SPingMessage msg;
+		msg.OpenPacket(aPacket);
+		myLastPingTime = msg.myTimeStamp;
+
+		SPingMessage returnMsg;
+		returnMsg.mySenderID = myClientID;
+		sf::Packet p = returnMsg.GetAsPacket();
+		mySocket.send(p, myServerAdress, SERVER_PORT);
+	}
 }
 
 void CNetworking::ConnectClient(SConnectMessage & aMessage, sf::IpAddress& aIp, unsigned short aPort)
@@ -231,6 +367,7 @@ void CNetworking::ConnectClient(SConnectMessage & aMessage, sf::IpAddress& aIp, 
 	for (size_t i = 1; i < myClients.size(); ++i)
 	{
 		SConnectMessage msg;
+		msg.myText = newClient.myName;
 
 		sf::Packet p = msg.GetAsPacket();
 		mySocket.send(p, myClients[i].myIP, myClients[i].myPort);

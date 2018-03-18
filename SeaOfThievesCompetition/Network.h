@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML\Network\UdpSocket.hpp>
+#include <SFML\Network\SocketSelector.hpp>
 #include "NetworkMessages.h"
 #include <sfml\System\String.hpp>
 #include <vector>
@@ -14,6 +15,7 @@ struct SClient
 	sf::IpAddress myIP;
 	unsigned short myPort;
 	sf::String myName;
+	time_t myLastPing;
 	sf::Transformable myTransform;
 };
 
@@ -21,8 +23,13 @@ class CNetworking
 {
 public:
 	static CNetworking& GetInstance();
+
+	void SetName(const sf::String& aName);
+
 	void StartServer();
 	void ConnectToServer(sf::IpAddress aIp);
+	void Disconnect();
+
 	void Update();
 
 	void SendMyTranslation(sf::Transformable& aTransform);
@@ -31,6 +38,8 @@ public:
 	void SetMap(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 	const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& GetMap() const;
 
+	time_t GetLastRecieveTime();
+
 	const std::vector<SClient>& GetPlayerList();
 
 	void SetGame(CGame* aGame);
@@ -38,7 +47,11 @@ public:
 	bool GetIsNetworkEnabled() const;
 	bool GetIsClient() const;
 private:
+
 	CNetworking();
+
+	time_t myLastPingTime;
+	time_t myLastRecieveTime;
 
 	CGame* myGame;
 
@@ -47,8 +60,11 @@ private:
 
 	void ConnectClient(SConnectMessage& aMessage, sf::IpAddress& aIp, unsigned short aPort);
 
+	sf::String myName;
+
 	sf::IpAddress myServerAdress;
 	sf::UdpSocket mySocket;
+	sf::SocketSelector mySelector;
 	bool myIsClient;
 	bool myIsNetworkEnabled;
 	unsigned int myClientID;

@@ -24,11 +24,11 @@ void CGame::Init()
 
 	myBackgroundMusic.openFromFile("audio/song.ogg");
 	myBackgroundMusic.setLoop(true);
-	myBackgroundMusic.play();
+	//myBackgroundMusic.play();
 
 	myBackgroundSound.openFromFile("audio/bgSound.ogg");
 	myBackgroundSound.setLoop(true);
-	myBackgroundSound.play();
+	//myBackgroundSound.play();
 
 		/*
 		Map Legend
@@ -60,7 +60,10 @@ void CGame::Init()
 		if (myMap[i] == GOLD_ISLAND)
 		{
 			myGoldIslandIndexInMap = i;
-			break;
+		}
+		else if (myMap[i] == SPAWN_POSITION)
+		{
+			mySpawnPointIndex = i;
 		}
 	}
 
@@ -162,11 +165,22 @@ void CGame::Update()
 		}
 
 	}
+
+	if (myTreasury.GetGold() == 1000)
+	{
+		//Win game
+	}
+	else if (myTreasury.GetGold() == 800)
+	{
+		//Push Pirate is Close to winning
+	}
 }
 
 void CGame::DisplayOtherShips()
 {
 	const std::vector<SClient> otherShips = CNetworking::GetInstance().GetPlayerList();
+	sf::Text otherPlayerName;
+	otherPlayerName.setFont(myFont);
 
 	for (const SClient& other : otherShips)
 	{
@@ -174,6 +188,12 @@ void CGame::DisplayOtherShips()
 		myShipSprite.setRotation(other.myTransform.getRotation());
 
 		myWindow->draw(myShipSprite);
+
+		otherPlayerName.setString(other.myName);
+		otherPlayerName.setOrigin(otherPlayerName.getGlobalBounds().width / 2.f, otherPlayerName.getGlobalBounds().height / 2.f);
+		otherPlayerName.setPosition(other.myTransform.getPosition().x, other.myTransform.getPosition().y - myShipSprite.getGlobalBounds().height / 2.f);
+
+		myWindow->draw(otherPlayerName);
 	}
 }
 
@@ -189,6 +209,7 @@ void CGame::GenerateWorld()
 	CreateWorld();
 	PlaceTreasure();
 	myUIMap.SetMap(myMap);
+	CNetworking::GetInstance().SetMap(myMap);
 }
 
 void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
@@ -227,12 +248,12 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 			myGoldIslandIndex = i;
 			myGoldIslandIndexInMap = i;
 		}
-		if (myMap[i] == SPAWN_POSITION)
+		if (i == mySpawnPointIndex)
 		{
-			mySpawnPointIndex = i;
+			myShip.SetPosition(TranslateMapPointToWorldPosition(mySpawnPointIndex));
 		}
 	}
-
+	CreateWaves();
 	myUIMap.SetMap(myMap);
 }
 
@@ -283,8 +304,7 @@ void CGame::CreateWorld()
 	CreateIslands();
 	CreateWaves();
 
-	myUIMap.SetMap(myMap);
-	CNetworking::GetInstance().SetMap(myMap);
+
 }
 
 void CGame::CheckShipCollisionVsIslands()
@@ -350,11 +370,12 @@ void CGame::EnsurePlayerKeepingOnMap(float aDT)
 {
 	float mapMin = 0.f;
 	float mapMax = MAP_CHUNK_SIZE * MAP_AXIS_SIZE;
+	float forgiveness = 200.f;
 	myIsOutsideOfMap = false;
 
 	sf::Vector2f shipPos = myShip.GetPosition();
 
-	if (myShip.GetPosition().x > mapMax || myShip.GetPosition().y > mapMax || myShip.GetPosition().x < mapMin || myShip.GetPosition().y < mapMin || myShip.GetIsSinking())
+	if (myShip.GetPosition().x > mapMax +forgiveness || myShip.GetPosition().y > mapMax +forgiveness || myShip.GetPosition().x < mapMin - forgiveness || myShip.GetPosition().y < mapMin - forgiveness || myShip.GetIsSinking())
 	{
 		myIsOutsideOfMap = true;
 
