@@ -4,14 +4,16 @@ void CTextBox::Init(const sf::Vector2f & aPosition)
 {
 	myFont.loadFromFile("font/font.ttf");
 	myGraphicsText.setFont(myFont);
-
+	myGraphicsText.setCharacterSize(56);
+	myGraphicsText.setFillColor(sf::Color(250, 253, 193));
 
 	myShape.setFillColor({ 0,0,0,25 });
-	myShape.setSize({ 250, (float)myGraphicsText.getCharacterSize() + 10.f });
+	myShape.setSize({ 500, (float)myGraphicsText.getCharacterSize() + 15.f });
 	myShape.setPosition(aPosition);
-	myShape.setOrigin(myShape.getGlobalBounds().width / 2.f, myShape.getGlobalBounds().height / 2.f);
+	myShape.setOrigin(myShape.getGlobalBounds().width / 2.f, 0);
 
-	myGraphicsText.setPosition(myShape.getPosition().x, myShape.getPosition().y - 5.f);
+	myGraphicsText.setPosition(10 + myShape.getPosition().x - myShape.getGlobalBounds().width / 2, myShape.getPosition().y + 5.f);
+	myGraphicsText.setOrigin(0, 0);
 }
 
 void CTextBox::Clear()
@@ -26,7 +28,7 @@ void CTextBox::SetActive(bool aState)
 
 void CTextBox::AddText(sf::Uint32 aTextAdded)
 {
-	if (myIsActive)
+	if (myIsActive && myText.getSize() < 16)
 	{
 		myText.insert(myText.getSize(), aTextAdded);
 	}
@@ -48,7 +50,6 @@ const sf::String & CTextBox::GetText() const
 void CTextBox::Render(sf::RenderWindow & aWindow)
 {
 	myGraphicsText.setString(myText);
-	myGraphicsText.setOrigin(myGraphicsText.getGlobalBounds().width / 2.f, myGraphicsText.getGlobalBounds().height / 2.f);
 
 	aWindow.draw(myShape);
 	aWindow.draw(myGraphicsText);

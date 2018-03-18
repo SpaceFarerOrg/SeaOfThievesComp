@@ -6,6 +6,7 @@
 #include "Network.h"
 #include "Button.h"
 #include "TextBox.h"
+#include "Slider.h"
 
 namespace sf
 {
@@ -18,7 +19,7 @@ public:
 
 	void Init();
 	void SetWindow(sf::RenderWindow* aWindow);
-	void Update();
+	bool Update();
 
 	void SetMenuState();
 	bool GetShouldRun() const;
@@ -31,7 +32,9 @@ private:
 	{
 		StartGame,
 		Controls,
-		Connect
+		Connect,
+		Settings,
+		Exit
 	};
 
 	bool myShouldRun;
@@ -61,6 +64,9 @@ private:
 	std::vector<CButton> myNetworkButtons;
 
 	CTextBox myTextBox;
+	
+	sf::Text myVolumeText;
+	CSlider myVolumeSlider;
 
 	static EMenuState myMenuState;
 };

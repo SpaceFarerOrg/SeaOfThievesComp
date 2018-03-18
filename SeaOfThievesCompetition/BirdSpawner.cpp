@@ -45,7 +45,7 @@ void CBirdSpawner::Render(sf::RenderWindow * aRenderWindow)
 	static sf::Vector2f shadowOffset = sf::Vector2f(-20, 64);
 
 	// Shadowz
-	myBirdSprite.setColor(sf::Color(0, 0, 0, 150));
+	myBirdSprite.setColor(sf::Color(0, 0, 0, 75));
 	myBirdSprite.setScale(0.35f, 0.35f);
 	for (sf::Vector2f pos : myCurrentFormation->myPositions)
 	{

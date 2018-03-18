@@ -87,4 +87,10 @@ namespace Math
 		return false;
 	}
 
+	template<typename T>
+	static T Clamp(T aValue, T aMin, T aMax)
+	{
+		return aValue < aMin ? aMin : (aValue > aMax ? aMax : aValue);
+	}
+
 }

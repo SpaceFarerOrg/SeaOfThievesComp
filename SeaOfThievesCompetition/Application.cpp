@@ -1,11 +1,12 @@
 #include "Application.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML\Window\Event.hpp>
-#include "Button.h"
+#include "UIBase.h"
 #include "SFML\Window\Mouse.hpp"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
+float CApplication::myMasterVolume;
 
 void CApplication::Init()
 {
@@ -23,14 +24,15 @@ void CApplication::Init()
 
 	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::Close);
 
-	CButton::SetWindow(myWindow);
-	CButton::SetFont("font/font.ttf");
+	CUIBase::SetWindow(myWindow);
+	CUIBase::SetFont("font/font.ttf");
 
 	myGame.SetWindow(myWindow);
 	myMenu.SetWindow(myWindow);
 
 	myGame.Init();
 	myMenu.Init();
+	myGame.UpdateVolumes();
 
 	myMenuTextBox = myMenu.GetTextBox();
 
@@ -48,6 +50,8 @@ void CApplication::Update()
 	if (myIsWindowActive)
 	{
 		bool isMultiplayerClient = CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient();
+
+		myGame.UpdateVolumes();
 
 		myWindow->clear({ 95,189,197 });
 		if (myHasChangedState && myIsInGame)
@@ -71,11 +75,11 @@ void CApplication::Update()
 
 		if (myIsInGame)
 		{
-			myGame.Update();
+			myShouldClose = !myGame.Update();
 		}
 		else
 		{
-			myMenu.Update();
+			myShouldClose = !myMenu.Update();
 		}
 
 		sf::Vector2i mPos = sf::Mouse::getPosition(*myWindow);
@@ -104,6 +108,16 @@ void CApplication::EnterMenu()
 {
 	myIsInGame = false;
 	myHasChangedState = true;
+}
+
+void CApplication::SetVolume(float aMasterVolume)
+{
+	myMasterVolume = aMasterVolume;
+}
+
+float CApplication::GetVolume()
+{
+	return myMasterVolume;
 }
 
 bool CApplication::GetShouldRun() const

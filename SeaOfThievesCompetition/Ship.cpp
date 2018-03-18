@@ -107,7 +107,8 @@ void CShip::Render(sf::RenderWindow & aWindow)
 	mySprite.setRotation(myTransform.getRotation());
 	mySprite.setPosition(myTransform.getPosition());
 
-
+	myWavesSprite.setRotation(myTransform.getRotation());
+	myWavesSprite.setPosition(myTransform.getPosition());
 
 	if (mySpeed > 20.f)
 	{
@@ -117,6 +118,7 @@ void CShip::Render(sf::RenderWindow & aWindow)
 
 		currentWaves.Render(aWindow);
 	}
+	aWindow.draw(myWavesSprite);
 	aWindow.draw(mySprite);
 }
 
@@ -195,5 +197,7 @@ void CShip::SetWavesTextures(sf::Texture & aSmallWaves, sf::Texture & aBigWaves)
 {
 	myWaves[(size_t)EWaves::Small].Init(aSmallWaves, 64, 0.1f);
 	myWaves[(size_t)EWaves::Big].Init(aBigWaves, 64, 0.1f);
+	myWavesSprite.setTexture(aSmallWaves);
+	myWavesSprite.setOrigin(aSmallWaves.getSize().x / 2, aSmallWaves.getSize().y / 2);
 }
 

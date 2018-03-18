@@ -78,7 +78,7 @@ void CGame::Init()
 	{
 		p.first.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
 	}
-	myNextAvailibleWW = 0;
+	myNextAvailableWW = 0;
 	mySpawnNewWWTimer = 0.f;
 
 	myShouldRun = true;
@@ -86,7 +86,7 @@ void CGame::Init()
 	myBirdSpawner.Init();
 }
 
-void CGame::Update()
+bool CGame::Update()
 {
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
 	myDeltaTimer.restart();
@@ -162,6 +162,8 @@ void CGame::Update()
 		}
 
 	}
+
+	return true;
 }
 
 void CGame::DisplayOtherShips()
@@ -419,6 +421,15 @@ sf::Vector2f CGame::TranslateMapPointToWorldPosition(size_t aMapIndex)
 	return std::move(returnPos);
 }
 
+void CGame::UpdateVolumes()
+{
+	float volume = CApplication::GetVolume();
+
+	myBackgroundMusic.setVolume(volume);
+	myBackgroundSound.setVolume(volume);
+	myCashSound.setVolume(volume);
+}
+
 void CGame::LoadTextures()
 {
 	myTextureBank[(size_t)ETexture::Ship].loadFromFile("sprites/playerShip.png");
@@ -508,15 +519,15 @@ void CGame::CreateWaves()
 
 void CGame::PlaceWhirlwind(const sf::Vector2f& aPosition)
 {
-	auto& wwToPlace = myWhirlwindBuffer[myNextAvailibleWW];
+	auto& wwToPlace = myWhirlwindBuffer[myNextAvailableWW];
 
 	wwToPlace.first.SetShouldFade(false);
 	wwToPlace.first.SetPosition(aPosition);
 	wwToPlace.second = 0.f;
 
-	++myNextAvailibleWW;
+	++myNextAvailableWW;
 
-	myNextAvailibleWW %= myWhirlwindBuffer.size();
+	myNextAvailableWW %= myWhirlwindBuffer.size();
 }
 
 void CGame::UpdateWhirlwinds(float aDT)

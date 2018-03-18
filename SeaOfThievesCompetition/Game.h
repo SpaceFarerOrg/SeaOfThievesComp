@@ -26,7 +26,7 @@ class CGame
 public:
 	void SetWindow(sf::RenderWindow* aWindow);
 	void Init();
-	void Update();
+	bool Update();
 	void DisplayOtherShips();
 
 	void GenerateWorld();
@@ -35,6 +35,7 @@ public:
 	bool GetShouldRun() const;
 
 	void PlaceWhirlwind(const sf::Vector2f& aPosition);
+	void UpdateVolumes();
 private:
 	enum class ETexture
 	{
@@ -74,6 +75,7 @@ private:
 	sf::Vector2f GetWhirlwindSpawnPos();
 	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
 
+
 	bool myPlayerCanLoot;
 	bool myPlayerCanSell;
 	bool myIsOutsideOfMap;
@@ -94,7 +96,7 @@ private:
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
-	size_t myNextAvailibleWW;
+	size_t myNextAvailableWW;
 	float mySpawnNewWWTimer;
 
 	sf::RenderWindow* myWindow;

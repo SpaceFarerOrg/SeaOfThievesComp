@@ -20,6 +20,9 @@ public:
 	static void StartGame();
 	static void EnterMenu();
 
+	static void SetVolume(float aMasterVolume);
+	static float GetVolume();
+
 	bool GetShouldRun() const;
 private:
 	void UpdateNetworking();
@@ -42,4 +45,6 @@ private:
 	sf::Texture myCursorTexture;
 	sf::Sprite myCursorSprite;
 	sf::View myScreenSpaceView;
+
+	static float myMasterVolume;
 };

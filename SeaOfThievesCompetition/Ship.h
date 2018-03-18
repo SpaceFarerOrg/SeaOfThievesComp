@@ -66,6 +66,7 @@ private:
 
 	sf::Transformable myTransform;
 	sf::Sprite mySprite;
+	sf::Sprite myWavesSprite;
 	float mySpeed;
 	float myMaxSpeed;
 	float myAccelration;
