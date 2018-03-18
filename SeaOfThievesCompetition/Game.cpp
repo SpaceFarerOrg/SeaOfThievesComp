@@ -55,9 +55,16 @@ void CGame::Init()
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0
 	};
 
-	LoadTextures();
+	for (size_t i = 0; i < myMap.size(); ++i)
+	{
+		if (myMap[i] == GOLD_ISLAND)
+		{
+			myGoldIslandIndexInMap = i;
+			break;
+		}
+	}
 
-	GenerateWorld();
+	LoadTextures();
 
 	myShip.Init(myTextureBank[(size_t)ETexture::Ship]);
 	myShip.SetWavesTextures(myTextureBank[(size_t)ETexture::ShipWavesBig], myTextureBank[(size_t)ETexture::ShipWavesBig]);
@@ -77,7 +84,6 @@ void CGame::Init()
 	myShouldRun = true;
 
 	myBirdSpawner.Init();
-
 }
 
 void CGame::Update()
@@ -177,8 +183,6 @@ void CGame::GenerateWorld()
 
 	myShip.Respawn();
 
-	myWhirlwinds.clear();
-
 	myTreasury.SetGold(0);
 	myIslands.clear();
 	myWaves.clear();
@@ -215,6 +219,13 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 			islandTexture = ETexture::IslandThree;
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+		}
+		if (myMap[i] == GOLD_ISLAND)
+		{
+			myIslands.push_back(CIsland());
+			myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], TranslateMapPointToWorldPosition(i), true);
+			myGoldIslandIndex = i;
+			myGoldIslandIndexInMap = i;
 		}
 		if (myMap[i] == SPAWN_POSITION)
 		{
@@ -255,26 +266,24 @@ void CGame::ShowPressButtonPrompt()
 
 void CGame::CreateWorld()
 {
+	myMap[myGoldIslandIndexInMap] = GOLD_ISLAND;
+	myIslands.push_back(CIsland());
+	myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], TranslateMapPointToWorldPosition(myGoldIslandIndexInMap), true);
+	myGoldIslandIndex = myIslands.size() - 1;
+
 	for (size_t i = 0; i < myMap.size(); ++i)
 	{
-		if (myMap[i] == GOLD_ISLAND)
-		{
-			myIslands.push_back(CIsland());
-			myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], TranslateMapPointToWorldPosition(i), true);
-			myGoldIslandIndex = myIslands.size() - 1;
-		}
-
 		if (myMap[i] == SPAWN_POSITION)
 		{
 			myShip.SetPosition(TranslateMapPointToWorldPosition(i));
 			mySpawnPointIndex = i;
 		}
-
 	}
 
 	CreateIslands();
 	CreateWaves();
 
+	myUIMap.SetMap(myMap);
 	CNetworking::GetInstance().SetMap(myMap);
 }
 
@@ -440,7 +449,7 @@ void CGame::ClearMapFromIslands()
 {
 	for (int& pointInMap : myMap)
 	{
-		if (pointInMap != SPAWN_POSITION && pointInMap != GOLD_ISLAND)
+		if (pointInMap != SPAWN_POSITION && pointInMap != SEA)
 		{
 			pointInMap = 0;
 		}

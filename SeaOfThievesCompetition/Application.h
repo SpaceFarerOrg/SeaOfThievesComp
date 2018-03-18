@@ -37,6 +37,8 @@ private:
 	CGame myGame;
 	CMenu myMenu;
 
+	CTextBox* myMenuTextBox;
+
 	sf::Texture myCursorTexture;
 	sf::Sprite myCursorSprite;
 	sf::View myScreenSpaceView;

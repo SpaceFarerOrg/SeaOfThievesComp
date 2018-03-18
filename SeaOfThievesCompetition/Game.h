@@ -97,7 +97,6 @@ private:
 	size_t myNextAvailibleWW;
 	float mySpawnNewWWTimer;
 
-
 	sf::RenderWindow* myWindow;
 	sf::Sprite myShipSprite;
 
@@ -112,6 +111,7 @@ private:
 	CWhirlwind testWW;
 
 	size_t myGoldIslandIndex;
+	size_t myGoldIslandIndexInMap;
 	size_t mySpawnPointIndex;
 
 	sf::Music myBackgroundMusic;

@@ -1,2 +1,4 @@
 Whirlwinds can spawn under islands (or islands on top of whirlwinds)
 Whirlwinds rotates the wrong way
+
+Network shutdown error prone dure to blocking sockets

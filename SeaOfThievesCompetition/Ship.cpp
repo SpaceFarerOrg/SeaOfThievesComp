@@ -13,7 +13,7 @@ void CShip::Init(sf::Texture & aTexture)
 	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
 
 	myAccelration = 100.f;
-	myTurnSpeed = 50.f;
+	myTurnSpeed = 10.f;
 	myMaxSpeed = 200.f;
 
 	myIsSinking = false;

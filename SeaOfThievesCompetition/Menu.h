@@ -5,6 +5,7 @@
 #include "SFML\System\Clock.hpp"
 #include "Network.h"
 #include "Button.h"
+#include "TextBox.h"
 
 namespace sf
 {
@@ -19,8 +20,12 @@ public:
 	void SetWindow(sf::RenderWindow* aWindow);
 	void Update();
 
+	void SetMenuState();
 	bool GetShouldRun() const;
+
+	CTextBox* GetTextBox();
 private:
+	void StartClient();
 	
 	enum class EMenuState
 	{
@@ -33,10 +38,12 @@ private:
 
 	bool myIsNetwork;
 
+
 	sf::RenderWindow* myWindow;
 	sf::View myCamera;
 	sf::Font myFont;
 	sf::Text myText;
+	sf::Text myEnterIpText;
 
 	sf::Sprite myMenuSprite;
 	sf::Texture myMenuTexture;
@@ -51,6 +58,9 @@ private:
 	float myTotalTime;
 
 	std::vector<CButton> myButtons;
+	std::vector<CButton> myNetworkButtons;
+
+	CTextBox myTextBox;
 
 	static EMenuState myMenuState;
 };

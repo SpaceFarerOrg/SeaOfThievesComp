@@ -9,13 +9,14 @@ bool CApplication::myHasChangedState;
 
 void CApplication::Init()
 {
+	myHasChangedState = false;
 	myShouldClose = false;
 	myIsWindowActive = true;
 	myWindow = new sf::RenderWindow();
 
 	sf::VideoMode vm;
 	vm = sf::VideoMode::getDesktopMode();
-	
+
 	//vm.height = 896;
 	//vm.width = 896;
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
@@ -30,6 +31,8 @@ void CApplication::Init()
 
 	myGame.Init();
 	myMenu.Init();
+
+	myMenuTextBox = myMenu.GetTextBox();
 
 	myCursorTexture.loadFromFile("sprites/cursor.png");
 	myCursorSprite.setTexture(myCursorTexture);
@@ -47,7 +50,7 @@ void CApplication::Update()
 		bool isMultiplayerClient = CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient();
 
 		myWindow->clear({ 95,189,197 });
-		if (myHasChangedState)
+		if (myHasChangedState && myIsInGame)
 		{
 			myHasChangedState = false;
 
@@ -60,7 +63,12 @@ void CApplication::Update()
 				myGame.LoadMapFromServer(CNetworking::GetInstance().GetMap());
 			}
 		}
-		
+		else if (myHasChangedState)
+		{
+			myHasChangedState = false;
+			myMenu.SetMenuState();
+		}
+
 		if (myIsInGame)
 		{
 			myGame.Update();
@@ -131,6 +139,18 @@ void CApplication::HandleWindowEvents()
 		if (e.type == sf::Event::GainedFocus)
 		{
 			myIsWindowActive = true;
+		}
+
+		else if (e.type == sf::Event::TextEntered)
+		{
+			if (e.text.unicode != 8)
+			{
+				myMenuTextBox->AddText(e.text.unicode);
+			}
+			else
+			{
+				myMenuTextBox->RemoveCharacter();
+			}
 		}
 	}
 }
