@@ -1,9 +1,6 @@
 #include "Button.h"
-#include "SFML\Graphics\RenderWindow.hpp"
 #include "SFML\Window\Mouse.hpp"
-
-sf::Font CButton::ourFont;
-sf::RenderWindow* CButton::ourWindow;
+#include "SFML\Graphics\RenderWindow.hpp"
 
 void CButton::Init(const sf::String & aTitle, const sf::Vector2f & aPosition, std::function<void(void)> aFunctionToCall)
 {
@@ -12,20 +9,23 @@ void CButton::Init(const sf::String & aTitle, const sf::Vector2f & aPosition, st
 	myOnPressedFunction = aFunctionToCall;
 
 	myTitle.setFont(ourFont);
-	myTitle.setOrigin(0, myTitle.getLocalBounds().height / 2);
-	myTitle.setFillColor(sf::Color(250, 253, 193));
+	myColor = sf::Color(250, 253, 193);
+	myShadowColor = sf::Color(16, 101, 83);
 	myTitle.setCharacterSize(ourWindow->getSize().x / 35);
+	myTitle.setOrigin(0, myTitle.getLocalBounds().height / 2);
+
+	myIsHighlighted = false;
 }
 
 void CButton::Update(float aDT)
 {
 	sf::Vector2i mPos = sf::Mouse::getPosition(*ourWindow);
 
-	myTitle.setFillColor(sf::Color(250, 253, 193));
+	myIsHighlighted = false;
 
 	if (myTitle.getGlobalBounds().contains(mPos.x, mPos.y))
 	{
-		myTitle.setFillColor(sf::Color(200, 203, 143));
+		myIsHighlighted = true;
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
 			myOnPressedFunction();
@@ -35,15 +35,14 @@ void CButton::Update(float aDT)
 
 void CButton::Render(sf::RenderWindow* aRenderWindow)
 {
+	sf::Vector2f shadowOffset = sf::Vector2f(2 * myIsHighlighted ? 2 : 1, 2 * myIsHighlighted ? 2 : 1);
+	float shadowScale = 1.f;
+	myTitle.setFillColor(myShadowColor);
+	myTitle.move(shadowOffset);
+	myTitle.setScale(shadowScale, shadowScale);
 	aRenderWindow->draw(myTitle);
-}
-
-void CButton::SetFont(const sf::String& aFontName)
-{
-	ourFont.loadFromFile(aFontName);
-}
-
-void CButton::SetWindow(sf::RenderWindow* aRenderWindow)
-{
-	ourWindow = aRenderWindow;
+	myTitle.setFillColor(myColor);
+	myTitle.move(-shadowOffset);
+	myTitle.setScale(1, 1);
+	aRenderWindow->draw(myTitle);
 }

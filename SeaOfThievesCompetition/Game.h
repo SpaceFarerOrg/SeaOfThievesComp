@@ -26,7 +26,8 @@ class CGame
 public:
 	void SetWindow(sf::RenderWindow* aWindow);
 	void Init();
-	void Update();
+	void ReInit();
+	bool Update();
 	void DisplayOtherShips();
 
 	void GenerateWorld();
@@ -35,7 +36,14 @@ public:
 	bool GetShouldRun() const;
 
 	void PlaceWhirlwind(const sf::Vector2f& aPosition);
+	void UpdateVolumes();
+
+	void SetWinner(const sf::String& aName);
+	void ShowSomeoneCloseToWinningText(const sf::String& aName);
+
 private:
+	void SetCloseToWinning(bool aShouldSend = false);
+
 	enum class ETexture
 	{
 		Ship,
@@ -57,6 +65,8 @@ private:
 	};
 
 private:
+	void RandomizeSong();
+
 	void ShowPressButtonPrompt();
 	void CreateWorld();
 	void CheckShipCollisionVsIslands();
@@ -74,16 +84,22 @@ private:
 	sf::Vector2f GetWhirlwindSpawnPos();
 	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
 
+	bool myShouldSendCloseToWinning;
 	bool myPlayerCanLoot;
 	bool myPlayerCanSell;
 	bool myIsOutsideOfMap;
 	bool myShouldRun;
+	bool myHasSentClosedToWinning;
+	bool myShouldSendWinning;
 
+	float myTimeWinnerShow;
 	float myIsOutsideOfMapTimer;
+	float mySomeoneIsCloseToWinningTimer;
 	
 	sf::Text myPressSpaceToLoot;
 	sf::Text myPressSpaceToSellTreasure;
 	sf::Text myYouAreOutsideOfMap;
+	sf::Text myPlayerCloseToWinning;
 	sf::Font myFont;
 
 	std::vector<CIsland> myIslands;
@@ -94,7 +110,7 @@ private:
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
-	size_t myNextAvailibleWW;
+	size_t myNextAvailableWW;
 	float mySpawnNewWWTimer;
 
 	sf::RenderWindow* myWindow;
@@ -110,14 +126,27 @@ private:
 	
 	CWhirlwind testWW;
 
+	size_t myTreasureIsland;
 	size_t myGoldIslandIndex;
 	size_t myGoldIslandIndexInMap;
 	size_t mySpawnPointIndex;
 
-	sf::Music myBackgroundMusic;
+	std::array<sf::Music, 2> myBackgroundSongs;
+	size_t myActiveSong;
 	sf::Music myBackgroundSound;
+	sf::Music myStressMusic;
+	bool myHasRegisteredPaus;
+	float myTimeWithNoMusic;
+
+	bool myPlayerHasWon;
+	sf::Text myWinningPlayer;
+	
 	sf::SoundBuffer myCashSoundBuffer;
 	sf::Sound myCashSound;
+	sf::SoundBuffer myTreasureThump;
+	sf::Sound myTreasureSound;
+	sf::SoundBuffer myCrash;
+	sf::Sound myCrashSound;
 
 	CBirdSpawner myBirdSpawner;
 

@@ -17,6 +17,8 @@ void CTreasury::SetGold(short aAmount)
 void CTreasury::GiveGold(short aAmount)
 {
 	myGold += aAmount;
+	if (myGold < 0)
+		myGold = 0;
 }
 
 short CTreasury::GetGold() const

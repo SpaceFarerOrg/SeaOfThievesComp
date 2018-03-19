@@ -51,12 +51,17 @@ public:
 	void SetPosition(const sf::Vector2f& aPosition);
 	
 	void SetWavesTextures(sf::Texture& aSmallWaves, sf::Texture& aBigWaves);
+
+	bool GetIsInvincible() const;
+	bool GetHasRespawned();
 private:
+	bool myHasRespawned;
 	bool myHasTreasure;
 	bool myIsSinking;
 	bool myIsDead;
 	float myCurrentOpacity;
-	
+	float myInvisibilityTimer;
+
 	std::array<sf::Vector2f, 4> myCollisionPoints;
 	std::array<sf::Vector2f, 4> myTransformedCP;
 
@@ -66,6 +71,7 @@ private:
 
 	sf::Transformable myTransform;
 	sf::Sprite mySprite;
+	sf::Sprite myWavesSprite;
 	float mySpeed;
 	float myMaxSpeed;
 	float myAccelration;

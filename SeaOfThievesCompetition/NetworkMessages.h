@@ -13,6 +13,7 @@ enum class EMessageType
 	Transform,
 	MapChange,
 	Whirlwind,
+	CloseToWin,
 	Ping,
 };
 
@@ -100,6 +101,15 @@ struct STransformMessage : public SNetMessage
 		aPacket >> myRotation;
 		aPacket >> myX;
 		aPacket >> myY;
+		aPacket >> myNameSize;
+
+		for (size_t i = 0; i < myNameSize; ++i)
+		{
+			sf::Uint32 c;
+			aPacket >> c;
+
+			myName += c;
+		}
 	}
 
 	sf::Packet GetAsPacket() override
@@ -110,8 +120,21 @@ struct STransformMessage : public SNetMessage
 		packet << myRotation;
 		packet << myX;
 		packet << myY;
+		packet << myName.getSize();
+
+		size_t size = myName.getSize();
+
+		for (size_t i = 0; i < myName.getSize(); ++i)
+		{
+			sf::Uint32 c = myName[i];
+			packet << c;
+		}
+		
 		return std::move(packet);
 	}
+
+	sf::String myName;
+	size_t myNameSize;
 
 	float myRotation;
 	float myX;
@@ -191,4 +214,31 @@ struct SPingMessage : public SNetMessage
 	}
 
 	time_t myTimeStamp;
+};
+
+struct SCloseToWinMessage : public SNetMessage
+{
+	SCloseToWinMessage()
+	{
+		myType = EMessageType::CloseToWin;
+	}
+
+	void OpenPacket(sf::Packet& aPacket) override
+	{
+		aPacket >> myID;
+		aPacket >> myIsCloseTo;
+	}
+
+	sf::Packet GetAsPacket() override
+	{
+		sf::Packet packet;
+		packet << (short)myType;
+		packet << myID;
+		packet << myIsCloseTo;
+
+		return std::move(packet);
+	}
+
+	bool myIsCloseTo;
+	size_t myID;
 };

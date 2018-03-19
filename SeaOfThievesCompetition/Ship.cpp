@@ -8,12 +8,13 @@
 
 void CShip::Init(sf::Texture & aTexture)
 {
+	myHasRespawned = false;
 	mySprite.setTexture(aTexture);
 
 	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
 
 	myAccelration = 100.f;
-	myTurnSpeed = 10.f;
+	myTurnSpeed = 40.f;
 	myMaxSpeed = 200.f;
 
 	myIsSinking = false;
@@ -22,13 +23,15 @@ void CShip::Init(sf::Texture & aTexture)
 	myCollisionPoints[0] = { mySprite.getPosition().x + mySprite.getOrigin().x / 2.f, mySprite.getPosition().y };
 	myCollisionPoints[1] = { mySprite.getPosition().x - mySprite.getOrigin().x * 0.85f, mySprite.getPosition().y };
 	myCollisionPoints[2] = { mySprite.getPosition().x, mySprite.getPosition().y + mySprite.getOrigin().y * 0.55f };
-	myCollisionPoints[3] = { mySprite.getPosition().x, mySprite.getPosition().y - mySprite.getOrigin().y * 0.55f};
+	myCollisionPoints[3] = { mySprite.getPosition().x, mySprite.getPosition().y - mySprite.getOrigin().y * 0.55f };
 
 	myIsControlled = false;
 }
 
 void CShip::Update(float aDT)
 {
+	myInvisibilityTimer += aDT;
+
 	for (unsigned i = 0; i < 4; ++i)
 	{
 		myTransformedCP[i] = myTransform.getTransform().transformPoint(myCollisionPoints[i]);
@@ -107,16 +110,20 @@ void CShip::Render(sf::RenderWindow & aWindow)
 	mySprite.setRotation(myTransform.getRotation());
 	mySprite.setPosition(myTransform.getPosition());
 
+	myWavesSprite.setRotation(myTransform.getRotation());
+	myWavesSprite.setPosition(myTransform.getPosition());
 
+	CAnimation& currentWaves = myWaves[(size_t)EWaves::Small];
 
-	if (mySpeed > 20.f)
-	{
-		CAnimation& currentWaves = myWaves[(size_t)EWaves::Small];
-		currentWaves.SetPosition(myTransform.getPosition());
-		currentWaves.SetRotation(myTransform.getRotation());
+	sf::Color color = Math::Lerp(sf::Color::Transparent, sf::Color::White, mySpeed / myMaxSpeed);
 
-		currentWaves.Render(aWindow);
-	}
+	currentWaves.SetOpacity(color.a);
+
+	currentWaves.SetPosition(myTransform.getPosition());
+	currentWaves.SetRotation(myTransform.getRotation());
+
+	currentWaves.Render(aWindow);
+	//aWindow.draw(myWavesSprite);
 	aWindow.draw(mySprite);
 }
 
@@ -127,11 +134,17 @@ void CShip::Respawn()
 	mySpeed = 0.f;
 	myIsSinking = false;
 	myIsDead = false;
+	myInvisibilityTimer = 0.f;
+	myHasTreasure = false;
+	myHasRespawned = true;
 }
 
 
 void CShip::Sink()
 {
+	if (myInvisibilityTimer < 5.f)
+		return;
+
 	//Ensure the ship can not sink twice
 	if (myIsSinking)
 		return;
@@ -139,6 +152,7 @@ void CShip::Sink()
 	mySpeed = 0.f;
 	myCurrentOpacity = 255.f;
 	myIsSinking = true;
+
 }
 
 bool CShip::GetIsDead() const
@@ -193,7 +207,21 @@ void CShip::SetPosition(const sf::Vector2f & aPosition)
 
 void CShip::SetWavesTextures(sf::Texture & aSmallWaves, sf::Texture & aBigWaves)
 {
-	myWaves[(size_t)EWaves::Small].Init(aSmallWaves, 64, 0.1f);
-	myWaves[(size_t)EWaves::Big].Init(aBigWaves, 64, 0.1f);
+	myWaves[(size_t)EWaves::Small].Init(aSmallWaves, aSmallWaves.getSize().x / 3, aSmallWaves.getSize().y, 0.1f);
+	myWaves[(size_t)EWaves::Big].Init(aBigWaves, aBigWaves.getSize().x / 3, aBigWaves.getSize().y, 0.1f);
+	myWavesSprite.setTexture(aSmallWaves);
+	myWavesSprite.setOrigin(aSmallWaves.getSize().x / 2, aSmallWaves.getSize().y / 2);
+}
+
+bool CShip::GetIsInvincible() const
+{
+	return myInvisibilityTimer < 5.f;
+}
+
+bool CShip::GetHasRespawned()
+{
+	bool returnVal = myHasRespawned;
+	myHasRespawned = false;
+	return returnVal;
 }
 

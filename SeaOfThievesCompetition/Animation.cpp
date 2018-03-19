@@ -2,14 +2,15 @@
 #include <SFML\Graphics\RenderWindow.hpp>
 #include "Math.h"
 
-void CAnimation::Init(sf::Texture & aTexture, short aFrameSize, float aFrameTime)
+void CAnimation::Init(sf::Texture & aTexture, short aFrameSize, short aFrameheight, float aFrameTime)
 {
 	mySprite.setTexture(aTexture);
 	myFrameSize = aFrameSize;
+	myFrameHeight = aFrameheight;
 	myFrameTime = aFrameTime;
 	myCurrentFrame = 0;
 
-	mySprite.setOrigin({ (float)myFrameSize / 2, (float)myFrameSize / 2 });
+	mySprite.setOrigin({ (float)myFrameSize / 2, (float)myFrameHeight / 2 });
 
 	SetAppropriateFrame();
 }
@@ -54,11 +55,16 @@ void CAnimation::Render(sf::RenderWindow & aWindow)
 	aWindow.draw(mySprite);
 }
 
+void CAnimation::SetOpacity(short aOpacity)
+{
+	mySprite.setColor({ 255,255,255, (sf::Uint8)aOpacity });
+}
+
 void CAnimation::SetAppropriateFrame()
 {
 	sf::IntRect textureRect;
 	textureRect.width = myFrameSize;
-	textureRect.height = myFrameSize;
+	textureRect.height = myFrameHeight;
 	textureRect.left = myFrameSize * myCurrentFrame;
 	textureRect.top = 0;
 

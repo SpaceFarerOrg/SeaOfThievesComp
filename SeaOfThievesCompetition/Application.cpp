@@ -1,11 +1,12 @@
 #include "Application.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML\Window\Event.hpp>
-#include "Button.h"
+#include "UIBase.h"
 #include "SFML\Window\Mouse.hpp"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
+float CApplication::myMasterVolume;
 
 void CApplication::Init()
 {
@@ -27,18 +28,20 @@ void CApplication::Init()
 	//vm.width = 896;
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
 
-	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::Close);
+	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::None);
 
-	CButton::SetWindow(myWindow);
-	CButton::SetFont("font/font.ttf");
+	CUIBase::SetWindow(myWindow);
+	CUIBase::SetFont("font/font.ttf");
 
 	myGame.SetWindow(myWindow);
 	myMenu.SetWindow(myWindow);
 
 	myGame.Init();
 	myMenu.Init();
+	myGame.UpdateVolumes();
 
 	myMenuTextBox = myMenu.GetTextBox();
+	myMenuNameBox = myMenu.GetNameBox();
 
 	myCursorTexture.loadFromFile("sprites/cursor.png");
 	myCursorSprite.setTexture(myCursorTexture);
@@ -47,6 +50,8 @@ void CApplication::Init()
 
 	myScreenSpaceView = myWindow->getView();
 	myNetworkThread = std::thread([&]()->void { UpdateNetworking(); });
+
+	CNetworking::GetInstance().SetGame(&myGame);
 }
 
 void CApplication::Update()
@@ -54,6 +59,8 @@ void CApplication::Update()
 	if (myIsWindowActive)
 	{
 		bool isMultiplayerClient = CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient();
+
+		myGame.UpdateVolumes();
 
 		myWindow->clear({ 95,189,197 });
 		if (myHasChangedState && myIsInGame)
@@ -73,15 +80,16 @@ void CApplication::Update()
 		{
 			myHasChangedState = false;
 			myMenu.SetMenuState();
+			myGame.ReInit();
 		}
 
 		if (myIsInGame)
 		{
-			myGame.Update();
+			myShouldClose = !myGame.Update();
 		}
 		else
 		{
-			myMenu.Update();
+			myShouldClose = !myMenu.Update();
 		}
 
 		sf::Vector2i mPos = sf::Mouse::getPosition(*myWindow);
@@ -102,19 +110,24 @@ void CApplication::Update()
 			myConnectMessage.setString("Online: Disconnected");
 		}
 
-		if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
-		{
-			time_t r = CNetworking::GetInstance().GetLastRecieveTime();
-
-			if (time(nullptr) - r > 10)
-			{
-				CNetworking::GetInstance().Disconnect();
-			}
-		}
 
 		myWindow->draw(myConnectMessage);
 
 		myWindow->display();
+	}
+
+	if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
+	{
+		time_t r = CNetworking::GetInstance().GetLastRecieveTime();
+
+		if (time(nullptr) - r > 10)
+		{
+			CNetworking::GetInstance().Disconnect();
+		}
+	}
+	else if (CNetworking::GetInstance().GetIsNetworkEnabled() && !CNetworking::GetInstance().GetIsClient())
+	{
+		CNetworking::GetInstance().DoPingUpdate();
 	}
 
 	HandleWindowEvents();
@@ -136,6 +149,16 @@ void CApplication::EnterMenu()
 {
 	myIsInGame = false;
 	myHasChangedState = true;
+}
+
+void CApplication::SetVolume(float aMasterVolume)
+{
+	myMasterVolume = aMasterVolume;
+}
+
+float CApplication::GetVolume()
+{
+	return myMasterVolume;
 }
 
 bool CApplication::GetShouldRun() const
@@ -178,10 +201,12 @@ void CApplication::HandleWindowEvents()
 			if (e.text.unicode != 8)
 			{
 				myMenuTextBox->AddText(e.text.unicode);
+				myMenuNameBox->AddText(e.text.unicode);
 			}
 			else
 			{
 				myMenuTextBox->RemoveCharacter();
+				myMenuNameBox->RemoveCharacter();
 			}
 		}
 	}

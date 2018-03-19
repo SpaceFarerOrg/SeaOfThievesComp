@@ -71,6 +71,8 @@ void CNetworking::Disconnect()
 	if (!myIsNetworkEnabled)
 		return;
 
+	std::cout << "Disconnect was called" << std::endl;
+
 	if (myIsClient)
 	{
 		SDisconnectMessage msg;
@@ -113,7 +115,6 @@ void CNetworking::Update()
 	if (mySocket.receive(p, ip, port) == sf::Socket::Done)
 	{
 		myLastRecieveTime = time(nullptr);
-		mySocket.receive(p, ip, port);
 
 		short shortType;
 		p >> shortType;
@@ -139,12 +140,16 @@ void CNetworking::SendMyTranslation(sf::Transformable & aTransform)
 		msg.myRotation = aTransform.getRotation();
 		msg.myX = aTransform.getPosition().x;
 		msg.myY = aTransform.getPosition().y;
+		msg.myName = myName;
 
 		sf::Packet p = msg.GetAsPacket();
 
 		for (size_t i = 1; i < myClients.size(); ++i)
 		{
-			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+			if (myClients[i].myIsWelcomed)
+			{
+				mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+			}
 		}
 		return;
 	}
@@ -154,6 +159,7 @@ void CNetworking::SendMyTranslation(sf::Transformable & aTransform)
 	msg.myRotation = aTransform.getRotation();
 	msg.myX = aTransform.getPosition().x;
 	msg.myY = aTransform.getPosition().y;
+	msg.myName = myName;
 
 	sf::Packet p = msg.GetAsPacket();
 
@@ -189,9 +195,56 @@ time_t CNetworking::GetLastRecieveTime()
 	return myLastRecieveTime;
 }
 
+void CNetworking::DoPingUpdate()
+{
+	for (size_t i = 1; i < myClients.size(); ++i)
+	{
+		if (time(nullptr) - myClients[i].myLastPing > 2)
+		{
+			myClients[i].myLastPing = time(nullptr);
+
+			SPingMessage ping;
+			sf::Packet p = ping.GetAsPacket();
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+	}
+}
+
+void CNetworking::SendWinning(bool aOnlyCloseTo)
+{
+	if (!myIsClient)
+	{
+		SCloseToWinMessage msg;
+		msg.myID = myClientID;
+		msg.myIsCloseTo = aOnlyCloseTo;
+
+		sf::Packet p = msg.GetAsPacket();
+
+		for (size_t i = 1; i < myClients.size(); ++i)
+		{
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+	}
+	if (myIsClient)
+	{
+		SCloseToWinMessage msg;
+		msg.myID = myClientID;
+		msg.myIsCloseTo = aOnlyCloseTo;
+
+		sf::Packet p = msg.GetAsPacket();
+
+		mySocket.send(p, myServerAdress, SERVER_PORT);
+	}
+}
+
 const std::vector<SClient>& CNetworking::GetPlayerList()
 {
 	return myClients;
+}
+
+size_t CNetworking::GetSelfInClientList() const
+{
+	return mySelfInClientList;
 }
 
 void CNetworking::SetGame(CGame * aGame)
@@ -211,7 +264,7 @@ bool CNetworking::GetIsClient() const
 
 CNetworking::CNetworking()
 {
-	myName = "Kocklice";
+	myName = "";
 	myIsNetworkEnabled = false;
 	myIsClient = false;
 	myClientID = 0;
@@ -219,20 +272,19 @@ CNetworking::CNetworking()
 
 void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType)
 {
-	for (size_t i = 1; i < myClients.size(); ++i)
-	{
-		if (time(nullptr) - myClients[i].myLastPing > 2)
-		{
-			SPingMessage ping;
-			sf::Packet p = ping.GetAsPacket();
-			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
-		}
-	}
 
+	if (aType == EMessageType::Welcome)
+	{
+		SWelcomeMessage msg;
+		msg.OpenPacket(aPacket);
+
+		myClients[msg.myID].myIsWelcomed = true;
+	}
 	if (aType == EMessageType::Connect)
 	{
 		SConnectMessage msg;
 		msg.OpenPacket(aPacket);
+
 		ConnectClient(msg, aIP, aPort);
 	}
 	if (aType == EMessageType::Transform)
@@ -242,12 +294,14 @@ void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		SClient& client = myClients[msg.mySenderID];
 		client.myTransform.setRotation(msg.myRotation);
 		client.myTransform.setPosition(msg.myX, msg.myY);
+		client.myName = msg.myName;
 
 		STransformMessage toClients;
 		toClients.mySenderID = msg.mySenderID;
 		toClients.myRotation = msg.myRotation;
 		toClients.myX = msg.myX;
 		toClients.myY = msg.myY;
+		toClients.myName = msg.myName;
 		sf::Packet p = toClients.GetAsPacket();
 
 		for (SClient& client : myClients)
@@ -260,7 +314,7 @@ void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		SDisconnectMessage msg;
 		msg.OpenPacket(aPacket);
 
-		myClients.erase(myClients.begin() + msg.myDisconnectedClient);
+		myClients[msg.myDisconnectedClient].myConnected = false;
 
 		SDisconnectMessage sendM;
 		sendM.myDisconnectedClient = msg.myDisconnectedClient;
@@ -278,15 +332,40 @@ void CNetworking::UpdateAsServer(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 
 		myClients[msg.mySenderID].myLastPing = msg.myTimeStamp;
 	}
+	if (aType == EMessageType::CloseToWin)
+	{
+		SCloseToWinMessage msg;
+		msg.OpenPacket(aPacket);
+
+		if (msg.myIsCloseTo)
+		{
+			myGame->ShowSomeoneCloseToWinningText(myClients[msg.myID].myName);
+		}
+		else
+		{
+			myGame->SetWinner(myClients[msg.myID].myName);
+		}
+
+		SCloseToWinMessage sendMsg;
+		sendMsg.myID = msg.myID;
+		sendMsg.myIsCloseTo = msg.myIsCloseTo;
+
+		sf::Packet p = sendMsg.GetAsPacket();
+
+		for (size_t i = 1; i < myClients.size(); ++i)
+		{
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+	}
 
 }
 
 void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsigned short aPort, EMessageType aType)
 {
-	if (time(nullptr) - myLastPingTime > 5)
-	{
-		Disconnect();
-	}
+	//if (time(nullptr) - myLastPingTime > 5)
+	//{
+	//	Disconnect();
+	//}
 
 	if (aType == EMessageType::Welcome)
 	{
@@ -304,7 +383,15 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 			myMap[i] = msg.myCurrentMap[i];
 		}
 
-		myClients.push_back(SClient());
+		myClients.push_back(SClient()); //SELF
+		mySelfInClientList = myClients.size() - 1;
+
+		SWelcomeMessage toServer;
+		toServer.myID = myClientID;
+		sf::Packet p = toServer.GetAsPacket();
+
+		mySocket.send(p, myServerAdress, SERVER_PORT);
+
 	}
 	if (aType == EMessageType::Connect)
 	{
@@ -322,6 +409,7 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		SClient& client = myClients[msg.mySenderID];
 		client.myTransform.setRotation(msg.myRotation);
 		client.myTransform.setPosition(msg.myX, msg.myY);
+		client.myName = msg.myName;
 	}
 	if (aType == EMessageType::Whirlwind)
 	{
@@ -334,14 +422,14 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		SDisconnectMessage msg;
 		msg.OpenPacket(aPacket);
 
-		if (msg.mySenderID == 0)
+		if (msg.myDisconnectedClient == 0)
 		{
 			Disconnect();
 			myClients.clear();
 		}
 		else
 		{
-			myClients.erase(myClients.begin() + msg.mySenderID);
+			myClients[msg.myDisconnectedClient].myConnected = false;
 		}
 	}
 	if (aType == EMessageType::Ping)
@@ -355,11 +443,26 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		sf::Packet p = returnMsg.GetAsPacket();
 		mySocket.send(p, myServerAdress, SERVER_PORT);
 	}
+	if (aType == EMessageType::CloseToWin)
+	{
+		SCloseToWinMessage msg;
+		msg.OpenPacket(aPacket);
+
+		if (msg.myIsCloseTo)
+		{
+			myGame->ShowSomeoneCloseToWinningText(myClients[msg.myID].myName);
+		}
+		else
+		{
+			myGame->SetWinner(myClients[msg.myID].myName);
+		}
+	}
 }
 
 void CNetworking::ConnectClient(SConnectMessage & aMessage, sf::IpAddress& aIp, unsigned short aPort)
 {
 	SClient newClient;
+
 	newClient.myName = aMessage.myText;
 	newClient.myIP = aIp;
 	newClient.myPort = aPort;

@@ -141,8 +141,10 @@
     <ClCompile Include="MultiplayerShip.cpp" />
     <ClCompile Include="Network.cpp" />
     <ClCompile Include="Ship.cpp" />
+    <ClCompile Include="Slider.cpp" />
     <ClCompile Include="TextBox.cpp" />
     <ClCompile Include="Treasury.cpp" />
+    <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIMap.cpp" />
     <ClCompile Include="Whirlwind.cpp" />
   </ItemGroup>
@@ -161,8 +163,10 @@
     <ClInclude Include="NetworkMessages.h" />
     <ClInclude Include="NpcShip.h" />
     <ClInclude Include="Ship.h" />
+    <ClInclude Include="Slider.h" />
     <ClInclude Include="TextBox.h" />
     <ClInclude Include="Treasury.h" />
+    <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIMap.h" />
     <ClInclude Include="Whirlwind.h" />
   </ItemGroup>

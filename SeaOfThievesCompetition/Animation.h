@@ -10,12 +10,13 @@ namespace sf
 class CAnimation
 {
 public:
-	void Init(sf::Texture& aTexture, short aFrameSize, float aFrameTime);
+	void Init(sf::Texture& aTexture, short aFrameSize, short aFrameHeight, float aFrameTime);
 	void RandomizeStartFrame();
 
 	void Update(float aDT);
 	void Render(sf::RenderWindow& aWindow);
 
+	void SetOpacity(short aOpacity);
 
 	void SetPosition(const sf::Vector2f& aPosition);
 	void SetRotation(float aRotation);
@@ -28,5 +29,6 @@ private:
 	float myCurrentFrameTime;
 	float myFrameTime;
 	short myFrameSize;
+	short myFrameHeight;
 	sf::Sprite mySprite;
 };

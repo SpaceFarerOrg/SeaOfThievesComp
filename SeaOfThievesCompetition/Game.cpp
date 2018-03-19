@@ -17,25 +17,46 @@ void CGame::Init()
 	myFont.loadFromFile("font/font.ttf");
 	myPressSpaceToLoot.setFont(myFont);
 	myYouAreOutsideOfMap.setFont(myFont);
+	myPlayerCloseToWinning.setFont(myFont);
+	myPlayerCloseToWinning.setFillColor(sf::Color::Transparent);
+
+	myWinningPlayer.setFont(myFont);
 
 	myCashSoundBuffer.loadFromFile("audio/earnMoney.ogg");
 	myCashSound.setBuffer(myCashSoundBuffer);
 	myCashSound.setVolume(45);
 
-	myBackgroundMusic.openFromFile("audio/song.ogg");
-	myBackgroundMusic.setLoop(true);
-	//myBackgroundMusic.play();
+	myTreasureThump.loadFromFile("audio/treasureThump.ogg");
+	myTreasureSound.setBuffer(myTreasureThump);
+	myTreasureSound.setVolume(45);
+
+	myCrash.loadFromFile("audio/shipCrash.ogg");
+	myCrashSound.setBuffer(myCrash);
+	myCrashSound.setVolume(45);
+
+	myBackgroundSongs[0].openFromFile("audio/song.ogg");
+	myBackgroundSongs[0].setLoop(false);
+
+	myBackgroundSongs[1].openFromFile("audio/song2.ogg");
+	myBackgroundSongs[0].setLoop(false);
 
 	myBackgroundSound.openFromFile("audio/bgSound.ogg");
 	myBackgroundSound.setLoop(true);
-	//myBackgroundSound.play();
+	myBackgroundSound.play();
 
-		/*
-		Map Legend
-		1 - Spawn position
-		2 - Gold Island
-		3 - Island
-		*/
+	myStressMusic.openFromFile("audio/stress.ogg");
+	myStressMusic.setLoop(true);
+
+	myHasRegisteredPaus = false;
+
+
+
+	/*
+	Map Legend
+	1 - Spawn position
+	2 - Gold Island
+	3 - Island
+	*/
 
 	myMap =
 	{
@@ -72,7 +93,7 @@ void CGame::Init()
 	myShip.Init(myTextureBank[(size_t)ETexture::Ship]);
 	myShip.SetWavesTextures(myTextureBank[(size_t)ETexture::ShipWavesBig], myTextureBank[(size_t)ETexture::ShipWavesBig]);
 
-	myUIMap.Init(myTextureBank[(size_t)ETexture::Map], myTextureBank[(size_t)ETexture::MapIsland], myTextureBank[(size_t)ETexture::MapIslandTwo], myTextureBank[(size_t)ETexture::MapIslandThree],myTextureBank[(size_t)ETexture::MapGoldIsland], myTextureBank[(size_t)ETexture::Cross], myMap);
+	myUIMap.Init(myTextureBank[(size_t)ETexture::Map], myTextureBank[(size_t)ETexture::MapIsland], myTextureBank[(size_t)ETexture::MapIslandTwo], myTextureBank[(size_t)ETexture::MapIslandThree], myTextureBank[(size_t)ETexture::MapGoldIsland], myTextureBank[(size_t)ETexture::Cross], myMap);
 
 	myShipSprite.setTexture(myTextureBank[(size_t)ETexture::Ship]);
 	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
@@ -81,20 +102,68 @@ void CGame::Init()
 	{
 		p.first.Init(myTextureBank[(size_t)ETexture::Whirlwind]);
 	}
-	myNextAvailibleWW = 0;
+	myNextAvailableWW = 0;
 	mySpawnNewWWTimer = 0.f;
+
+	myShouldSendWinning = true;
+
+	myPlayerHasWon = false;
 
 	myShouldRun = true;
 
 	myBirdSpawner.Init();
 }
 
-void CGame::Update()
+void CGame::ReInit()
 {
+	myTreasury.SetGold(0);
+	myShouldSendWinning = true;
+	myHasRegisteredPaus = false;
+	myPlayerHasWon = false;
+	myPlayerCanLoot = false;
+	myPlayerCanSell = false;
+	myHasRegisteredPaus = false;
+	myStressMusic.stop();
+	myShip.Respawn();
+
+	for (sf::Music& song : myBackgroundSongs)
+	{
+		song.stop();
+	}
+
+	RandomizeSong();
+}
+
+bool CGame::Update()
+{
+
+	if (myBackgroundSongs[myActiveSong].getStatus() == sf::SoundSource::Stopped && !myHasRegisteredPaus && myStressMusic.getStatus() != sf::SoundSource::Status::Playing)
+	{
+		myHasRegisteredPaus = true;
+		myTimeWithNoMusic = 0.f;
+	}
+
+
+	if (myHasRegisteredPaus && myTimeWithNoMusic >= 15.f  && myStressMusic.getStatus() != sf::SoundSource::Status::Playing)
+	{
+		RandomizeSong();
+		myHasRegisteredPaus = false;
+	}
+
+	if (myShip.GetHasRespawned())
+	{
+		myTreasury.GiveGold(-100);
+		PlaceTreasure();
+	}
+
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
 	myDeltaTimer.restart();
 
 	dt = dt > 1.f ? 1.f : dt;
+
+	myTimeWithNoMusic += dt;
+
+	myUIMap.SetTreasureIsland(myIslands[myTreasureIsland].GetIndexInMap());
 
 	myCamera.setSize(myWindow->getSize().x, myWindow->getSize().y);
 	myWindow->setView(myCamera);
@@ -117,6 +186,7 @@ void CGame::Update()
 	CheckShipCollisionVsIslands();
 
 	myShip.Update(dt);
+
 	myShip.Render(*myWindow);
 
 	DisplayOtherShips();
@@ -125,8 +195,6 @@ void CGame::Update()
 
 	myBirdSpawner.Render(myWindow);
 
-	ShowPressButtonPrompt();
-	EnsurePlayerKeepingOnMap(dt);
 
 	float mapAlpha = myUIMap.GetAlpha();
 
@@ -148,9 +216,14 @@ void CGame::Update()
 
 	myCamera.setCenter(myShip.GetPosition().x, myShip.GetPosition().y);
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape) || myShip.GetIsDead())
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 	{
 		CApplication::EnterMenu();
+	}
+	if (myShip.GetIsDead())
+	{
+		myShip.Respawn();
+		myShip.SetPosition(TranslateMapPointToWorldPosition(mySpawnPointIndex));
 	}
 
 	if (!CNetworking::GetInstance().GetIsClient())
@@ -163,42 +236,100 @@ void CGame::Update()
 			CNetworking::GetInstance().SendWhirlwindSpawn(pos);
 			mySpawnNewWWTimer = 0.f;
 		}
-
 	}
 
-	if (myTreasury.GetGold() == 1000)
+	if (myTreasury.GetGold() == 1000 && myShouldSendWinning)
 	{
-		//Win game
+		myPlayerHasWon = true;
+
+		if (CNetworking::GetInstance().GetIsNetworkEnabled())
+		{
+
+			//Win game
+			CNetworking::GetInstance().SendWinning(false);
+
+		}
+
+		SetWinner("You ");
+		myShouldSendWinning = false;
 	}
 	else if (myTreasury.GetGold() == 800)
 	{
-		//Push Pirate is Close to winning
+		SetCloseToWinning(myShouldSendCloseToWinning);
 	}
+
+
+	mySomeoneIsCloseToWinningTimer += dt;
+	if (!myPlayerHasWon)
+	{
+		myPlayerCloseToWinning.setPosition(myWindow->getView().getCenter().x, myWindow->getView().getCenter().y - myPlayerCloseToWinning.getGlobalBounds().height * 2);
+
+		myWindow->draw(myPlayerCloseToWinning);
+
+		if (mySomeoneIsCloseToWinningTimer >= 5.f)
+		{
+			myPlayerCloseToWinning.setFillColor(sf::Color::Transparent);
+			myPlayerCloseToWinning.setOutlineColor(sf::Color::Transparent);
+		}
+
+		ShowPressButtonPrompt();
+		EnsurePlayerKeepingOnMap(dt);
+	}
+	else
+	{
+		myTimeWinnerShow += dt;
+
+		if (myTimeWinnerShow >= 6.f)
+		{
+			CApplication::EnterMenu();
+			CNetworking::GetInstance().Disconnect();
+		}
+
+		myWinningPlayer.setCharacterSize(50);
+		myWinningPlayer.setFillColor(sf::Color::White);
+		myWinningPlayer.setOrigin(myWinningPlayer.getGlobalBounds().width / 2.f, myWinningPlayer.getGlobalBounds().height / 2.f);
+		myWinningPlayer.setPosition(myCamera.getCenter());
+		myWinningPlayer.setOutlineColor(sf::Color::Black);
+		myWinningPlayer.setOutlineThickness(2.f);
+		myWindow->draw(myWinningPlayer);
+	}
+	return true;
 }
 
 void CGame::DisplayOtherShips()
 {
-	const std::vector<SClient> otherShips = CNetworking::GetInstance().GetPlayerList();
+	std::vector<SClient> otherShips = CNetworking::GetInstance().GetPlayerList();
+
+	if (otherShips.size() > 0)
+	{
+		otherShips.erase(otherShips.begin() + CNetworking::GetInstance().GetSelfInClientList());
+	}
+
 	sf::Text otherPlayerName;
 	otherPlayerName.setFont(myFont);
 
 	for (const SClient& other : otherShips)
 	{
-		myShipSprite.setPosition(other.myTransform.getPosition());
-		myShipSprite.setRotation(other.myTransform.getRotation());
+		if (other.myConnected)
+		{
+			myShipSprite.setPosition(other.myTransform.getPosition());
+			myShipSprite.setRotation(other.myTransform.getRotation());
 
-		myWindow->draw(myShipSprite);
+			myWindow->draw(myShipSprite);
 
-		otherPlayerName.setString(other.myName);
-		otherPlayerName.setOrigin(otherPlayerName.getGlobalBounds().width / 2.f, otherPlayerName.getGlobalBounds().height / 2.f);
-		otherPlayerName.setPosition(other.myTransform.getPosition().x, other.myTransform.getPosition().y - myShipSprite.getGlobalBounds().height / 2.f);
+			otherPlayerName.setString(other.myName);
+			otherPlayerName.setOrigin(otherPlayerName.getGlobalBounds().width / 2.f, otherPlayerName.getGlobalBounds().height / 2.f);
+			otherPlayerName.setPosition(other.myTransform.getPosition().x, other.myTransform.getPosition().y - myShipSprite.getGlobalBounds().height / 2.f);
 
-		myWindow->draw(otherPlayerName);
+			myWindow->draw(otherPlayerName);
+		}
 	}
 }
 
 void CGame::GenerateWorld()
 {
+	myShouldSendCloseToWinning = true;
+
 	ClearMapFromIslands();
 
 	myShip.Respawn();
@@ -214,6 +345,8 @@ void CGame::GenerateWorld()
 
 void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 {
+	myShouldSendCloseToWinning = true;
+
 	myIslands.clear();
 	myWhirlwinds.clear();
 	ClearMapFromIslands();
@@ -228,33 +361,48 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 			islandTexture = ETexture::Island;
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+			myIslands.back().SetIndexInMap(i);
 		}
 		if (myMap[i] == ISLAND_2)
 		{
 			islandTexture = ETexture::IslandTwo;
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+			myIslands.back().SetIndexInMap(i);
 		}
 		if (myMap[i] == ISLAND_3)
 		{
 			islandTexture = ETexture::IslandThree;
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)islandTexture], TranslateMapPointToWorldPosition(i));
+			myIslands.back().SetIndexInMap(i);
 		}
 		if (myMap[i] == GOLD_ISLAND)
 		{
 			myIslands.push_back(CIsland());
 			myIslands.back().Init(myTextureBank[(size_t)ETexture::GoldIsland], TranslateMapPointToWorldPosition(i), true);
-			myGoldIslandIndex = i;
+			myGoldIslandIndex = myIslands.size() - 1;
 			myGoldIslandIndexInMap = i;
+			myIslands.back().SetIndexInMap(i);
 		}
 		if (i == mySpawnPointIndex)
 		{
 			myShip.SetPosition(TranslateMapPointToWorldPosition(mySpawnPointIndex));
 		}
 	}
-	CreateWaves();
 	myUIMap.SetMap(myMap);
+	CreateWaves();
+	PlaceTreasure();
+
+}
+
+void CGame::RandomizeSong()
+{
+	short songToStart = Math::GetRandomInRange(0, myBackgroundSongs.size() - 1);
+
+	myBackgroundSongs[songToStart].play();
+
+	myActiveSong = songToStart;
 }
 
 void CGame::ShowPressButtonPrompt()
@@ -303,8 +451,6 @@ void CGame::CreateWorld()
 
 	CreateIslands();
 	CreateWaves();
-
-
 }
 
 void CGame::CheckShipCollisionVsIslands()
@@ -321,6 +467,11 @@ void CGame::CheckShipCollisionVsIslands()
 		{
 			if (myIslands[i].IsColliding(pos))
 			{
+				if (!myShip.GetIsSinking() && !myShip.GetIsInvincible())
+				{
+					myCrashSound.play();
+				}
+
 				myShip.Sink();
 			}
 			else if (myIslands[i].HasTreasure())
@@ -330,6 +481,7 @@ void CGame::CheckShipCollisionVsIslands()
 					myPlayerCanLoot = true;
 					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
 					{
+						myTreasureSound.play();
 						myIslands[i].Loot();
 						myShip.SetHoldsTreasure(true);
 					}
@@ -355,14 +507,22 @@ void CGame::CheckShipCollisionVsIslands()
 
 void CGame::PlaceTreasure()
 {
-	short islandToGetTreasure = myGoldIslandIndex;
+	bool placedTreasure = false;
 
-	while (islandToGetTreasure == myGoldIslandIndex)
+	short islandToGetTreasure = 0;
+
+	while (!placedTreasure)
 	{
 		islandToGetTreasure = Math::GetRandomInRange(0, myIslands.size() - 1);
+
+		if (islandToGetTreasure != myTreasureIsland && islandToGetTreasure != myGoldIslandIndex)
+		{
+			placedTreasure = true;
+		}
 	}
 
-	myUIMap.SetTreasureIsland(myIslands[islandToGetTreasure].GetIndexInMap());
+	myTreasureIsland = islandToGetTreasure;
+
 	myIslands[islandToGetTreasure].SetHasTreasure();
 }
 
@@ -375,7 +535,7 @@ void CGame::EnsurePlayerKeepingOnMap(float aDT)
 
 	sf::Vector2f shipPos = myShip.GetPosition();
 
-	if (myShip.GetPosition().x > mapMax +forgiveness || myShip.GetPosition().y > mapMax +forgiveness || myShip.GetPosition().x < mapMin - forgiveness || myShip.GetPosition().y < mapMin - forgiveness || myShip.GetIsSinking())
+	if (myShip.GetPosition().x > mapMax + forgiveness || myShip.GetPosition().y > mapMax + forgiveness || myShip.GetPosition().x < mapMin - forgiveness || myShip.GetPosition().y < mapMin - forgiveness || myShip.GetIsSinking())
 	{
 		myIsOutsideOfMap = true;
 
@@ -438,6 +598,71 @@ sf::Vector2f CGame::TranslateMapPointToWorldPosition(size_t aMapIndex)
 	sf::Vector2f returnPos = { worldX, worldY };
 
 	return std::move(returnPos);
+}
+
+void CGame::UpdateVolumes()
+{
+	float volume = CApplication::GetVolume();
+
+	for (sf::Music& song : myBackgroundSongs)
+	{
+		song.setVolume(volume);
+	}
+	myStressMusic.setVolume(volume);
+	myBackgroundSound.setVolume(volume);
+	myCashSound.setVolume(volume);
+	myTreasureSound.setVolume(volume);
+	myCrashSound.setVolume(volume);
+}
+
+void CGame::SetWinner(const sf::String & aName)
+{
+	myWinningPlayer.setString(aName + " became a pirate legend first!");
+	myPlayerHasWon = true;
+}
+
+void CGame::ShowSomeoneCloseToWinningText(const sf::String & aName)
+{
+	mySomeoneIsCloseToWinningTimer = 0;
+
+	myPlayerCloseToWinning.setCharacterSize(60);
+	myPlayerCloseToWinning.setOutlineThickness(2.f);
+	myPlayerCloseToWinning.setString(aName + " is close to winning!");
+	myPlayerCloseToWinning.setOrigin(myPlayerCloseToWinning.getGlobalBounds().width / 2.f, myPlayerCloseToWinning.getGlobalBounds().height / 2.f);
+	myPlayerCloseToWinning.setFillColor(sf::Color::White);
+	myPlayerCloseToWinning.setPosition(myWindow->getView().getCenter().x, myWindow->getView().getCenter().y - myPlayerCloseToWinning.getGlobalBounds().height * 2);
+	myPlayerCloseToWinning.setOutlineColor(sf::Color::Black);
+
+	SetCloseToWinning();
+}
+
+void CGame::SetCloseToWinning(bool aShouldSend)
+{
+	//if (myBackgroundMusic.getVolume() > 0)
+	//{
+	//	myBackgroundMusic.setVolume(myBackgroundMusic.getVolume() - 1);
+	//}
+	//else
+	//{
+
+	if (myStressMusic.getStatus() != sf::Music::Status::Playing)
+	{
+		for (sf::Music& song : myBackgroundSongs)
+		{
+			song.stop();
+		}
+
+		myStressMusic.setVolume(100);
+		myStressMusic.play();
+	}
+	//}
+
+
+	if (CNetworking::GetInstance().GetIsNetworkEnabled() && aShouldSend && !myHasSentClosedToWinning)
+	{
+		myHasSentClosedToWinning = true;
+		CNetworking::GetInstance().SendWinning(true);
+	}
 }
 
 void CGame::LoadTextures()
@@ -520,7 +745,7 @@ void CGame::CreateWaves()
 		if (myMap[i] != ISLAND && i != myGoldIslandIndex)
 		{
 			myWaves.push_back(CAnimation());
-			myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 600, 0.25f);
+			myWaves.back().Init(myTextureBank[(size_t)ETexture::Waves], 600, 600, 0.25f);
 			myWaves.back().RandomizeStartFrame();
 			myWaves.back().SetPosition(TranslateMapPointToWorldPosition(i));
 		}
@@ -529,15 +754,15 @@ void CGame::CreateWaves()
 
 void CGame::PlaceWhirlwind(const sf::Vector2f& aPosition)
 {
-	auto& wwToPlace = myWhirlwindBuffer[myNextAvailibleWW];
+	auto& wwToPlace = myWhirlwindBuffer[myNextAvailableWW];
 
 	wwToPlace.first.SetShouldFade(false);
 	wwToPlace.first.SetPosition(aPosition);
 	wwToPlace.second = 0.f;
 
-	++myNextAvailibleWW;
+	++myNextAvailableWW;
 
-	myNextAvailibleWW %= myWhirlwindBuffer.size();
+	myNextAvailableWW %= myWhirlwindBuffer.size();
 }
 
 void CGame::UpdateWhirlwinds(float aDT)
@@ -554,7 +779,7 @@ void CGame::UpdateWhirlwinds(float aDT)
 		if (myWhirlwindBuffer[i].second >= WHIRLWIND_STAY_TIME)
 		{
 			myWhirlwindBuffer[i].first.SetShouldFade(true);
-			
+
 			if (myWhirlwindBuffer[i].first.GetCanChangePosition())
 			{
 				myWhirlwindBuffer[i].first.SetPosition(TRASH_PILE);

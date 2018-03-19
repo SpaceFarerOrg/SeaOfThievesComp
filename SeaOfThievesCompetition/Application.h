@@ -20,6 +20,9 @@ public:
 	static void StartGame();
 	static void EnterMenu();
 
+	static void SetVolume(float aMasterVolume);
+	static float GetVolume();
+
 	bool GetShouldRun() const;
 private:
 	void UpdateNetworking();
@@ -38,6 +41,7 @@ private:
 	CMenu myMenu;
 
 	CTextBox* myMenuTextBox;
+	CTextBox* myMenuNameBox;
 
 	sf::Font myFont;
 	sf::Text myConnectMessage;
@@ -45,4 +49,6 @@ private:
 	sf::Texture myCursorTexture;
 	sf::Sprite myCursorSprite;
 	sf::View myScreenSpaceView;
+
+	static float myMasterVolume;
 };

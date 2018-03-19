@@ -17,6 +17,8 @@ struct SClient
 	sf::String myName;
 	time_t myLastPing;
 	sf::Transformable myTransform;
+	bool myIsWelcomed = false;
+	bool myConnected = true;
 };
 
 class CNetworking
@@ -39,8 +41,13 @@ public:
 	const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& GetMap() const;
 
 	time_t GetLastRecieveTime();
+	void DoPingUpdate();
+
+	void SendWinning(bool aOnlyCloseTo);
 
 	const std::vector<SClient>& GetPlayerList();
+
+	size_t GetSelfInClientList() const;
 
 	void SetGame(CGame* aGame);
 
@@ -52,6 +59,8 @@ private:
 
 	time_t myLastPingTime;
 	time_t myLastRecieveTime;
+
+	size_t mySelfInClientList;
 
 	CGame* myGame;
 
