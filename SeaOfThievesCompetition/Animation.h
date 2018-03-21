@@ -10,11 +10,11 @@ namespace sf
 class CAnimation
 {
 public:
-	void Init(sf::Texture& aTexture, short aFrameSize, short aFrameHeight, float aFrameTime);
+	void Init(const sf::Texture& aTexture, short aFrameSize, short aFrameHeight, float aFrameTime);
 	void RandomizeStartFrame();
 
 	void Update(float aDT);
-	void Render(sf::RenderWindow& aWindow);
+	void Render();
 
 	void SetOpacity(short aOpacity);
 

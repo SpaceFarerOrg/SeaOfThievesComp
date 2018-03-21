@@ -1,7 +1,7 @@
 #include "Whirlwind.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 
-void CWhirlwind::Init(sf::Texture & aWhirlwindTexture)
+void CWhirlwind::Init(const sf::Texture & aWhirlwindTexture)
 {
 	mySprite.setTexture(aWhirlwindTexture);
 	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);

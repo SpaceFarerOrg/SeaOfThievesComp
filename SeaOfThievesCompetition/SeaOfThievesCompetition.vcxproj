@@ -77,7 +77,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\</OutDir>
     <IntDir>$(SolutionDir)trash\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName>ThiefOfSeas</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -135,14 +135,16 @@
     <ClCompile Include="BirdSpawner.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Island.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
-    <ClCompile Include="MultiplayerShip.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="TextBox.cpp" />
+    <ClCompile Include="TextureBank.cpp" />
     <ClCompile Include="Treasury.cpp" />
     <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIMap.cpp" />
@@ -155,16 +157,17 @@
     <ClInclude Include="Button.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="Island.h" />
     <ClInclude Include="Math.h" />
     <ClInclude Include="Menu.h" />
-    <ClInclude Include="MultiplayerShip.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="NetworkMessages.h" />
-    <ClInclude Include="NpcShip.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="TextBox.h" />
+    <ClInclude Include="TextureBank.h" />
     <ClInclude Include="Treasury.h" />
     <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIMap.h" />

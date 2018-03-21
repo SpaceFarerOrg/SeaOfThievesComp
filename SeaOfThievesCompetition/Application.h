@@ -3,12 +3,9 @@
 #include "Menu.h"
 #include "SFML\Graphics\Sprite.hpp"
 #include <SFML\Network\UdpSocket.hpp>
+#include <SFML\Graphics\RenderWindow.hpp>
+#include "Renderer.h"
 #include <thread>
-
-namespace sf
-{
-	class RenderWindow;
-}
 
 class CApplication
 {
@@ -25,6 +22,8 @@ public:
 
 	bool GetShouldRun() const;
 private:
+	void LoadTextures();
+
 	void UpdateNetworking();
 
 	void HandleWindowEvents();
@@ -36,7 +35,9 @@ private:
 
 	static bool myIsInGame;
 	static bool myHasChangedState;
-	sf::RenderWindow* myWindow;
+
+	sf::RenderWindow myWindow;
+
 	CGame myGame;
 	CMenu myMenu;
 

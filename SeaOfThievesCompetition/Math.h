@@ -55,6 +55,12 @@ namespace Math
 	static void Normalize(sf::Vector2f& aVec)
 	{
 		float l = Length(aVec);
+
+		if (l == 0)
+		{
+			return;
+		}
+
 		aVec.x /= l;
 		aVec.y /= l;
 	}

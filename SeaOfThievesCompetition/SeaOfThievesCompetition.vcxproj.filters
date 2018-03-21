@@ -1,40 +1,124 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="BirdSpawner.cpp" />
-    <ClCompile Include="Button.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Island.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Menu.cpp" />
-    <ClCompile Include="MultiplayerShip.cpp" />
-    <ClCompile Include="Network.cpp" />
-    <ClCompile Include="Ship.cpp" />
-    <ClCompile Include="Treasury.cpp" />
-    <ClCompile Include="UIMap.cpp" />
-    <ClCompile Include="Whirlwind.cpp" />
-    <ClCompile Include="TextBox.cpp" />
+    <ClCompile Include="Animation.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="BirdSpawner.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Button.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Network.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TextBox.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="UIBase.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="UIMap.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Treasury.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Whirlwind.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Slider.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Island.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="Ship.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureBank.cpp" />
+    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="GameObject.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="BirdSpawner.h" />
-    <ClInclude Include="Button.h" />
     <ClInclude Include="Defines.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="Island.h" />
-    <ClInclude Include="Math.h" />
-    <ClInclude Include="Menu.h" />
-    <ClInclude Include="MultiplayerShip.h" />
-    <ClInclude Include="Network.h" />
-    <ClInclude Include="NetworkMessages.h" />
-    <ClInclude Include="NpcShip.h" />
-    <ClInclude Include="Ship.h" />
-    <ClInclude Include="Treasury.h" />
-    <ClInclude Include="UIMap.h" />
-    <ClInclude Include="Whirlwind.h" />
-    <ClInclude Include="TextBox.h" />
+    <ClInclude Include="Animation.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="BirdSpawner.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Network.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetworkMessages.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Math.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Treasury.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TextBox.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="UIBase.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="UIMap.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Whirlwind.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Slider.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Island.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Ship.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureBank.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Game">
+      <UniqueIdentifier>{6384bfaa-33cc-4a56-895a-db0d23b15901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{379ab64e-8697-4438-ac1f-85f26ea02e29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{d80c5f39-066b-47be-9a55-a41a4ab354ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

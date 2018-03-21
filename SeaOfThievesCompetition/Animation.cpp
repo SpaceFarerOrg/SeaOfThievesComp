@@ -1,8 +1,9 @@
 #include "Animation.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include "Math.h"
+#include "Renderer.h"
 
-void CAnimation::Init(sf::Texture & aTexture, short aFrameSize, short aFrameheight, float aFrameTime)
+void CAnimation::Init(const sf::Texture & aTexture, short aFrameSize, short aFrameheight, float aFrameTime)
 {
 	mySprite.setTexture(aTexture);
 	myFrameSize = aFrameSize;
@@ -47,12 +48,12 @@ void CAnimation::Update(float aDT)
 
 }
 
-void CAnimation::Render(sf::RenderWindow & aWindow)
+void CAnimation::Render()
 {
 	mySprite.setPosition(myTransform.getPosition());
 	mySprite.setRotation(myTransform.getRotation());
 
-	aWindow.draw(mySprite);
+	CRenderer::GetInstance().Render(mySprite);
 }
 
 void CAnimation::SetOpacity(short aOpacity)

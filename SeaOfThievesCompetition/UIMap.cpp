@@ -1,14 +1,15 @@
 #include "UIMap.h"
 #include <sfml\Graphics\RenderWindow.hpp>
+#include "TextureBank.h"
 
-void CUIMap::Init(sf::Texture & aMapTexture, sf::Texture & aMapIslandTexture, sf::Texture& aMapIslandTwoTexture, sf::Texture& aMapIslandThreeTexture, sf::Texture & aMapGoldIslandTexture, sf::Texture & aCrossTexture, std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CUIMap::Init(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 {
-	myMapSprite.setTexture(aMapTexture);
-	myIslandSprite.setTexture(aMapIslandTexture);
-	myIsland2Sprite.setTexture(aMapIslandTwoTexture);
-	myIsland3Sprite.setTexture(aMapIslandThreeTexture);
-	myGoldIslandSprite.setTexture(aMapGoldIslandTexture);
-	myCrossSprite.setTexture(aCrossTexture);
+	myMapSprite.setTexture(GET_TEXTURE(ETexture::Map));
+	myIslandSprite.setTexture(GET_TEXTURE(ETexture::MapIsland));
+	myIsland2Sprite.setTexture(GET_TEXTURE(ETexture::MapIslandTwo));
+	myIsland3Sprite.setTexture(GET_TEXTURE(ETexture::MapIslandThree));
+	myGoldIslandSprite.setTexture(GET_TEXTURE(ETexture::MapGoldIsland));
+	myCrossSprite.setTexture(GET_TEXTURE(ETexture::Cross));
 	myMap = aMap;
 
 	myIslandSprite.setScale(0.65f, 0.65f);

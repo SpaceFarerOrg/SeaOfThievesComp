@@ -51,6 +51,8 @@ public:
 
 	void SetGame(CGame* aGame);
 
+	bool GetIsWelcomed() const;
+
 	bool GetIsNetworkEnabled() const;
 	bool GetIsClient() const;
 private:
@@ -75,6 +77,7 @@ private:
 	sf::UdpSocket mySocket;
 	sf::SocketSelector mySelector;
 	bool myIsClient;
+	bool myIsWelcomed;
 	bool myIsNetworkEnabled;
 	unsigned int myClientID;
 

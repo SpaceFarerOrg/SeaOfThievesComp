@@ -71,6 +71,8 @@ void CNetworking::Disconnect()
 	if (!myIsNetworkEnabled)
 		return;
 
+	myIsWelcomed = false;
+
 	std::cout << "Disconnect was called" << std::endl;
 
 	if (myIsClient)
@@ -199,12 +201,21 @@ void CNetworking::DoPingUpdate()
 {
 	for (size_t i = 1; i < myClients.size(); ++i)
 	{
-		if (time(nullptr) - myClients[i].myLastPing > 2)
+		if ((time(nullptr) - myClients[i].myLastPing) > 1)
 		{
 			myClients[i].myLastPing = time(nullptr);
 
 			SPingMessage ping;
 			sf::Packet p = ping.GetAsPacket();
+			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
+		}
+		
+		if ((time(nullptr) - myClients[i].myLastPing) > 4)
+		{
+			SDisconnectMessage msg;
+			msg.myDisconnectedClient = i;
+			sf::Packet p = msg.GetAsPacket();
+
 			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
 		}
 	}
@@ -214,14 +225,14 @@ void CNetworking::SendWinning(bool aOnlyCloseTo)
 {
 	if (!myIsClient)
 	{
-		SCloseToWinMessage msg;
-		msg.myID = myClientID;
-		msg.myIsCloseTo = aOnlyCloseTo;
-
-		sf::Packet p = msg.GetAsPacket();
-
 		for (size_t i = 1; i < myClients.size(); ++i)
 		{
+			SCloseToWinMessage msg;
+			msg.myID = myClientID;
+			msg.myIsCloseTo = aOnlyCloseTo;
+
+			sf::Packet p = msg.GetAsPacket();
+
 			mySocket.send(p, myClients[i].myIP, myClients[i].myPort);
 		}
 	}
@@ -252,6 +263,11 @@ void CNetworking::SetGame(CGame * aGame)
 	myGame = aGame;
 }
 
+bool CNetworking::GetIsWelcomed() const
+{
+	return myIsWelcomed;
+}
+
 bool CNetworking::GetIsNetworkEnabled() const
 {
 	return myIsNetworkEnabled;
@@ -264,6 +280,7 @@ bool CNetworking::GetIsClient() const
 
 CNetworking::CNetworking()
 {
+	myIsWelcomed = false;
 	myName = "";
 	myIsNetworkEnabled = false;
 	myIsClient = false;
@@ -391,6 +408,8 @@ void CNetworking::UpdateAsClient(sf::Packet& aPacket, sf::IpAddress& aIP, unsign
 		sf::Packet p = toServer.GetAsPacket();
 
 		mySocket.send(p, myServerAdress, SERVER_PORT);
+
+		myIsWelcomed = true;
 
 	}
 	if (aType == EMessageType::Connect)

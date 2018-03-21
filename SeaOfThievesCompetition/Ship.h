@@ -4,6 +4,7 @@
 #include "Animation.h"
 #include <array>
 #include <SFML\Graphics\Rect.hpp>
+#include "GameObject.h"
 
 #define CC_MID 0
 #define CC_FRONT 1
@@ -15,7 +16,7 @@ namespace sf
 	class Texture;
 }
 
-class CShip
+class CShip : public CGameObject
 {
 public:
 	enum class EWaves
@@ -25,13 +26,15 @@ public:
 		Count,
 	};
 public:
-	void Init(sf::Texture& aTexture);
-	void Update(float aDT);
-	void Render(sf::RenderWindow& aWindow);
+	void Init() override;
+	void Update(float aDT) override;
+	void Render() override;
 
 	void Respawn();
 
 	void Sink();
+
+	float GetWidth() const;
 
 	bool GetIsDead() const;
 	bool GetIsSinking() const;
@@ -45,12 +48,13 @@ public:
 	bool GetHasTreasure() const;
 
 	void SetWhirlwindDrag(const sf::Vector2f& aDrag);
+	void SetShipNudge(const sf::Vector2f& aNudge);
 
 	bool GetIsStill() const;
 
 	void SetPosition(const sf::Vector2f& aPosition);
 	
-	void SetWavesTextures(sf::Texture& aSmallWaves, sf::Texture& aBigWaves);
+	void SetWavesTextures(const sf::Texture& aSmallWaves, const sf::Texture& aBigWaves);
 
 	bool GetIsInvincible() const;
 	bool GetHasRespawned();
@@ -68,9 +72,8 @@ private:
 	std::array<CAnimation, (size_t)EWaves::Count> myWaves;
 
 	sf::Vector2f myWhirlwindDrag;
+	sf::Vector2f myShipNudge;
 
-	sf::Transformable myTransform;
-	sf::Sprite mySprite;
 	sf::Sprite myWavesSprite;
 	float mySpeed;
 	float myMaxSpeed;

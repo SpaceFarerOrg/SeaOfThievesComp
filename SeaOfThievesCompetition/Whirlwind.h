@@ -6,7 +6,7 @@
 class CWhirlwind
 {
 public:
-	void Init(sf::Texture& aWhirlwindTexture);
+	void Init(const sf::Texture& aWhirlwindTexture);
 	void Update(float aDT);
 	void SetShouldFade(bool aOut);
 	bool GetCanChangePosition();

@@ -36,7 +36,7 @@ void CMenu::Init()
 	float y = (float)myWindow->getSize().y / 3.5f;
 	float increment = (float)myWindow->getSize().y / 10.f;
 
-	button.Init("Play", { x, y }, []() { CMenu::myMenuState = CMenu::EMenuState::StartGame; });
+	button.Init("Enter Sea", { x-5.f, y }, []() { CMenu::myMenuState = CMenu::EMenuState::StartGame; });
 	myButtons.push_back(button);
 
 	button.Init("Controls", { x, y + increment }, []() { CMenu::myMenuState = CMenu::EMenuState::Controls; });
@@ -72,7 +72,10 @@ void CMenu::Init()
 
 	myNameBox.Init({ (float)myWindow->getSize().x * 4.f / 10,  y + increment * 3 - 27 });
 
-	button.Init("Start As Server", { myWindow->getView().getCenter().x - (float)myWindow->getSize().x / 5.f, y + 5 * increment }, []() {if (!CNetworking::GetInstance().GetIsNetworkEnabled()) { CNetworking::GetInstance().StartServer(); }});
+	button.Init("Start As Server", { myWindow->getView().getCenter().x - (float)myWindow->getSize().x / 5.f, y + 5 * increment }, []() {if (!CNetworking::GetInstance().GetIsNetworkEnabled()) {
+		CNetworking::GetInstance().StartServer(); 
+		CMenu::myMenuState = CMenu::EMenuState::StartGame;
+	}});
 	myNetworkButtons.push_back(button);
 
 

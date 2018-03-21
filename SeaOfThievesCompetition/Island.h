@@ -3,17 +3,27 @@
 #include <SFML\System\Vector2.hpp>
 #include "Defines.h"
 #include <sfml\Graphics\CircleShape.hpp>
+#include "GameObject.h"
 
 namespace sf
 {
 	class RenderWindow;
 }
 
-class CIsland
+enum class EIslandType
+{
+	IslandOne,
+	IslandTwo,
+	IslandThree,
+	GoldIsland,
+};
+
+class CIsland : public CGameObject
 {
 public:
 	CIsland();
-	void Init(sf::Texture& aTexture, const sf::Vector2f& aPosition, bool aIsGoldIsland = false);
+	void SetIslandData(EIslandType aIslandType,const sf::Vector2f& aPosition);
+	void Init() override;
 	
 	bool IsColliding(const sf::Vector2f& aOtherCollider);
 	bool IsInLootingRange(const sf::Vector2f& aPosition);
@@ -23,16 +33,15 @@ public:
 
 	bool IsGoldIsland() const;
 	bool HasTreasure() const;
-	void SetHasTreasure();
+	void SetHasTreasure(bool aHas = true);
 	void Loot();
 
-	void Render(sf::RenderWindow& aWindow);
 private:
+	EIslandType myIslandType;
+
 	size_t myIndexInMap;
 	bool myIsGoldIsland;
 	bool myHasTreasure;
-	sf::Sprite mySprite;
-	sf::Transformable myTransform;
 
 	float myRangeToLoot;
 	float myRangeToDie;

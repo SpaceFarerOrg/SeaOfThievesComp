@@ -44,26 +44,6 @@ public:
 private:
 	void SetCloseToWinning(bool aShouldSend = false);
 
-	enum class ETexture
-	{
-		Ship,
-		Island,
-		IslandTwo,
-		IslandThree,
-		GoldIsland,
-		Waves,
-		ShipWavesBig,
-		Cross,
-		Map,
-		
-		MapIsland,
-		MapIslandTwo,
-		MapIslandThree,
-		MapGoldIsland,
-		Whirlwind,
-		Count,
-	};
-
 private:
 	void RandomizeSong();
 
@@ -72,7 +52,6 @@ private:
 	void CheckShipCollisionVsIslands();
 	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
-	void LoadTextures();
 
 	void ClearMapFromIslands();
 
@@ -92,7 +71,6 @@ private:
 	bool myHasSentClosedToWinning;
 	bool myShouldSendWinning;
 
-	float myTimeWinnerShow;
 	float myIsOutsideOfMapTimer;
 	float mySomeoneIsCloseToWinningTimer;
 	
@@ -106,7 +84,6 @@ private:
 	std::vector<CAnimation> myWaves;
 
 	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
-	std::array<sf::Texture, (size_t)ETexture::Count> myTextureBank;
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
@@ -135,6 +112,7 @@ private:
 	size_t myActiveSong;
 	sf::Music myBackgroundSound;
 	sf::Music myStressMusic;
+	sf::Music myWinMusic;
 	bool myHasRegisteredPaus;
 	float myTimeWithNoMusic;
 

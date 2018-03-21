@@ -1,6 +1,7 @@
 #include "Island.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include "Math.h"
+#include "TextureBank.h"
 
 CIsland::CIsland()
 {
@@ -8,16 +9,39 @@ CIsland::CIsland()
 	myHasTreasure = false;
 }
 
-void CIsland::Init(sf::Texture & aTexture, const sf::Vector2f & aPosition, bool aIsGoldIsland)
+void CIsland::SetIslandData(EIslandType aIslandType, const sf::Vector2f & aPosition)
 {
-	mySprite.setTexture(aTexture);
-	mySprite.setPosition(aPosition);
-	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
+	SetPosition(aPosition);
+	myIslandType = aIslandType;
+	if (aIslandType == EIslandType::GoldIsland)
+	{
+		myIsGoldIsland = true;
+	}
+}
+
+void CIsland::Init()
+{
+	if (myIslandType == EIslandType::IslandOne)
+	{
+		mySprite.setTexture(GET_TEXTURE(ETexture::Island));
+	}
+	else if (myIslandType == EIslandType::IslandOne)
+	{
+		mySprite.setTexture(GET_TEXTURE(ETexture::IslandTwo));
+	}
+	else if(myIslandType == EIslandType::IslandThree)
+	{
+		mySprite.setTexture(GET_TEXTURE(ETexture::IslandThree));
+	}
+	else if (myIslandType == EIslandType::GoldIsland)
+	{
+		mySprite.setTexture(GET_TEXTURE(ETexture::GoldIsland));
+	}
+
+	SetOriginMiddle();
 
 	myRangeToLoot = (mySprite.getGlobalBounds().width / 2.f) + 70.f;
 	myRangeToDie = (mySprite.getGlobalBounds().width / 3.5f);
-
-	myIsGoldIsland = aIsGoldIsland;
 }
 
 bool CIsland::IsColliding(const sf::Vector2f& aPosition)
@@ -58,9 +82,9 @@ bool CIsland::HasTreasure() const
 	return myHasTreasure;
 }
 
-void CIsland::SetHasTreasure()
+void CIsland::SetHasTreasure(bool aHas)
 {
-	myHasTreasure = true;
+	myHasTreasure = aHas;
 }
 
 void CIsland::Loot()
@@ -68,7 +92,3 @@ void CIsland::Loot()
 	myHasTreasure = false;
 }
 
-void CIsland::Render(sf::RenderWindow & aWindow)
-{
-	aWindow.draw(mySprite);
-}

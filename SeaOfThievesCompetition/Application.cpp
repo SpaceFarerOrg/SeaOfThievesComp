@@ -3,6 +3,7 @@
 #include <SFML\Window\Event.hpp>
 #include "UIBase.h"
 #include "SFML\Window\Mouse.hpp"
+#include "TextureBank.h"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
@@ -13,7 +14,6 @@ void CApplication::Init()
 	myHasChangedState = false;
 	myShouldClose = false;
 	myIsWindowActive = true;
-	myWindow = new sf::RenderWindow();
 
 	sf::VideoMode vm;
 	vm = sf::VideoMode::getDesktopMode();
@@ -24,17 +24,19 @@ void CApplication::Init()
 	myConnectMessage.setFillColor(sf::Color(250, 253, 193));
 	myConnectMessage.setOutlineColor(sf::Color::Black);
 
-	//vm.height = 896;
-	//vm.width = 896;
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
 
-	myWindow->create(vm, "Sea of Thieves Competition", sf::Style::None);
+	myWindow.create(vm, "Sea of Thieves Competition", sf::Style::None);
 
-	CUIBase::SetWindow(myWindow);
+	CRenderer::GetInstance().BindWindow(myWindow);
+
+	LoadTextures();
+
+	CUIBase::SetWindow(&myWindow);
 	CUIBase::SetFont("font/font.ttf");
 
-	myGame.SetWindow(myWindow);
-	myMenu.SetWindow(myWindow);
+	myGame.SetWindow(&myWindow);
+	myMenu.SetWindow(&myWindow);
 
 	myGame.Init();
 	myMenu.Init();
@@ -46,9 +48,9 @@ void CApplication::Init()
 	myCursorTexture.loadFromFile("sprites/cursor.png");
 	myCursorSprite.setTexture(myCursorTexture);
 
-	myWindow->setMouseCursorVisible(false);
+	myWindow.setMouseCursorVisible(false);
 
-	myScreenSpaceView = myWindow->getView();
+	myScreenSpaceView = myWindow.getView();
 	myNetworkThread = std::thread([&]()->void { UpdateNetworking(); });
 
 	CNetworking::GetInstance().SetGame(&myGame);
@@ -62,7 +64,7 @@ void CApplication::Update()
 
 		myGame.UpdateVolumes();
 
-		myWindow->clear({ 95,189,197 });
+		myWindow.clear({ 95,189,197 });
 		if (myHasChangedState && myIsInGame)
 		{
 			myHasChangedState = false;
@@ -92,14 +94,21 @@ void CApplication::Update()
 			myShouldClose = !myMenu.Update();
 		}
 
-		sf::Vector2i mPos = sf::Mouse::getPosition(*myWindow);
+		sf::Vector2i mPos = sf::Mouse::getPosition(myWindow);
 		myCursorSprite.setPosition(mPos.x, mPos.y);
-		myWindow->setView(myScreenSpaceView);
-		myWindow->draw(myCursorSprite);
+		myWindow.setView(myScreenSpaceView);
+		myWindow.draw(myCursorSprite);
 
 		if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
 		{
-			myConnectMessage.setString("Online: Connected");
+			if (CNetworking::GetInstance().GetIsWelcomed())
+			{
+				myConnectMessage.setString("Online: Connected");
+			}
+			else
+			{
+				myConnectMessage.setString("Online: Waiting for Server");
+			}
 		}
 		else if (CNetworking::GetInstance().GetIsNetworkEnabled() && !CNetworking::GetInstance().GetIsClient())
 		{
@@ -111,9 +120,9 @@ void CApplication::Update()
 		}
 
 
-		myWindow->draw(myConnectMessage);
+		myWindow.draw(myConnectMessage);
 
-		myWindow->display();
+		myWindow.display();
 	}
 
 	if (CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient())
@@ -166,6 +175,32 @@ bool CApplication::GetShouldRun() const
 	return !myShouldClose;
 }
 
+void CApplication::LoadTextures()
+{
+	CTextureBank& bank = CTextureBank::GetInstance();
+
+	//Player bound textures
+	bank.LoadTexture(ETexture::Ship, "playerShip");
+	bank.LoadTexture(ETexture::ShipWavesBig, "shipWavesBig");
+
+	//Environment bound textures
+	bank.LoadTexture(ETexture::GoldIsland, "goldIsland");
+	bank.LoadTexture(ETexture::Island, "island1");
+	bank.LoadTexture(ETexture::IslandTwo, "island2");
+	bank.LoadTexture(ETexture::IslandThree, "island3");
+	bank.LoadTexture(ETexture::Waves, "waterWaves");
+	bank.LoadTexture(ETexture::Whirlwind, "whirlwind");
+
+	//Map bound textures
+	bank.LoadTexture(ETexture::Map, "map");
+	bank.LoadTexture(ETexture::MapIsland, "mapIsland");
+	bank.LoadTexture(ETexture::MapIslandTwo, "mapIsland2");
+	bank.LoadTexture(ETexture::MapIslandThree, "mapIsland3");
+	bank.LoadTexture(ETexture::MapGoldIsland, "mapGoldIsland");
+	bank.LoadTexture(ETexture::Cross, "cross");
+	
+}
+
 void CApplication::UpdateNetworking()
 {
 	while (!myShouldClose)
@@ -179,7 +214,7 @@ void CApplication::HandleWindowEvents()
 {
 	sf::Event e;
 
-	while (myWindow->pollEvent(e))
+	while (myWindow.pollEvent(e))
 	{
 		if (e.type == sf::Event::Closed)
 		{

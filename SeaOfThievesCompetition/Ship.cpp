@@ -5,13 +5,15 @@
 #include "Math.h"
 #include <SFML\Graphics\RectangleShape.hpp>
 #include "Network.h"
+#include "TextureBank.h"
 
-void CShip::Init(sf::Texture & aTexture)
+
+void CShip::Init()
 {
 	myHasRespawned = false;
-	mySprite.setTexture(aTexture);
+	mySprite.setTexture(GET_TEXTURE(ETexture::Ship));
 
-	mySprite.setOrigin(mySprite.getGlobalBounds().width / 2.f, mySprite.getGlobalBounds().height / 2.f);
+	SetOriginMiddle();
 
 	myAccelration = 100.f;
 	myTurnSpeed = 40.f;
@@ -96,6 +98,7 @@ void CShip::Update(float aDT)
 
 	myTransform.move(direction * mySpeed * aDT);
 	myTransform.move(myWhirlwindDrag * aDT);
+	myTransform.move(myShipNudge * aDT);
 
 	myTransform.setRotation(myRotation);
 
@@ -105,14 +108,8 @@ void CShip::Update(float aDT)
 	}
 }
 
-void CShip::Render(sf::RenderWindow & aWindow)
+void CShip::Render()
 {
-	mySprite.setRotation(myTransform.getRotation());
-	mySprite.setPosition(myTransform.getPosition());
-
-	myWavesSprite.setRotation(myTransform.getRotation());
-	myWavesSprite.setPosition(myTransform.getPosition());
-
 	CAnimation& currentWaves = myWaves[(size_t)EWaves::Small];
 
 	sf::Color color = Math::Lerp(sf::Color::Transparent, sf::Color::White, mySpeed / myMaxSpeed);
@@ -122,9 +119,9 @@ void CShip::Render(sf::RenderWindow & aWindow)
 	currentWaves.SetPosition(myTransform.getPosition());
 	currentWaves.SetRotation(myTransform.getRotation());
 
-	currentWaves.Render(aWindow);
-	//aWindow.draw(myWavesSprite);
-	aWindow.draw(mySprite);
+	currentWaves.Render();
+
+	CGameObject::Render();
 }
 
 void CShip::Respawn()
@@ -153,6 +150,11 @@ void CShip::Sink()
 	myCurrentOpacity = 255.f;
 	myIsSinking = true;
 
+}
+
+float CShip::GetWidth() const
+{
+	return mySprite.getLocalBounds().height;
 }
 
 bool CShip::GetIsDead() const
@@ -195,6 +197,11 @@ void CShip::SetWhirlwindDrag(const sf::Vector2f & aDrag)
 	myWhirlwindDrag = aDrag;
 }
 
+void CShip::SetShipNudge(const sf::Vector2f & aNudge)
+{
+	myShipNudge = aNudge;
+}
+
 bool CShip::GetIsStill() const
 {
 	return mySpeed == 0.f;
@@ -205,12 +212,11 @@ void CShip::SetPosition(const sf::Vector2f & aPosition)
 	myTransform.setPosition(aPosition);
 }
 
-void CShip::SetWavesTextures(sf::Texture & aSmallWaves, sf::Texture & aBigWaves)
+void CShip::SetWavesTextures(const sf::Texture & aSmallWaves,const sf::Texture & aBigWaves)
 {
 	myWaves[(size_t)EWaves::Small].Init(aSmallWaves, aSmallWaves.getSize().x / 3, aSmallWaves.getSize().y, 0.1f);
 	myWaves[(size_t)EWaves::Big].Init(aBigWaves, aBigWaves.getSize().x / 3, aBigWaves.getSize().y, 0.1f);
-	myWavesSprite.setTexture(aSmallWaves);
-	myWavesSprite.setOrigin(aSmallWaves.getSize().x / 2, aSmallWaves.getSize().y / 2);
+
 }
 
 bool CShip::GetIsInvincible() const
