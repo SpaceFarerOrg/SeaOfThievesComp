@@ -30,7 +30,7 @@ void CApplication::Init()
 
 	CRenderer::GetInstance().BindWindow(myWindow);
 
-	LoadTextures();
+	CTextureBank::GetInstance().LoadAllGraphicItems();
 
 	CUIBase::SetWindow(&myWindow);
 	CUIBase::SetFont("font/font.ttf");
@@ -173,32 +173,6 @@ float CApplication::GetVolume()
 bool CApplication::GetShouldRun() const
 {
 	return !myShouldClose;
-}
-
-void CApplication::LoadTextures()
-{
-	CTextureBank& bank = CTextureBank::GetInstance();
-
-	//Player bound textures
-	bank.LoadTexture(ETexture::Ship, "playerShip");
-	bank.LoadTexture(ETexture::ShipWavesBig, "shipWavesBig");
-
-	//Environment bound textures
-	bank.LoadTexture(ETexture::GoldIsland, "goldIsland");
-	bank.LoadTexture(ETexture::Island, "island1");
-	bank.LoadTexture(ETexture::IslandTwo, "island2");
-	bank.LoadTexture(ETexture::IslandThree, "island3");
-	bank.LoadTexture(ETexture::Waves, "waterWaves");
-	bank.LoadTexture(ETexture::Whirlwind, "whirlwind");
-
-	//Map bound textures
-	bank.LoadTexture(ETexture::Map, "map");
-	bank.LoadTexture(ETexture::MapIsland, "mapIsland");
-	bank.LoadTexture(ETexture::MapIslandTwo, "mapIsland2");
-	bank.LoadTexture(ETexture::MapIslandThree, "mapIsland3");
-	bank.LoadTexture(ETexture::MapGoldIsland, "mapGoldIsland");
-	bank.LoadTexture(ETexture::Cross, "cross");
-	
 }
 
 void CApplication::UpdateNetworking()

@@ -25,7 +25,7 @@ void CIsland::Init()
 	{
 		mySprite.setTexture(GET_TEXTURE(ETexture::Island));
 	}
-	else if (myIslandType == EIslandType::IslandOne)
+	else if (myIslandType == EIslandType::IslandTwo)
 	{
 		mySprite.setTexture(GET_TEXTURE(ETexture::IslandTwo));
 	}

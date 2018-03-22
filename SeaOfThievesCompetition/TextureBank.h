@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML\Graphics\Texture.hpp>
+#include <SFML\Graphics\Font.hpp>
 #include <array>
 
 #define  GET_TEXTURE(aTextureEnum) CTextureBank::GetInstance().GetTexture(aTextureEnum)
@@ -28,10 +29,16 @@ class CTextureBank
 {
 public:
 	static CTextureBank& GetInstance();
-	void LoadTexture(ETexture aTexture, const char* aPath);
+	void LoadAllGraphicItems();
 	const sf::Texture& GetTexture(ETexture aTexture) const;
+
+	const sf::Font& GetFont() const;
 private:
+	void LoadTexture(ETexture aTexture, const char* aPath);
+
+
 	CTextureBank();
 	std::array<sf::Texture, (size_t)ETexture::Count> myBank;
+	sf::Font myFont;
 
 };

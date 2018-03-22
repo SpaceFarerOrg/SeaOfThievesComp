@@ -48,6 +48,8 @@
     <ClCompile Include="TextureBank.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="PopupText.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -108,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="PopupText.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="World.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

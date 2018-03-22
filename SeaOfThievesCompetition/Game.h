@@ -15,6 +15,8 @@
 #include "UIMap.h"
 #include "Whirlwind.h"
 #include "BirdSpawner.h"
+#include "PopupText.h"
+#include "World.h"
 
 namespace sf
 {
@@ -48,20 +50,10 @@ private:
 	void RandomizeSong();
 
 	void ShowPressButtonPrompt();
-	void CreateWorld();
 	void CheckShipCollisionVsIslands();
-	void PlaceTreasure();
 	void EnsurePlayerKeepingOnMap(float aDT);
 
-	void ClearMapFromIslands();
-
-	void CreateIslands();
-	void CreateWaves();
-
 	void UpdateWhirlwinds(float aDT);
-
-	sf::Vector2f GetWhirlwindSpawnPos();
-	sf::Vector2f TranslateMapPointToWorldPosition(size_t aMapIndex);
 
 	bool myShouldSendCloseToWinning;
 	bool myPlayerCanLoot;
@@ -74,16 +66,15 @@ private:
 	float myIsOutsideOfMapTimer;
 	float mySomeoneIsCloseToWinningTimer;
 	
+	CWorld myWorld;
+
 	sf::Text myPressSpaceToLoot;
 	sf::Text myPressSpaceToSellTreasure;
 	sf::Text myYouAreOutsideOfMap;
-	sf::Text myPlayerCloseToWinning;
 	sf::Font myFont;
+	CPopupText myPlayerCloseToWinning;
+	CPopupText myPlayerWon;
 
-	std::vector<CIsland> myIslands;
-	std::vector<CAnimation> myWaves;
-
-	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
@@ -117,7 +108,6 @@ private:
 	float myTimeWithNoMusic;
 
 	bool myPlayerHasWon;
-	sf::Text myWinningPlayer;
 	
 	sf::SoundBuffer myCashSoundBuffer;
 	sf::Sound myCashSound;

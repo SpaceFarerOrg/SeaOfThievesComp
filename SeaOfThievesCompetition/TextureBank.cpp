@@ -7,6 +7,32 @@ CTextureBank & CTextureBank::GetInstance()
 	return instance;
 }
 
+void CTextureBank::LoadAllGraphicItems()
+{
+	//Player bound textures
+	LoadTexture(ETexture::Ship, "playerShip");
+	LoadTexture(ETexture::ShipWavesBig, "shipWavesBig");
+
+	//Environment bound textures
+	LoadTexture(ETexture::GoldIsland, "goldIsland");
+	LoadTexture(ETexture::Island, "island1");
+	LoadTexture(ETexture::IslandTwo, "island2");
+	LoadTexture(ETexture::IslandThree, "island3");
+	LoadTexture(ETexture::Waves, "waterWaves");
+	LoadTexture(ETexture::Whirlwind, "whirlwind");
+
+	//Map bound textures
+	LoadTexture(ETexture::Map, "map");
+	LoadTexture(ETexture::MapIsland, "mapIsland");
+	LoadTexture(ETexture::MapIslandTwo, "mapIsland2");
+	LoadTexture(ETexture::MapIslandThree, "mapIsland3");
+	LoadTexture(ETexture::MapGoldIsland, "mapGoldIsland");
+	LoadTexture(ETexture::Cross, "cross");
+
+	//Fonts
+	myFont.loadFromFile("font/font.ttf");
+}
+
 void CTextureBank::LoadTexture(ETexture aTexture, const char * aPath)
 {
 	sf::String fullPath = "sprites/";
@@ -20,6 +46,11 @@ void CTextureBank::LoadTexture(ETexture aTexture, const char * aPath)
 const sf::Texture & CTextureBank::GetTexture(ETexture aTexture) const
 {
 	return myBank[(size_t)aTexture];
+}
+
+const sf::Font & CTextureBank::GetFont() const
+{
+	return myFont;
 }
 
 CTextureBank::CTextureBank()

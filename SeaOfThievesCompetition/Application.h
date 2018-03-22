@@ -22,8 +22,6 @@ public:
 
 	bool GetShouldRun() const;
 private:
-	void LoadTextures();
-
 	void UpdateNetworking();
 
 	void HandleWindowEvents();

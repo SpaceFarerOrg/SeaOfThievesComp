@@ -11,6 +11,7 @@ class CRenderer
 public:
 	static CRenderer& GetInstance();
 	void BindWindow(sf::RenderWindow& aWindow);
+	sf::Vector2f GetViewCenter() const; 
 	void Render(sf::Drawable& aDrawable);
 private:
 	CRenderer();

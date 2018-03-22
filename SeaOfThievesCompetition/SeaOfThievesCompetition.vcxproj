@@ -140,6 +140,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Network.cpp" />
+    <ClCompile Include="PopupText.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Slider.cpp" />
@@ -149,6 +150,7 @@
     <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIMap.cpp" />
     <ClCompile Include="Whirlwind.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="NetworkMessages.h" />
+    <ClInclude Include="PopupText.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="Slider.h" />
@@ -172,6 +175,7 @@
     <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIMap.h" />
     <ClInclude Include="Whirlwind.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

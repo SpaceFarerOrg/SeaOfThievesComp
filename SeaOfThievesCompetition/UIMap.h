@@ -15,7 +15,7 @@ namespace sf
 class CUIMap
 {
 public:
-	void Init(std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
+	void Init();
 	void SetMap(std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
 	void SetTreasureIsland(size_t aIndexOfIsland);
 	void Render(sf::RenderWindow& aWindow);

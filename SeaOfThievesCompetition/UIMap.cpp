@@ -2,7 +2,7 @@
 #include <sfml\Graphics\RenderWindow.hpp>
 #include "TextureBank.h"
 
-void CUIMap::Init(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CUIMap::Init()
 {
 	myMapSprite.setTexture(GET_TEXTURE(ETexture::Map));
 	myIslandSprite.setTexture(GET_TEXTURE(ETexture::MapIsland));
@@ -10,7 +10,6 @@ void CUIMap::Init(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 	myIsland3Sprite.setTexture(GET_TEXTURE(ETexture::MapIslandThree));
 	myGoldIslandSprite.setTexture(GET_TEXTURE(ETexture::MapGoldIsland));
 	myCrossSprite.setTexture(GET_TEXTURE(ETexture::Cross));
-	myMap = aMap;
 
 	myIslandSprite.setScale(0.65f, 0.65f);
 	myIsland2Sprite.setScale(0.65f, 0.65f);
@@ -23,7 +22,6 @@ void CUIMap::Init(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 	myIsland3Sprite.setOrigin(myIsland3Sprite.getGlobalBounds().width / 2.f, myIsland3Sprite.getGlobalBounds().height / 2.f);
 
 	myMapSprite.setScale(1.f, 1.f);
-
 
 	myGeneratedMap.create(myMapSprite.getGlobalBounds().width, myMapSprite.getGlobalBounds().height);
 	myGeneratedMapSprite.setTexture(myGeneratedMap.getTexture());
@@ -114,8 +112,5 @@ void CUIMap::CreateDrawableMap()
 		}
 	}
 
-
 	myGeneratedMap.display();
-
-
 }

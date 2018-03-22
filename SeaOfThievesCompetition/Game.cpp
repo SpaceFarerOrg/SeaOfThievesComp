@@ -18,10 +18,6 @@ void CGame::Init()
 	myFont.loadFromFile("font/font.ttf");
 	myPressSpaceToLoot.setFont(myFont);
 	myYouAreOutsideOfMap.setFont(myFont);
-	myPlayerCloseToWinning.setFont(myFont);
-	myPlayerCloseToWinning.setFillColor(sf::Color::Transparent);
-
-	myWinningPlayer.setFont(myFont);
 
 	myCashSoundBuffer.loadFromFile("audio/earnMoney.ogg");
 	myCashSound.setBuffer(myCashSoundBuffer);
@@ -52,50 +48,8 @@ void CGame::Init()
 
 	myHasRegisteredPaus = false;
 
-
-
-	/*
-	Map Legend
-	1 - Spawn position
-	2 - Gold Island
-	3 - Island
-	*/
-
-	myMap =
-	{
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,2,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,1,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,0,0,0,0,0,0
-	};
-
-	for (size_t i = 0; i < myMap.size(); ++i)
-	{
-		if (myMap[i] == GOLD_ISLAND)
-		{
-			myGoldIslandIndexInMap = i;
-		}
-		else if (myMap[i] == SPAWN_POSITION)
-		{
-			mySpawnPointIndex = i;
-		}
-	}
-
-
 	myShip.Init();
 	myShip.SetWavesTextures(GET_TEXTURE(ETexture::ShipWavesBig), GET_TEXTURE(ETexture::ShipWavesBig));
-
-	myUIMap.Init(myMap);
 
 	myShipSprite.setTexture(GET_TEXTURE(ETexture::Ship));
 	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
@@ -104,6 +58,9 @@ void CGame::Init()
 	{
 		p.first.Init(GET_TEXTURE(ETexture::Whirlwind));
 	}
+
+	myUIMap.Init();
+
 	myNextAvailableWW = 0;
 	mySpawnNewWWTimer = 0.f;
 
@@ -127,6 +84,8 @@ void CGame::ReInit()
 	myHasRegisteredPaus = false;
 	myStressMusic.stop();
 	myShip.Respawn();
+	myWorld.Generate(myUIMap);
+	myShip.SetPosition(myWorld.GetSpawnPosition());
 	myWinMusic.stop();
 
 	for (sf::Music& song : myBackgroundSongs)
@@ -139,6 +98,7 @@ void CGame::ReInit()
 
 bool CGame::Update()
 {
+
 
 	if (myBackgroundSongs[myActiveSong].getStatus() == sf::SoundSource::Stopped && !myHasRegisteredPaus && myStressMusic.getStatus() != sf::SoundSource::Status::Playing)
 	{
@@ -156,7 +116,7 @@ bool CGame::Update()
 	if (myShip.GetHasRespawned())
 	{
 		myTreasury.GiveGold(-100);
-		PlaceTreasure();
+		myWorld.PlaceTreasure(myUIMap);
 	}
 
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
@@ -166,23 +126,13 @@ bool CGame::Update()
 
 	myTimeWithNoMusic += dt;
 
-	myUIMap.SetTreasureIsland(myIslands[myTreasureIsland].GetIndexInMap());
 
 	myCamera.setSize((float)myWindow->getSize().x, (float)myWindow->getSize().y);
 	myWindow->setView(myCamera);
 
-	for (CAnimation& wave : myWaves)
-	{
-		wave.Update(dt);
-		wave.Render();
-	}
-
 	UpdateWhirlwinds(dt);
 
-	for (CIsland& island : myIslands)
-	{
-		island.Render();
-	}
+	myWorld.Render();
 
 	myBirdSpawner.Update(dt, myWindow->getView().getCenter());
 
@@ -227,7 +177,7 @@ bool CGame::Update()
 	if (myShip.GetIsDead())
 	{
 		myShip.Respawn();
-		myShip.SetPosition(TranslateMapPointToWorldPosition(mySpawnPointIndex));
+		myShip.SetPosition(myWorld.GetSpawnPosition());
 	}
 
 	if (!CNetworking::GetInstance().GetIsClient())
@@ -235,14 +185,14 @@ bool CGame::Update()
 		mySpawnNewWWTimer += dt;
 		if (mySpawnNewWWTimer >= 10.f)
 		{
-			sf::Vector2f pos = GetWhirlwindSpawnPos();
+			sf::Vector2f pos = myWorld.GetRandomSeaPosition();
 			PlaceWhirlwind(pos);
 			CNetworking::GetInstance().SendWhirlwindSpawn(pos);
 			mySpawnNewWWTimer = 0.f;
 		}
 	}
 
-	if (myTreasury.GetGold() == 100 && myShouldSendWinning)
+	if (myTreasury.GetGold() == 700 && myShouldSendWinning)
 	{
 		myPlayerHasWon = true;
 
@@ -257,7 +207,7 @@ bool CGame::Update()
 		SetWinner("You ");
 		myShouldSendWinning = false;
 	}
-	else if (myTreasury.GetGold() == 0)
+	else if (myTreasury.GetGold() == 500)
 	{
 		SetCloseToWinning(myShouldSendCloseToWinning);
 	}
@@ -266,37 +216,24 @@ bool CGame::Update()
 	mySomeoneIsCloseToWinningTimer += dt;
 	if (!myPlayerHasWon)
 	{
-		myPlayerCloseToWinning.setPosition(myWindow->getView().getCenter().x, myWindow->getView().getCenter().y - myPlayerCloseToWinning.getGlobalBounds().height * 2);
 
-		myWindow->draw(myPlayerCloseToWinning);
-
-		if (mySomeoneIsCloseToWinningTimer >= 5.f)
-		{
-			myPlayerCloseToWinning.setFillColor(sf::Color::Transparent);
-			myPlayerCloseToWinning.setOutlineColor(sf::Color::Transparent);
-		}
+		myPlayerCloseToWinning.Render();
 
 		ShowPressButtonPrompt();
 		EnsurePlayerKeepingOnMap(dt);
 	}
 	else
 	{
-		
-
 		if (myWinMusic.getStatus() == sf::Music::Status::Stopped)
 		{
 			CApplication::EnterMenu();
 			CNetworking::GetInstance().Disconnect();
 		}
 
-		myWinningPlayer.setCharacterSize(50);
-		myWinningPlayer.setFillColor(sf::Color::White);
-		myWinningPlayer.setOrigin(myWinningPlayer.getGlobalBounds().width / 2.f, myWinningPlayer.getGlobalBounds().height / 2.f);
-		myWinningPlayer.setPosition(myCamera.getCenter());
-		myWinningPlayer.setOutlineColor(sf::Color::Black);
-		myWinningPlayer.setOutlineThickness(2.f);
-		myWindow->draw(myWinningPlayer);
+		myPlayerWon.Render();
 	}
+
+
 	return true;
 }
 
@@ -355,71 +292,22 @@ void CGame::GenerateWorld()
 {
 	myShouldSendCloseToWinning = true;
 
-	ClearMapFromIslands();
 
 	myShip.Respawn();
 
+	myWorld.Generate(myUIMap);
 	myTreasury.SetGold(0);
-	myIslands.clear();
-	myWaves.clear();
-	CreateWorld();
-	PlaceTreasure();
-	myUIMap.SetMap(myMap);
-	CNetworking::GetInstance().SetMap(myMap);
+	myWorld.PlaceTreasure(myUIMap);
+	CNetworking::GetInstance().SetMap(myWorld.GetRawMap());
 }
 
 void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
 {
 	myShouldSendCloseToWinning = true;
 
-	myIslands.clear();
 	myWhirlwinds.clear();
-	ClearMapFromIslands();
 
-	myMap = aMap;
-
-	for (size_t i = 0; i < myMap.size(); ++i)
-	{
-		ETexture islandTexture;
-		if (myMap[i] == ISLAND_1)
-		{
-			islandTexture = ETexture::Island;
-			myIslands.push_back(CIsland());
-			myIslands.back().SetIslandData(EIslandType::IslandOne, TranslateMapPointToWorldPosition(i));
-			myIslands.back().Init();
-			myIslands.back().SetIndexInMap(i);
-		}
-		if (myMap[i] == ISLAND_2)
-		{
-			islandTexture = ETexture::IslandTwo;
-			myIslands.push_back(CIsland());
-			myIslands.back().SetIslandData(EIslandType::IslandTwo, TranslateMapPointToWorldPosition(i));
-			myIslands.back().SetIndexInMap(i);
-		}
-		if (myMap[i] == ISLAND_3)
-		{
-			islandTexture = ETexture::IslandThree;
-			myIslands.push_back(CIsland());
-			myIslands.back().SetIslandData(EIslandType::IslandThree, TranslateMapPointToWorldPosition(i));
-			myIslands.back().SetIndexInMap(i);
-		}
-		if (myMap[i] == GOLD_ISLAND)
-		{
-			myIslands.push_back(CIsland());
-			myIslands.back().SetIslandData(EIslandType::GoldIsland, TranslateMapPointToWorldPosition(i));
-			myGoldIslandIndex = myIslands.size() - 1;
-			myGoldIslandIndexInMap = i;
-			myIslands.back().SetIndexInMap(i);
-		}
-		if (i == mySpawnPointIndex)
-		{
-			myShip.SetPosition(TranslateMapPointToWorldPosition(mySpawnPointIndex));
-		}
-	}
-	myUIMap.SetMap(myMap);
-	CreateWaves();
-	PlaceTreasure();
-
+	myWorld.CreateFormArray(aMap, myUIMap);
 }
 
 void CGame::RandomizeSong()
@@ -459,27 +347,6 @@ void CGame::ShowPressButtonPrompt()
 	}
 }
 
-void CGame::CreateWorld()
-{
-	myMap[myGoldIslandIndexInMap] = GOLD_ISLAND;
-	myIslands.push_back(CIsland());
-	myIslands.back().SetIslandData(EIslandType::GoldIsland, TranslateMapPointToWorldPosition(myGoldIslandIndexInMap));
-	myIslands.back().Init();
-	myGoldIslandIndex = myIslands.size() - 1;
-
-	for (size_t i = 0; i < myMap.size(); ++i)
-	{
-		if (myMap[i] == SPAWN_POSITION)
-		{
-			myShip.SetPosition(TranslateMapPointToWorldPosition(i));
-			mySpawnPointIndex = i;
-		}
-	}
-
-	CreateIslands();
-	CreateWaves();
-}
-
 void CGame::CheckShipCollisionVsIslands()
 {
 
@@ -487,6 +354,8 @@ void CGame::CheckShipCollisionVsIslands()
 	myPlayerCanSell = false;
 
 	const std::array<sf::Vector2f, 4>& cp = myShip.GetCollisionPoints();
+
+	std::vector<CIsland>& myIslands = myWorld.GetIslands();
 
 	for (size_t i = 0; i < myIslands.size(); ++i)
 	{
@@ -523,40 +392,13 @@ void CGame::CheckShipCollisionVsIslands()
 					{
 						myShip.SetHoldsTreasure(false);
 						myTreasury.GiveGold(100);
-						PlaceTreasure();
+						myWorld.PlaceTreasure(myUIMap);
 						myCashSound.play();
 					}
 				}
 			}
 		}
 	}
-}
-
-void CGame::PlaceTreasure()
-{
-	bool placedTreasure = false;
-
-	short islandToGetTreasure = 0;
-
-
-	for (CIsland& island : myIslands)
-	{
-		island.SetHasTreasure(false);
-	}
-
-	while (!placedTreasure)
-	{
-		islandToGetTreasure = Math::GetRandomInRange(0, (short)myIslands.size() - 1);
-
-		if (islandToGetTreasure != myTreasureIsland && islandToGetTreasure != myGoldIslandIndex)
-		{
-			placedTreasure = true;
-		}
-	}
-
-	myTreasureIsland = islandToGetTreasure;
-
-	myIslands[islandToGetTreasure].SetHasTreasure();
 }
 
 void CGame::EnsurePlayerKeepingOnMap(float aDT)
@@ -605,34 +447,6 @@ void CGame::EnsurePlayerKeepingOnMap(float aDT)
 	}
 }
 
-sf::Vector2f CGame::GetWhirlwindSpawnPos()
-{
-	while (true)
-	{
-		size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.size() - 1);
-
-		if (myMap[indexInMap] == SEA)
-		{
-			sf::Vector2f pos = TranslateMapPointToWorldPosition(indexInMap);
-
-			return std::move(pos);
-		}
-	}
-}
-
-sf::Vector2f CGame::TranslateMapPointToWorldPosition(size_t aMapIndex)
-{
-	size_t x = aMapIndex % MAP_AXIS_SIZE;
-	size_t y = aMapIndex / MAP_AXIS_SIZE;
-
-	float worldX = (float)x * MAP_CHUNK_SIZE;
-	float worldY = (float)y * MAP_CHUNK_SIZE;
-
-	sf::Vector2f returnPos = { worldX, worldY };
-
-	return std::move(returnPos);
-}
-
 void CGame::UpdateVolumes()
 {
 	float volume = CApplication::GetVolume();
@@ -663,7 +477,8 @@ void CGame::SetWinner(const sf::String & aName)
 		myWinMusic.play();
 	}
 
-	myWinningPlayer.setString(aName + " became a pirate legend first!");
+	myPlayerWon.SetString(aName + " became a pirate legend first!");
+	myPlayerWon.Display();
 	myPlayerHasWon = true;
 }
 
@@ -671,13 +486,7 @@ void CGame::ShowSomeoneCloseToWinningText(const sf::String & aName)
 {
 	mySomeoneIsCloseToWinningTimer = 0;
 
-	myPlayerCloseToWinning.setCharacterSize(60);
-	myPlayerCloseToWinning.setOutlineThickness(2.f);
-	myPlayerCloseToWinning.setString(aName + " is close to winning!");
-	myPlayerCloseToWinning.setOrigin(myPlayerCloseToWinning.getGlobalBounds().width / 2.f, myPlayerCloseToWinning.getGlobalBounds().height / 2.f);
-	myPlayerCloseToWinning.setFillColor(sf::Color::White);
-	myPlayerCloseToWinning.setPosition(myWindow->getView().getCenter().x, myWindow->getView().getCenter().y - myPlayerCloseToWinning.getGlobalBounds().height * 2);
-	myPlayerCloseToWinning.setOutlineColor(sf::Color::Black);
+	myPlayerCloseToWinning.Display();
 
 	SetCloseToWinning();
 }
@@ -698,62 +507,6 @@ void CGame::SetCloseToWinning(bool aShouldSend)
 	if (CNetworking::GetInstance().GetIsNetworkEnabled() && aShouldSend && !myHasSentClosedToWinning)
 	{
 		CNetworking::GetInstance().SendWinning(true);
-	}
-}
-
-void CGame::ClearMapFromIslands()
-{
-	for (int& pointInMap : myMap)
-	{
-		if (pointInMap != SPAWN_POSITION && pointInMap != SEA)
-		{
-			pointInMap = 0;
-		}
-	}
-}
-
-void CGame::CreateIslands()
-{
-	size_t numberOfIsles = Math::GetRandomInRange(MIN_ISLAND_COUNT, MAX_ISLAND_COUNT);
-
-	for (size_t i = 0; i < numberOfIsles; ++i)
-	{
-		bool placedIsland = false;
-
-		while (!placedIsland)
-		{
-			size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.size() - 1);
-
-			if (indexInMap != mySpawnPointIndex && indexInMap != myGoldIslandIndex && myMap[indexInMap] < ISLAND_1)
-			{
-				short islandType = Math::GetRandomInRange(0, 2);
-
-				myMap[indexInMap] = (int)(ISLAND_1 + islandType);
-				myIslands.push_back(CIsland());
-				myIslands.back().SetIslandData((EIslandType)islandType, TranslateMapPointToWorldPosition(indexInMap));
-				myIslands.back().Init();
-				myIslands.back().SetIndexInMap(indexInMap);
-
-				placedIsland = true;
-			}
-
-		}
-
-	}
-
-}
-
-void CGame::CreateWaves()
-{
-	for (size_t i = 0; i < myMap.size(); ++i)
-	{
-		if (myMap[i] != ISLAND && i != myGoldIslandIndex)
-		{
-			myWaves.push_back(CAnimation());
-			myWaves.back().Init(GET_TEXTURE(ETexture::Waves), 600, 600, 0.25f);
-			myWaves.back().RandomizeStartFrame();
-			myWaves.back().SetPosition(TranslateMapPointToWorldPosition(i));
-		}
 	}
 }
 
