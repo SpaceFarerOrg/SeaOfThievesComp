@@ -38,7 +38,6 @@ public:
 	bool GetShouldRun() const;
 
 	void PlaceWhirlwind(const sf::Vector2f& aPosition);
-	void UpdateVolumes();
 
 	void SetWinner(const sf::String& aName);
 	void ShowSomeoneCloseToWinningText(const sf::String& aName);
@@ -47,11 +46,9 @@ private:
 	void SetCloseToWinning(bool aShouldSend = false);
 
 private:
-	void RandomizeSong();
+	void RespondToPlayerAction(EPlayerAction aPlayerAction);
 
 	void ShowPressButtonPrompt();
-	void CheckShipCollisionVsIslands();
-	void EnsurePlayerKeepingOnMap(float aDT);
 
 	void UpdateWhirlwinds(float aDT);
 
@@ -99,22 +96,10 @@ private:
 	size_t myGoldIslandIndexInMap;
 	size_t mySpawnPointIndex;
 
-	std::array<sf::Music, 2> myBackgroundSongs;
-	size_t myActiveSong;
-	sf::Music myBackgroundSound;
-	sf::Music myStressMusic;
-	sf::Music myWinMusic;
 	bool myHasRegisteredPaus;
 	float myTimeWithNoMusic;
 
 	bool myPlayerHasWon;
-	
-	sf::SoundBuffer myCashSoundBuffer;
-	sf::Sound myCashSound;
-	sf::SoundBuffer myTreasureThump;
-	sf::Sound myTreasureSound;
-	sf::SoundBuffer myCrash;
-	sf::Sound myCrashSound;
 
 	CBirdSpawner myBirdSpawner;
 

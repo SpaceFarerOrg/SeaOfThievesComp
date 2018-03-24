@@ -149,7 +149,6 @@ void CShip::Sink()
 	mySpeed = 0.f;
 	myCurrentOpacity = 255.f;
 	myIsSinking = true;
-
 }
 
 float CShip::GetWidth() const

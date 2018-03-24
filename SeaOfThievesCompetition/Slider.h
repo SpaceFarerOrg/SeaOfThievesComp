@@ -1,5 +1,4 @@
 #pragma once
-#include "UIBase.h"
 #include "SFML/Graphics/Sprite.hpp"
 
 namespace sf
@@ -7,7 +6,7 @@ namespace sf
 	class RenderWindow;
 }
 
-class CSlider : public CUIBase
+class CSlider
 {
 public:
 	CSlider();
@@ -26,8 +25,5 @@ private:
 
 	sf::Sprite mySliderSprite;
 	sf::Sprite myButtonSprite;
-
-	static sf::Texture ourSliderTexture;
-	static sf::Texture ourButtonTexture;
 };
 

@@ -7,6 +7,7 @@
 #include "Network.h"
 #include <iostream>
 #include "TextureBank.h"
+#include "AudioSystem.h"
 
 void CGame::SetWindow(sf::RenderWindow * aWindow)
 {
@@ -18,33 +19,6 @@ void CGame::Init()
 	myFont.loadFromFile("font/font.ttf");
 	myPressSpaceToLoot.setFont(myFont);
 	myYouAreOutsideOfMap.setFont(myFont);
-
-	myCashSoundBuffer.loadFromFile("audio/earnMoney.ogg");
-	myCashSound.setBuffer(myCashSoundBuffer);
-	myCashSound.setVolume(45);
-
-	myTreasureThump.loadFromFile("audio/treasureThump.ogg");
-	myTreasureSound.setBuffer(myTreasureThump);
-	myTreasureSound.setVolume(45);
-
-	myCrash.loadFromFile("audio/shipCrash.ogg");
-	myCrashSound.setBuffer(myCrash);
-	myCrashSound.setVolume(45);
-
-	myBackgroundSongs[0].openFromFile("audio/song.ogg");
-	myBackgroundSongs[0].setLoop(false);
-
-	myBackgroundSongs[1].openFromFile("audio/song2.ogg");
-	myBackgroundSongs[0].setLoop(false);
-
-	myWinMusic.openFromFile("audio/winSong.ogg");
-
-	myBackgroundSound.openFromFile("audio/bgSound.ogg");
-	myBackgroundSound.setLoop(true);
-	myBackgroundSound.play();
-
-	myStressMusic.openFromFile("audio/stress.ogg");
-	myStressMusic.setLoop(true);
 
 	myHasRegisteredPaus = false;
 
@@ -82,37 +56,17 @@ void CGame::ReInit()
 	myPlayerCanLoot = false;
 	myPlayerCanSell = false;
 	myHasRegisteredPaus = false;
-	myStressMusic.stop();
 	myShip.Respawn();
 	myWorld.Generate(myUIMap);
 	myShip.SetPosition(myWorld.GetSpawnPosition());
-	myWinMusic.stop();
+	
+	CAudioSystem::GetInstance().StopAllMusic();
 
-	for (sf::Music& song : myBackgroundSongs)
-	{
-		song.stop();
-	}
-
-	RandomizeSong();
+	CAudioSystem::GetInstance().RandomizeSongBetween(EMusic::BgMusicOne, EMusic::BgMusicTwo);
 }
 
 bool CGame::Update()
 {
-
-
-	if (myBackgroundSongs[myActiveSong].getStatus() == sf::SoundSource::Stopped && !myHasRegisteredPaus && myStressMusic.getStatus() != sf::SoundSource::Status::Playing)
-	{
-		myHasRegisteredPaus = true;
-		myTimeWithNoMusic = 0.f;
-	}
-
-
-	if (myHasRegisteredPaus && myTimeWithNoMusic >= 15.f  && myStressMusic.getStatus() != sf::SoundSource::Status::Playing && myWinMusic.getStatus() != sf::SoundSource::Status::Playing)
-	{
-		RandomizeSong();
-		myHasRegisteredPaus = false;
-	}
-
 	if (myShip.GetHasRespawned())
 	{
 		myTreasury.GiveGold(-100);
@@ -136,9 +90,9 @@ bool CGame::Update()
 
 	myBirdSpawner.Update(dt, myWindow->getView().getCenter());
 
-	CheckShipCollisionVsIslands();
-
 	myShip.Update(dt);
+
+	EPlayerAction possibleAction = myWorld.CheckPlayerWorldInteraction(myShip);
 
 	myShip.Render();
 
@@ -220,11 +174,10 @@ bool CGame::Update()
 		myPlayerCloseToWinning.Render();
 
 		ShowPressButtonPrompt();
-		EnsurePlayerKeepingOnMap(dt);
 	}
 	else
 	{
-		if (myWinMusic.getStatus() == sf::Music::Status::Stopped)
+		if (CAudioSystem::GetInstance().NoMusicPlaying())
 		{
 			CApplication::EnterMenu();
 			CNetworking::GetInstance().Disconnect();
@@ -310,13 +263,24 @@ void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>
 	myWorld.CreateFormArray(aMap, myUIMap);
 }
 
-void CGame::RandomizeSong()
+void CGame::RespondToPlayerAction(EPlayerAction aPlayerAction)
 {
-	short songToStart = Math::GetRandomInRange(0, (short)myBackgroundSongs.size() - 1);
-
-	myBackgroundSongs[songToStart].play();
-
-	myActiveSong = songToStart;
+	switch (aPlayerAction)
+	{
+	case EPlayerAction::None:
+		break;
+	case EPlayerAction::Loot:
+		break;
+	case EPlayerAction::Sell:
+		break;
+	case EPlayerAction::Crash:
+		myShip.Sink();
+		break;
+	case EPlayerAction::OutsideWorldBounds:
+		break;
+	default:
+		break;
+	}
 }
 
 void CGame::ShowPressButtonPrompt()
@@ -347,135 +311,9 @@ void CGame::ShowPressButtonPrompt()
 	}
 }
 
-void CGame::CheckShipCollisionVsIslands()
-{
-
-	myPlayerCanLoot = false;
-	myPlayerCanSell = false;
-
-	const std::array<sf::Vector2f, 4>& cp = myShip.GetCollisionPoints();
-
-	std::vector<CIsland>& myIslands = myWorld.GetIslands();
-
-	for (size_t i = 0; i < myIslands.size(); ++i)
-	{
-		for (const sf::Vector2f& pos : cp)
-		{
-			if (myIslands[i].IsColliding(pos))
-			{
-				if (!myShip.GetIsSinking() && !myShip.GetIsInvincible())
-				{
-					myCrashSound.play();
-				}
-
-				myShip.Sink();
-			}
-			else if (myIslands[i].HasTreasure())
-			{
-				if (myIslands[i].IsInLootingRange(pos))
-				{
-					myPlayerCanLoot = true;
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
-					{
-						myTreasureSound.play();
-						myIslands[i].Loot();
-						myShip.SetHoldsTreasure(true);
-					}
-				}
-			}
-			else if (myIslands[i].IsGoldIsland() && myShip.GetHasTreasure())
-			{
-				if (myIslands[i].IsInLootingRange(pos))
-				{
-					myPlayerCanSell = true;
-					if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && myShip.GetIsStill())
-					{
-						myShip.SetHoldsTreasure(false);
-						myTreasury.GiveGold(100);
-						myWorld.PlaceTreasure(myUIMap);
-						myCashSound.play();
-					}
-				}
-			}
-		}
-	}
-}
-
-void CGame::EnsurePlayerKeepingOnMap(float aDT)
-{
-	float mapMin = 0.f;
-	float mapMax = MAP_CHUNK_SIZE * MAP_AXIS_SIZE;
-	float forgiveness = 200.f;
-	myIsOutsideOfMap = false;
-
-	sf::Vector2f shipPos = myShip.GetPosition();
-
-	if (myShip.GetPosition().x > mapMax + forgiveness || myShip.GetPosition().y > mapMax + forgiveness || myShip.GetPosition().x < mapMin - forgiveness || myShip.GetPosition().y < mapMin - forgiveness || myShip.GetIsSinking())
-	{
-		myIsOutsideOfMap = true;
-
-		myYouAreOutsideOfMap.setCharacterSize(60);
-
-		if (myShip.GetIsSinking())
-		{
-			myYouAreOutsideOfMap.setString("You rest with Davy Jones!");
-		}
-		else
-		{
-			myYouAreOutsideOfMap.setString("You are entering no Pirate's Sea. Turn back!");
-		}
-
-		myYouAreOutsideOfMap.setOutlineThickness(5.f);
-		myYouAreOutsideOfMap.setOutlineColor(sf::Color::Black);
-		myYouAreOutsideOfMap.setOrigin(myYouAreOutsideOfMap.getGlobalBounds().width / 2.f, myYouAreOutsideOfMap.getGlobalBounds().height / 2.f);
-		myYouAreOutsideOfMap.setPosition(myCamera.getCenter());
-		myWindow->draw(myYouAreOutsideOfMap);
-	}
-
-	if (myIsOutsideOfMap)
-	{
-		myIsOutsideOfMapTimer += aDT;
-
-		if (myIsOutsideOfMapTimer >= 5.0f)
-		{
-			myShip.Sink();
-		}
-	}
-	else
-	{
-		myIsOutsideOfMapTimer = 0.f;
-	}
-}
-
-void CGame::UpdateVolumes()
-{
-	float volume = CApplication::GetVolume();
-
-	for (sf::Music& song : myBackgroundSongs)
-	{
-		song.setVolume(volume);
-	}
-	myStressMusic.setVolume(volume);
-	myBackgroundSound.setVolume(volume);
-	myCashSound.setVolume(volume);
-	myTreasureSound.setVolume(volume);
-	myCrashSound.setVolume(volume);
-	myWinMusic.setVolume(volume);
-}
-
 void CGame::SetWinner(const sf::String & aName)
 {
-	if (myWinMusic.getStatus() != sf::Music::Status::Playing)
-	{
-		myStressMusic.stop();
-
-		for (sf::Music& song : myBackgroundSongs)
-		{
-			song.stop();
-		}
-
-		myWinMusic.play();
-	}
+	CAudioSystem::GetInstance().PlayMusic(EMusic::WinMusic);
 
 	myPlayerWon.SetString(aName + " became a pirate legend first!");
 	myPlayerWon.Display();
@@ -493,16 +331,7 @@ void CGame::ShowSomeoneCloseToWinningText(const sf::String & aName)
 
 void CGame::SetCloseToWinning(bool aShouldSend)
 {
-	if (myStressMusic.getStatus() != sf::Music::Status::Playing)
-	{
-		for (sf::Music& song : myBackgroundSongs)
-		{
-			song.stop();
-		}
-
-		myStressMusic.setVolume(100);
-		myStressMusic.play();
-	}
+	CAudioSystem::GetInstance().PlayMusic(EMusic::StressMusic);
 
 	if (CNetworking::GetInstance().GetIsNetworkEnabled() && aShouldSend && !myHasSentClosedToWinning)
 	{

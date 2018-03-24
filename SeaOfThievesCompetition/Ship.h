@@ -74,6 +74,7 @@ private:
 	sf::Vector2f myWhirlwindDrag;
 	sf::Vector2f myShipNudge;
 
+
 	sf::Sprite myWavesSprite;
 	float mySpeed;
 	float myMaxSpeed;

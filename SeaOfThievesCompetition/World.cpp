@@ -2,6 +2,7 @@
 #include "Math.h"
 #include "UIMap.h"
 #include "TextureBank.h"
+#include "Ship.h"
 
 void CWorld::CreateFormArray(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap, CUIMap& aUIMap)
 {
@@ -94,9 +95,38 @@ void CWorld::PlaceTreasure(CUIMap& aUIMap)
 	aUIMap.SetTreasureIsland(myIslands[islandToGetTreasure].GetIndexInMap());
 }
 
-std::vector<CIsland>& CWorld::GetIslands()
+EPlayerAction CWorld::CheckPlayerWorldInteraction(CShip & aPlayerShip)
 {
-	return myIslands;
+	const std::array<sf::Vector2f, 4>& cp = aPlayerShip.GetCollisionPoints();
+
+	if (!IsInsideWorld(aPlayerShip.GetPosition()))
+	{
+		return EPlayerAction::OutsideWorldBounds;
+	}
+
+	for (CIsland& island : myIslands)
+	{
+		for (const sf::Vector2f& p : cp)
+		{
+			if (island.IsColliding(p))
+			{
+				return EPlayerAction::Crash;
+			}
+
+			if (island.IsInLootingRange(p))
+			{
+				if (island.GetIndexInMap() == myGoldIslandIndex && aPlayerShip.GetHasTreasure())
+				{
+					return EPlayerAction::Sell;
+				}
+
+				if (island.GetIndexInMap() == myTreasureIsland && !aPlayerShip.GetHasTreasure())
+				{
+					return EPlayerAction::Loot;
+				}
+			}
+		}
+	}
 }
 
 sf::Vector2f CWorld::GetSpawnPosition() const
@@ -196,4 +226,24 @@ void CWorld::PlaceIslands()
 
 void CWorld::CreateWaves()
 {
+}
+
+bool CWorld::IsInsideWorld(const sf::Vector2f & aPosition) const
+{
+	float mapMin = 0.f;
+	float mapMax = MAP_CHUNK_SIZE * MAP_AXIS_SIZE;
+	float forgiveness = 200.f;
+
+	float mapBorderMax = mapMax + forgiveness;
+	float mapBorderMin = mapMin - forgiveness;
+
+	if (aPosition.x > mapBorderMax 
+		|| aPosition.y > mapBorderMax 
+		|| aPosition.x < mapBorderMin 
+		|| aPosition.y < mapBorderMin)
+	{
+		return false;
+	}
+
+	return true;
 }

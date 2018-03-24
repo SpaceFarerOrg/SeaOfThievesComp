@@ -29,6 +29,10 @@ void CTextureBank::LoadAllGraphicItems()
 	LoadTexture(ETexture::MapGoldIsland, "mapGoldIsland");
 	LoadTexture(ETexture::Cross, "cross");
 
+	//UI
+	LoadTexture(ETexture::Slider, "slider");
+	LoadTexture(ETexture::Handle, "handle");
+
 	//Fonts
 	myFont.loadFromFile("font/font.ttf");
 }

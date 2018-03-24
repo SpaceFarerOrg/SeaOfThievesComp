@@ -2,6 +2,8 @@
 #include "SFML\Graphics\RenderWindow.hpp"
 #include "SFML\Window\Mouse.hpp"
 #include "Math.h"
+#include "TextureBank.h"
+#include "Renderer.h"
 
 CSlider::CSlider()
 {
@@ -12,24 +14,12 @@ CSlider::~CSlider()
 {
 }
 
-sf::Texture CSlider::ourSliderTexture;
-sf::Texture CSlider::ourButtonTexture;
-
 void CSlider::Init(const sf::Vector2f & aPosition)
 {
-	static bool firstInit = true;
-	if (firstInit)
-	{
-		ourSliderTexture.loadFromFile("sprites/slider.png");
-		ourButtonTexture.loadFromFile("sprites/handle.png");
+	mySliderSprite.setTexture(CTextureBank::GetInstance().GetTexture(ETexture::Slider));
+	myButtonSprite.setTexture(CTextureBank::GetInstance().GetTexture(ETexture::Handle));
 
-		firstInit = false;
-	}
-
-	mySliderSprite.setTexture(ourSliderTexture);
-	myButtonSprite.setTexture(ourButtonTexture);
-
-	myButtonSprite.setOrigin(ourButtonTexture.getSize().x / 2, 0.f);
+	myButtonSprite.setOrigin(myButtonSprite.getLocalBounds().width / 2.f, 0.f);
 
 	myValue = 50.f;
 	myPosition = aPosition;
@@ -42,26 +32,26 @@ float CSlider::GetValue()
 
 void CSlider::Update(float aDT)
 {
-	sf::Vector2i mPos = sf::Mouse::getPosition(*ourWindow);
+	sf::Vector2i mPos = sf::Mouse::getPosition(CRenderer::GetInstance().GetWindow());
 
 	if (mySliderSprite.getGlobalBounds().contains(mPos.x, mPos.y))
 	{
 		if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		{
-			myValue = 100.f * (mPos.x - mySliderSprite.getPosition().x) / ourSliderTexture.getSize().x;
+			myValue = 100.f * (mPos.x - mySliderSprite.getPosition().x) / mySliderSprite.getLocalBounds().width;
 		}
 	}
 }
 
 void CSlider::Render(sf::RenderWindow * aRenderWindow)
 {
-	sf::Vector2f valueOffset = myValue / 100.f * sf::Vector2f((float)ourSliderTexture.getSize().x, 0);
+	sf::Vector2f valueOffset = myValue / 100.f * sf::Vector2f(mySliderSprite.getLocalBounds().width, 0);
 
-	valueOffset.x = Math::Clamp(valueOffset.x, (float)ourButtonTexture.getSize().x / 2, (float)ourSliderTexture.getSize().x - ourButtonTexture.getSize().x / 2);
+	valueOffset.x = Math::Clamp(valueOffset.x, myButtonSprite.getLocalBounds().width / 2.f, mySliderSprite.getLocalBounds().width - myButtonSprite.getLocalBounds().width / 2.f);
 
 	mySliderSprite.setPosition(myPosition);
 	myButtonSprite.setPosition(myPosition + valueOffset);
 
-	aRenderWindow->draw(mySliderSprite);
-	aRenderWindow->draw(myButtonSprite);
+	CRenderer::GetInstance().Render(mySliderSprite);
+	CRenderer::GetInstance().Render(myButtonSprite);
 }

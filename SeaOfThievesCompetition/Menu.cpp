@@ -134,7 +134,7 @@ bool CMenu::Update()
 		for (CButton& button : myNetworkButtons)
 		{
 			button.Update(dt);
-			button.Render(myWindow);
+			button.Render();
 		}
 
 		CNetworking::GetInstance().SetName(myNameBox.GetText());
@@ -161,7 +161,7 @@ bool CMenu::Update()
 	for (CButton& button : myButtons)
 	{
 		button.Update(dt);
-		button.Render(myWindow);
+		button.Render();
 	}
 
 	return myShouldRun;

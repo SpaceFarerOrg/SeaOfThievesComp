@@ -1,9 +1,9 @@
 #include "Application.h"
 #include <SFML\Graphics\RenderWindow.hpp>
 #include <SFML\Window\Event.hpp>
-#include "UIBase.h"
 #include "SFML\Window\Mouse.hpp"
 #include "TextureBank.h"
+#include "AudioSystem.h"
 
 bool CApplication::myIsInGame;
 bool CApplication::myHasChangedState;
@@ -31,16 +31,13 @@ void CApplication::Init()
 	CRenderer::GetInstance().BindWindow(myWindow);
 
 	CTextureBank::GetInstance().LoadAllGraphicItems();
-
-	CUIBase::SetWindow(&myWindow);
-	CUIBase::SetFont("font/font.ttf");
+	CAudioSystem::GetInstance().LoadAllAudio();
 
 	myGame.SetWindow(&myWindow);
 	myMenu.SetWindow(&myWindow);
 
 	myGame.Init();
 	myMenu.Init();
-	myGame.UpdateVolumes();
 
 	myMenuTextBox = myMenu.GetTextBox();
 	myMenuNameBox = myMenu.GetNameBox();
@@ -58,11 +55,11 @@ void CApplication::Init()
 
 void CApplication::Update()
 {
+	CAudioSystem::GetInstance().Update();
+
 	if (myIsWindowActive)
 	{
 		bool isMultiplayerClient = CNetworking::GetInstance().GetIsNetworkEnabled() && CNetworking::GetInstance().GetIsClient();
-
-		myGame.UpdateVolumes();
 
 		myWindow.clear({ 95,189,197 });
 		if (myHasChangedState && myIsInGame)

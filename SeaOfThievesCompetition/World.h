@@ -3,8 +3,11 @@
 #include "Island.h"
 #include <array>
 #include <vector>
+#include "PlayerActions.h"
 
 class CUIMap;
+class CShip;
+
 
 class CWorld
 {
@@ -15,7 +18,7 @@ public:
 
 	void PlaceTreasure(CUIMap& aUIMap);
 
-	std::vector<CIsland>& GetIslands();
+	EPlayerAction CheckPlayerWorldInteraction(CShip& aPlayerShip);
 
 	sf::Vector2f GetSpawnPosition() const;
 	sf::Vector2f GetRandomSeaPosition() const;
@@ -28,6 +31,9 @@ private:
 	void PlaceSpawnPointAndGoldIsland();
 	void PlaceIslands();
 	void CreateWaves();
+
+	bool IsInsideWorld(const sf::Vector2f& aPosition) const;
+
 
 	size_t myTreasureIsland;
 	size_t myGoldIslandIndex;

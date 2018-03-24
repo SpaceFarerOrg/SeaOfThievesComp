@@ -19,6 +19,18 @@ sf::Vector2f CRenderer::GetViewCenter() const
 	return std::move(center);
 }
 
+sf::Vector2u CRenderer::GetWindowSize() const
+{
+	sf::Vector2u returnVec = myWindow->getSize();
+
+	return std::move(returnVec);
+}
+
+const sf::RenderWindow & CRenderer::GetWindow() const
+{
+	return *myWindow;
+}
+
 void CRenderer::Render(sf::Drawable & aDrawable)
 {
 	myWindow->draw(aDrawable);

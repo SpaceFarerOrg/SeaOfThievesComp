@@ -12,6 +12,10 @@ public:
 	static CRenderer& GetInstance();
 	void BindWindow(sf::RenderWindow& aWindow);
 	sf::Vector2f GetViewCenter() const; 
+	sf::Vector2u GetWindowSize() const;
+
+	const sf::RenderWindow& GetWindow() const;
+
 	void Render(sf::Drawable& aDrawable);
 private:
 	CRenderer();

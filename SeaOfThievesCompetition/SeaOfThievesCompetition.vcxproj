@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="BirdSpawner.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -147,7 +148,6 @@
     <ClCompile Include="TextBox.cpp" />
     <ClCompile Include="TextureBank.cpp" />
     <ClCompile Include="Treasury.cpp" />
-    <ClCompile Include="UIBase.cpp" />
     <ClCompile Include="UIMap.cpp" />
     <ClCompile Include="Whirlwind.cpp" />
     <ClCompile Include="World.cpp" />
@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="BirdSpawner.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="Defines.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="NetworkMessages.h" />
+    <ClInclude Include="PlayerActions.h" />
     <ClInclude Include="PopupText.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Ship.h" />
@@ -172,7 +174,6 @@
     <ClInclude Include="TextBox.h" />
     <ClInclude Include="TextureBank.h" />
     <ClInclude Include="Treasury.h" />
-    <ClInclude Include="UIBase.h" />
     <ClInclude Include="UIMap.h" />
     <ClInclude Include="Whirlwind.h" />
     <ClInclude Include="World.h" />

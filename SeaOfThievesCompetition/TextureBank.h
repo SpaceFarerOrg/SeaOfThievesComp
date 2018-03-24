@@ -22,6 +22,10 @@ enum class ETexture
 	MapIslandThree,
 	MapGoldIsland,
 	Whirlwind,
+
+	Slider,
+	Handle,
+
 	Count,
 };
 
