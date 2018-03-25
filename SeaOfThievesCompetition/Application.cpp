@@ -26,7 +26,7 @@ void CApplication::Init()
 
 	vm.bitsPerPixel = sf::VideoMode::getDesktopMode().bitsPerPixel;
 
-	myWindow.create(vm, "Sea of Thieves Competition", sf::Style::None);
+	myWindow.create(vm, "Sea of Thieves Competition", sf::Style::Close);
 
 	CRenderer::GetInstance().BindWindow(myWindow);
 

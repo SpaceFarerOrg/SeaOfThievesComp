@@ -1,6 +1,7 @@
 #include "UIMap.h"
 #include <sfml\Graphics\RenderWindow.hpp>
 #include "TextureBank.h"
+#include "MapStruct.h"
 
 void CUIMap::Init()
 {
@@ -29,7 +30,7 @@ void CUIMap::Init()
 	myAlpha = 1.0f;
 }
 
-void CUIMap::SetMap(std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CUIMap::SetMap(SMap& aMap)
 {
 	myMap = aMap;
 }
@@ -73,7 +74,7 @@ void CUIMap::CreateDrawableMap()
 	int chunkSize = 600 / MAP_AXIS_SIZE;
 	float offsetFromEdge = 180.f;//(myMapSprite.getGlobalBounds().width / 2) / 2.f;
 
-	for (size_t i = 0; i < myMap.size(); ++i)
+	for (size_t i = 0; i < myMap.GetSize(); ++i)
 	{
 		float posX = (float)((i % MAP_AXIS_SIZE)*chunkSize) + offsetFromEdge;
 		float posY = (float)((i / MAP_AXIS_SIZE)*chunkSize) + offsetFromEdge;
@@ -85,6 +86,10 @@ void CUIMap::CreateDrawableMap()
 			myIslandSprite.setPosition(posX, posY);
 			myIsland2Sprite.setPosition(posX, posY);
 			myIsland3Sprite.setPosition(posX, posY);
+			myIslandSprite.setRotation(myMap(i));
+			myIsland2Sprite.setRotation(myMap(i));
+			myIsland3Sprite.setRotation(myMap(i));
+
 
 			if (myMap[i] == ISLAND_1)
 			{

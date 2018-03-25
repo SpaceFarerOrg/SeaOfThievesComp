@@ -8,6 +8,9 @@
 #include "Defines.h"
 #include <SFML\Graphics\Transformable.hpp>
 #include "Game.h"
+#include <unordered_map>
+#include "MapStruct.h"
+
 #define SERVER_PORT (unsigned short)54000
 
 struct SClient
@@ -37,8 +40,8 @@ public:
 	void SendMyTranslation(sf::Transformable& aTransform);
 	void SendWhirlwindSpawn(const sf::Vector2f& aPosition);
 	
-	void SetMap(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
-	const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& GetMap() const;
+	void SetMap(const SMap& aMap);
+	const SMap& GetMap() const;
 
 	time_t GetLastRecieveTime();
 	void DoPingUpdate();
@@ -56,7 +59,6 @@ public:
 	bool GetIsNetworkEnabled() const;
 	bool GetIsClient() const;
 private:
-
 	CNetworking();
 
 	time_t myLastPingTime;
@@ -81,7 +83,7 @@ private:
 	bool myIsNetworkEnabled;
 	unsigned int myClientID;
 
-	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
+	SMap myMap;
 
 	std::vector<SClient> myClients;
 };

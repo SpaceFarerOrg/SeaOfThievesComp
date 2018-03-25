@@ -6,6 +6,7 @@
 #include <vector>
 #include <sfml\Graphics\Transformable.hpp>
 #include <sfml\Graphics\RenderTexture.hpp>
+#include "MapStruct.h"
 
 namespace sf
 {
@@ -16,7 +17,7 @@ class CUIMap
 {
 public:
 	void Init();
-	void SetMap(std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
+	void SetMap(SMap& aMap);
 	void SetTreasureIsland(size_t aIndexOfIsland);
 	void Render(sf::RenderWindow& aWindow);
 	float GetWidth() const;
@@ -28,7 +29,7 @@ private:
 	sf::RenderTexture myGeneratedMap;
 	sf::Sprite myGeneratedMapSprite;
 
-	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
+	SMap myMap;
 	sf::Transformable myTransform;
 	size_t myIndexOfTreasureIsland;
 

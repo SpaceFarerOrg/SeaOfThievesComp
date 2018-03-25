@@ -182,12 +182,12 @@ void CNetworking::SendWhirlwindSpawn(const sf::Vector2f & aPosition)
 	}
 }
 
-void CNetworking::SetMap(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CNetworking::SetMap(const SMap& aMap)
 {
 	myMap = aMap;
 }
 
-const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& CNetworking::GetMap() const
+const SMap& CNetworking::GetMap() const
 {
 	return myMap;
 }
@@ -501,7 +501,7 @@ void CNetworking::ConnectClient(SConnectMessage & aMessage, sf::IpAddress& aIp, 
 	msg.myCurrentPlayerCount = myClients.size() - 1;
 	msg.myID = myClients.size() - 1;
 
-	for (size_t i = 0; i < myMap.size(); ++i)
+	for (size_t i = 0; i < myMap.GetSize(); ++i)
 	{
 		msg.myCurrentMap[i] = myMap[i];
 	}

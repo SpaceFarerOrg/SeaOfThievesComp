@@ -67,6 +67,11 @@ void CGame::ReInit()
 
 bool CGame::Update()
 {
+	if (CAudioSystem::GetInstance().GetTimeSilent() > 5.f)
+	{
+		CAudioSystem::GetInstance().RandomizeSongBetween(EMusic::BgMusicOne, EMusic::BgMusicTwo, true);
+	}
+
 	if (myShip.GetHasRespawned())
 	{
 		myTreasury.GiveGold(-100);
@@ -152,10 +157,7 @@ bool CGame::Update()
 
 		if (CNetworking::GetInstance().GetIsNetworkEnabled())
 		{
-
-			//Win game
 			CNetworking::GetInstance().SendWinning(false);
-
 		}
 
 		SetWinner("You ");
@@ -185,7 +187,6 @@ bool CGame::Update()
 
 		myPlayerWon.Render();
 	}
-
 
 	return true;
 }
@@ -254,13 +255,13 @@ void CGame::GenerateWorld()
 	CNetworking::GetInstance().SetMap(myWorld.GetRawMap());
 }
 
-void CGame::LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap)
+void CGame::LoadMapFromServer(const SMap& aMap)
 {
 	myShouldSendCloseToWinning = true;
 
 	myWhirlwinds.clear();
 
-	myWorld.CreateFormArray(aMap, myUIMap);
+	myWorld.CreateFromGeneratedMap(aMap, myUIMap);
 }
 
 void CGame::RespondToPlayerAction(EPlayerAction aPlayerAction)

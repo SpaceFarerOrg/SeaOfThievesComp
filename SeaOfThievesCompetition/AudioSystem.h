@@ -3,6 +3,7 @@
 #include <SFML\Audio\Sound.hpp>
 #include <SFML\Audio\SoundBuffer.hpp>
 #include <SFML\Audio\Music.hpp>
+#include <SFML\System\Clock.hpp>
 
 enum class EMusic
 {
@@ -39,16 +40,20 @@ public:
 
 	void Update();
 
+	float GetTimeSilent() const;
 	bool NoMusicPlaying() const;
 
-	void RandomizeSongBetween(EMusic aFirst, EMusic aLast);
+	void RandomizeSongBetween(EMusic aFirst, EMusic aLast, bool aShouldExcludeLastPlayed = false);
 private:
 	void LoadMusic(EMusic aMusic, const char* aPath);
 	void LoadSound(ESound aSound, const char* aPath);
 
+	sf::Clock myTimeSilent;
+
 	CAudioSystem();
 
 	EMusic myCurrentlyPlayingSong;
+	EMusic myLastPlayedSong;
 
 	std::array<sf::Sound, (size_t)ESound::Count> mySoundBank;
 	std::array<sf::SoundBuffer, (size_t)ESound::Count> mySoundBuffers;

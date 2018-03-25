@@ -118,6 +118,9 @@
     <ClInclude Include="AudioSystem.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="MapStruct.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Game">

@@ -4,12 +4,12 @@
 #include "TextureBank.h"
 #include "Ship.h"
 
-void CWorld::CreateFormArray(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap, CUIMap& aUIMap)
+void CWorld::CreateFromGeneratedMap(const SMap& aMap, CUIMap& aUIMap)
 {
 	ClearMap();
 	myMap = aMap;
 
-	for (size_t i = 0; i < myMap.size(); ++i)
+	for (size_t i = 0; i < myMap.GetSize(); ++i)
 	{
 		ETexture islandTexture;
 		if (myMap[i] == ISLAND_1)
@@ -140,7 +140,7 @@ sf::Vector2f CWorld::GetRandomSeaPosition() const
 {
 	while (true)
 	{
-		size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.size() - 1);
+		size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.GetSize() - 1);
 
 		if (myMap[indexInMap] == SEA)
 		{
@@ -151,7 +151,7 @@ sf::Vector2f CWorld::GetRandomSeaPosition() const
 	}
 }
 
-const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& CWorld::GetRawMap() const
+const SMap& CWorld::GetRawMap() const
 {
 	return myMap;
 }
@@ -172,7 +172,7 @@ sf::Vector2f CWorld::TranslateMapPointToWorldPosition(size_t aIndex) const
 void CWorld::ClearMap()
 {
 	myIslands.clear();
-	for (int& chunk : myMap)
+	for (int& chunk : myMap.myMap)
 	{
 		chunk = 0;
 	}
@@ -204,17 +204,21 @@ void CWorld::PlaceIslands()
 
 		while (!placedIsland)
 		{
-			size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.size() - 1);
+			size_t indexInMap = Math::GetRandomInRange(0, (short)myMap.myMap.size() - 1);
 
 			if (indexInMap != myPlayerSpawnIndex && indexInMap != myGoldIslandIndex && myMap[indexInMap] < ISLAND_1)
 			{
 				short islandType = Math::GetRandomInRange(0, 2);
 
+				float rotation = static_cast<float>(Math::GetRandomInRange(0, 360));
+
 				myMap[indexInMap] = (int)(ISLAND_1 + islandType);
+				myMap(indexInMap) = rotation;
 				myIslands.push_back(CIsland());
 				myIslands.back().SetIslandData((EIslandType)islandType, TranslateMapPointToWorldPosition(indexInMap));
 				myIslands.back().Init();
 				myIslands.back().SetIndexInMap(indexInMap);
+				myIslands.back().SetRotation(rotation);
 
 				placedIsland = true;
 			}

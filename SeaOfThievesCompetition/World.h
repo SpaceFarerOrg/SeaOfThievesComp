@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include "PlayerActions.h"
+#include "MapStruct.h"
 
 class CUIMap;
 class CShip;
@@ -12,7 +13,7 @@ class CShip;
 class CWorld
 {
 public:
-	void CreateFormArray(const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& aMap, CUIMap& aUIMap);
+	void CreateFromGeneratedMap(const SMap& aMap, CUIMap& aUIMap);
 	void Generate(CUIMap& aUIMap);
 	void Render();
 
@@ -23,7 +24,7 @@ public:
 	sf::Vector2f GetSpawnPosition() const;
 	sf::Vector2f GetRandomSeaPosition() const;
 
-	const std::array<int, MAP_AXIS_SIZE*MAP_AXIS_SIZE>& GetRawMap() const;
+	const SMap& GetRawMap() const;
 private:
 	sf::Vector2f TranslateMapPointToWorldPosition(size_t aIndex) const;
 	void ClearMap();
@@ -38,7 +39,9 @@ private:
 	size_t myTreasureIsland;
 	size_t myGoldIslandIndex;
 	size_t myPlayerSpawnIndex;
-	std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE> myMap;
+
+	SMap myMap;
+
 	std::vector<CIsland> myIslands;
 
 };

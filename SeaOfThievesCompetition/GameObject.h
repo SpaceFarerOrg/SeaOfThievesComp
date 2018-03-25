@@ -15,6 +15,7 @@ public:
 
 	void SetPosition(const sf::Vector2f& aPosition);
 
+	void SetRotation(float aDegrees);
 
 	void SetOriginMiddle();
 	void SetOriginUpperLeft();

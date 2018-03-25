@@ -17,6 +17,7 @@
 #include "BirdSpawner.h"
 #include "PopupText.h"
 #include "World.h"
+#include "MapStruct.h"
 
 namespace sf
 {
@@ -33,7 +34,7 @@ public:
 	void DisplayOtherShips();
 
 	void GenerateWorld();
-	void LoadMapFromServer(const std::array<int, MAP_AXIS_SIZE * MAP_AXIS_SIZE>& aMap);
+	void LoadMapFromServer(const SMap& aMap);
 
 	bool GetShouldRun() const;
 

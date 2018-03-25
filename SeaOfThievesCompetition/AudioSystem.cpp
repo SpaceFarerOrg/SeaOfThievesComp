@@ -43,6 +43,8 @@ void CAudioSystem::PlayMusic(EMusic aSong, bool aLoop)
 	if (myMusicBuffer[(size_t)aSong].getStatus() == sf::SoundSource::Status::Playing)
 		return;
 
+	myLastPlayedSong = aSong;
+
 	for (sf::Music& music : myMusicBuffer)
 	{
 		music.setLoop(false);
@@ -55,6 +57,7 @@ void CAudioSystem::PlayMusic(EMusic aSong, bool aLoop)
 	}
 
 	myMusicBuffer[(size_t)aSong].play();
+	myCurrentlyPlayingSong = aSong;
 }
 
 void CAudioSystem::PlaySound(ESound aSound)
@@ -77,6 +80,8 @@ void CAudioSystem::Update()
 	if (myCurrentlyPlayingSong == EMusic::None)
 		return;
 
+	myTimeSilent.restart();
+
 	if (myMusicBuffer[(size_t)myCurrentlyPlayingSong].getStatus() != sf::SoundSource::Status::Playing)
 	{
 		myCurrentlyPlayingSong = EMusic::None;
@@ -84,17 +89,32 @@ void CAudioSystem::Update()
 
 }
 
+float CAudioSystem::GetTimeSilent() const
+{
+	return myTimeSilent.getElapsedTime().asSeconds();
+}
+
 bool CAudioSystem::NoMusicPlaying() const
 {
 	return myCurrentlyPlayingSong == EMusic::None;
 }
 
-void CAudioSystem::RandomizeSongBetween(EMusic aFirst, EMusic aLast)
+void CAudioSystem::RandomizeSongBetween(EMusic aFirst, EMusic aLast, bool aShouldExcludeLastPlayed)
 {
 	short first = (short)aFirst;
 	short last = (short)aLast;
 
-	short newSong = Math::GetRandomInRange(first, last);
+	short newSong;
+
+	while (true)
+	{
+		newSong = Math::GetRandomInRange(first, last);
+
+		if ((EMusic)newSong != myLastPlayedSong)
+		{
+			break;
+		}
+	}
 
 	StopAllMusic();
 

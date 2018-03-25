@@ -29,6 +29,11 @@ void CGameObject::SetPosition(const sf::Vector2f & aPosition)
 	myTransform.setPosition(aPosition);
 }
 
+void CGameObject::SetRotation(float aDegrees)
+{
+	myTransform.setRotation(aDegrees);
+}
+
 void CGameObject::SetOriginMiddle()
 {
 	mySprite.setOrigin(mySprite.getLocalBounds().width / 2.f, mySprite.getLocalBounds().height / 2.f);
