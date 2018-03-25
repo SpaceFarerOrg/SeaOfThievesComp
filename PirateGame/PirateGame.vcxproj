@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{44BF7819-594F-4367-A0A4-01D16407AD03}</ProjectGuid>
+    <ProjectGuid>{A11A89BC-F9AA-431B-AA0B-C0B65BBFE9F2}</ProjectGuid>
     <RootNamespace>SeaOfThievesCompetition</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
