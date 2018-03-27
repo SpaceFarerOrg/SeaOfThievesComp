@@ -2,11 +2,9 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML\Graphics\Texture.hpp>
 #include <array>
-#include "Ship.h"
 #include "Animation.h"
 #include <vector>
 #include "Island.h"
-#include "Treasury.h"
 #include <SFML\Audio\Music.hpp>
 #include <SFML\Audio\Sound.hpp>
 #include <SFML\Audio\SoundBuffer.hpp>
@@ -18,6 +16,7 @@
 #include "PopupText.h"
 #include "World.h"
 #include "MapStruct.h"
+#include "Player.h"
 
 namespace sf
 {
@@ -47,8 +46,6 @@ private:
 	void SetCloseToWinning(bool aShouldSend = false);
 
 private:
-	void RespondToPlayerAction(EPlayerAction aPlayerAction);
-
 	void UpdateWhirlwinds(float aDT);
 
 	bool myShouldSendCloseToWinning;
@@ -70,6 +67,8 @@ private:
 
 	std::vector<std::pair<CWhirlwind, float>> myWhirlwinds;
 
+	CPlayer myPlayer;
+
 	std::array<std::pair<CWhirlwind, float>, WHIRLWIND_BUFFER_SIZE> myWhirlwindBuffer;
 	size_t myNextAvailableWW;
 	float mySpawnNewWWTimer;
@@ -77,11 +76,7 @@ private:
 	sf::RenderWindow* myWindow;
 	sf::Sprite myShipSprite;
 
-	CTreasury myTreasury;
-
 	sf::View myCamera;
-
-	CShip myShip;
 
 	CUIMap myUIMap;
 	

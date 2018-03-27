@@ -26,6 +26,13 @@ sf::Vector2u CRenderer::GetWindowSize() const
 	return std::move(returnVec);
 }
 
+sf::Vector2f CRenderer::GetViewSize() const
+{
+	sf::Vector2f returnVec = myWindow->getView().getSize();
+
+	return std::move(returnVec);
+}
+
 const sf::RenderWindow & CRenderer::GetWindow() const
 {
 	return *myWindow;

@@ -134,6 +134,11 @@ void CShip::Respawn()
 	myInvisibilityTimer = 0.f;
 	myHasTreasure = false;
 	myHasRespawned = true;
+
+	for (unsigned i = 0; i < 4; ++i)
+	{
+		myTransformedCP[i] = myTransform.getTransform().transformPoint(myCollisionPoints[i]);
+	}
 }
 
 

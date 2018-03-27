@@ -15,6 +15,7 @@ void CAudioSystem::LoadAllAudio()
 	LoadSound(ESound::ShipCrash, "shipCrash");
 	LoadSound(ESound::Sell, "earnMoney");
 	LoadSound(ESound::Loot, "treasureThump");
+	LoadSound(ESound::MapRussle, "mapRussle");
 
 	LoadMusic(EMusic::BgMusicOne, "song");
 	LoadMusic(EMusic::BgMusicTwo, "song2");
@@ -62,6 +63,12 @@ void CAudioSystem::PlayMusic(EMusic aSong, bool aLoop)
 
 void CAudioSystem::PlaySound(ESound aSound)
 {
+	if (aSound == ESound::ShipCrash)
+	{
+		int x = 0;
+		x++;
+	}
+
 	mySoundBank[(size_t)aSound].play();
 }
 

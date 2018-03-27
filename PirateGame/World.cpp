@@ -77,7 +77,6 @@ void CWorld::PlaceTreasure(CUIMap& aUIMap)
 
 	short islandToGetTreasure = 0;
 
-
 	for (CIsland& island : myIslands)
 	{
 		island.SetHasTreasure(false);
@@ -133,6 +132,11 @@ EPlayerAction CWorld::CheckPlayerWorldInteraction(CShip & aPlayerShip)
 			}
 		}
 	}
+}
+
+size_t CWorld::GetIndexOfTreasureIsland() const
+{
+	return myTreasureIslandInMap;
 }
 
 sf::Vector2f CWorld::GetSpawnPosition() const

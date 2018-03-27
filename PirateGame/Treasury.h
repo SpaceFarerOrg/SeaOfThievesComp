@@ -13,9 +13,10 @@ public:
 	void SetGold(short aAmount);
 	void GiveGold(short aAmount);
 	short GetGold() const;
-	void Render(sf::RenderWindow& aWindow);
+	void Render();
 private:
 	short myGold;
+	short myTargetGold;
 	sf::Font myFont;
 	sf::Text myText;
 };

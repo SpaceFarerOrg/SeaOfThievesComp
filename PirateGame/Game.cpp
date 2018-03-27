@@ -20,8 +20,8 @@ void CGame::Init()
 
 	myPlayerActionPrompt.Init("Error", 0.5f);
 
-	myShip.Init();
-	myShip.SetWavesTextures(GET_TEXTURE(ETexture::ShipWavesBig), GET_TEXTURE(ETexture::ShipWavesBig));
+	myPlayer.Init();
+	myPlayer.GetShip().SetWavesTextures(GET_TEXTURE(ETexture::ShipWavesBig), GET_TEXTURE(ETexture::ShipWavesBig));
 
 	myShipSprite.setTexture(GET_TEXTURE(ETexture::Ship));
 	myShipSprite.setOrigin(myShipSprite.getGlobalBounds().width / 2.f, myShipSprite.getGlobalBounds().height / 2.f);
@@ -47,16 +47,16 @@ void CGame::Init()
 
 void CGame::ReInit()
 {
-	myTreasury.SetGold(0);
+	myPlayer.FlushTreasury();
 	myShouldSendWinning = true;
 	myHasRegisteredPaus = false;
 	myPlayerHasWon = false;
 	myPlayerCanLoot = false;
 	myPlayerCanSell = false;
 	myHasRegisteredPaus = false;
-	myShip.Respawn();
 	myWorld.Generate(myUIMap);
-	myShip.SetPosition(myWorld.GetSpawnPosition());
+	myPlayer.SetSpawnPosition(myWorld.GetSpawnPosition());
+	myPlayer.Respawn();
 
 	CAudioSystem::GetInstance().StopAllMusic();
 
@@ -68,12 +68,6 @@ bool CGame::Update()
 	if (CAudioSystem::GetInstance().GetTimeSilent() > 5.f)
 	{
 		CAudioSystem::GetInstance().RandomizeSongBetween(EMusic::BgMusicOne, EMusic::BgMusicTwo, true);
-	}
-
-	if (myShip.GetHasRespawned())
-	{
-		myTreasury.GiveGold(-100);
-		myWorld.PlaceTreasure(myUIMap);
 	}
 
 	float dt = myDeltaTimer.getElapsedTime().asSeconds();
@@ -93,49 +87,21 @@ bool CGame::Update()
 
 	myBirdSpawner.Update(dt, myWindow->getView().getCenter());
 
-	myShip.Update(dt);
+	myPlayer.Update(dt, myWorld);
 
-	EPlayerAction possibleAction = myWorld.CheckPlayerWorldInteraction(myShip);
-	RespondToPlayerAction(possibleAction);
-
-	myShip.Render();
+	myPlayer.Render();
 
 	DisplayOtherShips();
 
-	myTreasury.Render(*myWindow);
 
 	myBirdSpawner.Render(myWindow);
 
-
-	float mapAlpha = myUIMap.GetAlpha();
-
-	if (myShip.GetIsControlled())
-	{
-		mapAlpha = Math::Lerp(mapAlpha, 0.75f, dt * 4.f);
-	}
-	else
-	{
-		mapAlpha = Math::Lerp(mapAlpha, 1.0f, dt * 4.f);
-	}
-
-	myUIMap.SetAlpha(mapAlpha);
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::M))
-	{
-		myUIMap.Render(*myWindow);
-	}
-
-	myCamera.setCenter(myShip.GetPosition().x, myShip.GetPosition().y);
+	myCamera.setCenter(myPlayer.GetPosition().x, myPlayer.GetPosition().y);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 	{
 		CNetworking::GetInstance().Disconnect();
 		CApplication::EnterMenu();
-	}
-	if (myShip.GetIsDead())
-	{
-		myShip.Respawn();
-		myShip.SetPosition(myWorld.GetSpawnPosition());
 	}
 
 	if (!CNetworking::GetInstance().GetIsClient())
@@ -150,7 +116,7 @@ bool CGame::Update()
 		}
 	}
 
-	if (myTreasury.GetGold() == 700 && myShouldSendWinning)
+	if (myPlayer.GetGoldBalance() == 700 && myShouldSendWinning)
 	{
 		myPlayerHasWon = true;
 
@@ -162,11 +128,10 @@ bool CGame::Update()
 		SetWinner("You ");
 		myShouldSendWinning = false;
 	}
-	else if (myTreasury.GetGold() == 500)
+	else if (myPlayer.GetGoldBalance() == 500)
 	{
 		SetCloseToWinning(myShouldSendCloseToWinning);
 	}
-
 
 	mySomeoneIsCloseToWinningTimer += dt;
 	if (!myPlayerHasWon)
@@ -215,10 +180,10 @@ void CGame::DisplayOtherShips()
 			otherPlayerName.setOrigin(otherPlayerName.getGlobalBounds().width / 2.f, otherPlayerName.getGlobalBounds().height / 2.f);
 			otherPlayerName.setPosition(other.myTransform.getPosition().x, other.myTransform.getPosition().y - myShipSprite.getGlobalBounds().height / 2.f);
 
-			sf::Vector2f shipToShip = myShip.GetPosition() - other.myTransform.getPosition();
+			sf::Vector2f shipToShip = myPlayer.GetShip().GetPosition() - other.myTransform.getPosition();
 			float distance = Math::Length(shipToShip);
 
-			if (distance <= myShip.GetWidth())
+			if (distance <= myPlayer.GetShip().GetWidth())
 			{
 				Math::Normalize(shipToShip);
 				if (distance == 0.f)
@@ -226,7 +191,7 @@ void CGame::DisplayOtherShips()
 					distance = 0.01f;
 				}
 
-				float maxDistance = myShip.GetWidth();
+				float maxDistance = myPlayer.GetShip().GetWidth();
 				float percentage = distance / maxDistance;
 
 				nudge += shipToShip * 600.f * (1.f - percentage);
@@ -236,7 +201,7 @@ void CGame::DisplayOtherShips()
 		}
 	}
 
-	myShip.SetShipNudge(nudge);
+	myPlayer.GetShip().SetShipNudge(nudge);
 }
 
 void CGame::GenerateWorld()
@@ -244,10 +209,10 @@ void CGame::GenerateWorld()
 	myShouldSendCloseToWinning = true;
 
 
-	myShip.Respawn();
+	myPlayer.Respawn();
+	myPlayer.FlushTreasury();
 
 	myWorld.Generate(myUIMap);
-	myTreasury.SetGold(0);
 	myWorld.PlaceTreasure(myUIMap);
 	CNetworking::GetInstance().SetMap(myWorld.GetRawMap());
 }
@@ -259,53 +224,6 @@ void CGame::LoadMapFromServer(const SMap& aMap)
 	myWhirlwinds.clear();
 
 	myWorld.CreateFromGeneratedMap(aMap, myUIMap);
-}
-
-void CGame::RespondToPlayerAction(EPlayerAction aPlayerAction)
-{
-	switch (aPlayerAction)
-	{
-	case EPlayerAction::None:
-		myPlayerActionPrompt.Hide();
-		break;
-	case EPlayerAction::Loot:
-		myPlayerActionPrompt.SetString("Press space to loot");
-		myPlayerActionPrompt.Display();
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-		{
-			myWorld.LootTreasure();
-			myShip.SetHoldsTreasure(true);
-			CAudioSystem::GetInstance().PlaySound(ESound::Loot);
-		}
-
-		break;
-	case EPlayerAction::Sell:
-		myPlayerActionPrompt.SetString("Press space to sell");
-		myPlayerActionPrompt.Display();
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
-		{
-			myWorld.PlaceTreasure(myUIMap);
-			myShip.SetHoldsTreasure(false);
-			myTreasury.GiveGold(100);
-			CAudioSystem::GetInstance().PlaySound(ESound::Sell);
-		}
-
-		break;
-	case EPlayerAction::Crash:
-		if (!myShip.GetIsSinking())
-		{
-			CAudioSystem::GetInstance().PlaySound(ESound::ShipCrash);
-			myShip.Sink();
-		}
-		break;
-	case EPlayerAction::OutsideWorldBounds:
-		myPlayerActionPrompt.SetString("You are leaving chartered waters, turn back!");
-		myPlayerActionPrompt.Display();
-		break;
-	default:
-		break;
-	}
 }
 
 void CGame::SetWinner(const sf::String & aName)
@@ -371,17 +289,17 @@ void CGame::UpdateWhirlwinds(float aDT)
 		}
 
 
-		drag += myWhirlwindBuffer[i].first.GetDragTo(myShip.GetPosition(), shouldKillPlayer);
+		drag += myWhirlwindBuffer[i].first.GetDragTo(myPlayer.GetShip().GetPosition(), shouldKillPlayer);
 
 		myWhirlwindBuffer[i].first.Render(*myWindow);
 	}
 
 	if (shouldKillPlayer)
 	{
-		myShip.Sink();
+		myPlayer.GetShip().Sink();
 	}
 
-	myShip.SetWhirlwindDrag(drag);
+	myPlayer.GetShip().SetWhirlwindDrag(drag);
 }
 
 bool CGame::GetShouldRun() const

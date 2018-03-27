@@ -17,9 +17,9 @@ class CUIMap
 {
 public:
 	void Init();
-	void SetMap(SMap& aMap);
+	void SetMap(const SMap& aMap);
 	void SetTreasureIsland(size_t aIndexOfIsland);
-	void Render(sf::RenderWindow& aWindow);
+	void Render();
 	float GetWidth() const;
 	void SetAlpha(float aAlpha);
 	float GetAlpha();

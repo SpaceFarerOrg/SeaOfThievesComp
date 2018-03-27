@@ -13,6 +13,7 @@ public:
 	void BindWindow(sf::RenderWindow& aWindow);
 	sf::Vector2f GetViewCenter() const; 
 	sf::Vector2u GetWindowSize() const;
+	sf::Vector2f GetViewSize() const;
 
 	const sf::RenderWindow& GetWindow() const;
 

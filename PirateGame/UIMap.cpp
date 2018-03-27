@@ -2,6 +2,7 @@
 #include <sfml\Graphics\RenderWindow.hpp>
 #include "TextureBank.h"
 #include "MapStruct.h"
+#include "Renderer.h"
 
 void CUIMap::Init()
 {
@@ -21,6 +22,7 @@ void CUIMap::Init()
 	myIslandSprite.setOrigin(myIslandSprite.getGlobalBounds().width / 2.f, myIslandSprite.getGlobalBounds().height / 2.f);
 	myIsland2Sprite.setOrigin(myIsland2Sprite.getGlobalBounds().width / 2.f, myIsland2Sprite.getGlobalBounds().height / 2.f);
 	myIsland3Sprite.setOrigin(myIsland3Sprite.getGlobalBounds().width / 2.f, myIsland3Sprite.getGlobalBounds().height / 2.f);
+	myCrossSprite.setOrigin(myCrossSprite.getGlobalBounds().width / 2.f, myCrossSprite.getGlobalBounds().height / 2.f);
 
 	myMapSprite.setScale(1.f, 1.f);
 
@@ -30,7 +32,7 @@ void CUIMap::Init()
 	myAlpha = 1.0f;
 }
 
-void CUIMap::SetMap(SMap& aMap)
+void CUIMap::SetMap(const SMap& aMap)
 {
 	myMap = aMap;
 }
@@ -40,15 +42,15 @@ void CUIMap::SetTreasureIsland(size_t aIndexOfIsland)
 	myIndexOfTreasureIsland = aIndexOfIsland;
 }
 
-void CUIMap::Render(sf::RenderWindow & aWindow)
+void CUIMap::Render()
 {
 	CreateDrawableMap();
 
 	myGeneratedMapSprite.setColor(sf::Color(255,255,255, 255.f * myAlpha));
 	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width / 2, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
-	myGeneratedMapSprite.setPosition(aWindow.getView().getCenter());
+	myGeneratedMapSprite.setPosition(CRenderer::GetInstance().GetViewCenter());
 
-	aWindow.draw(myGeneratedMapSprite);
+	CRenderer::GetInstance().Render(myGeneratedMapSprite);
 }
 
 float CUIMap::GetWidth() const

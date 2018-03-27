@@ -20,6 +20,7 @@ enum class ESound
 	ShipCrash,
 	Sell,
 	Loot,
+	MapRussle,
 	Count,
 	None,
 };

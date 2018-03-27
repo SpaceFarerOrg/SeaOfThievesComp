@@ -22,6 +22,8 @@ public:
 
 	EPlayerAction CheckPlayerWorldInteraction(CShip& aPlayerShip);
 
+	size_t GetIndexOfTreasureIsland() const;
+
 	sf::Vector2f GetSpawnPosition() const;
 	sf::Vector2f GetRandomSeaPosition() const;
 

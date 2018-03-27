@@ -1,5 +1,6 @@
 #include "Treasury.h"
 #include <SFML\Graphics\RenderWindow.hpp>
+#include "Renderer.h"
 
 CTreasury::CTreasury()
 {
@@ -16,9 +17,9 @@ void CTreasury::SetGold(short aAmount)
 
 void CTreasury::GiveGold(short aAmount)
 {
-	myGold += aAmount;
-	if (myGold < 0)
-		myGold = 0;
+	myTargetGold += aAmount;
+	if (myTargetGold < 0)
+		myTargetGold = 0;
 }
 
 short CTreasury::GetGold() const
@@ -26,8 +27,17 @@ short CTreasury::GetGold() const
 	return myGold;
 }
 
-void CTreasury::Render(sf::RenderWindow & aWindow)
+void CTreasury::Render()
 {
+	if (myGold < myTargetGold)
+	{
+		++myGold;
+	}
+	else if (myGold > myTargetGold)
+	{
+		--myGold;
+	}
+
 	myText.setString("Gold: " + std::to_string(myGold));
 
 	float ox = myText.getGlobalBounds().width / 2.f;
@@ -35,7 +45,9 @@ void CTreasury::Render(sf::RenderWindow & aWindow)
 
 	myText.setOrigin(ox, oy);
 
-	myText.setPosition(aWindow.getView().getCenter().x, aWindow.getView().getCenter().y - aWindow.getView().getSize().y / 2.f + 10.f);
+	sf::Vector2f wCenter = CRenderer::GetInstance().GetViewCenter();
+	float wHeight = CRenderer::GetInstance().GetViewSize().y;
+	myText.setPosition(wCenter.x, wCenter.y - wHeight / 2.f + 10.f);
 
-	aWindow.draw(myText);
+	CRenderer::GetInstance().Render(myText);
 }
