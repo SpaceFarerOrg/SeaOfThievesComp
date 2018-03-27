@@ -49,8 +49,6 @@ private:
 private:
 	void RespondToPlayerAction(EPlayerAction aPlayerAction);
 
-	void ShowPressButtonPrompt();
-
 	void UpdateWhirlwinds(float aDT);
 
 	bool myShouldSendCloseToWinning;
@@ -66,10 +64,7 @@ private:
 	
 	CWorld myWorld;
 
-	sf::Text myPressSpaceToLoot;
-	sf::Text myPressSpaceToSellTreasure;
-	sf::Text myYouAreOutsideOfMap;
-	sf::Font myFont;
+	CPopupText myPlayerActionPrompt;
 	CPopupText myPlayerCloseToWinning;
 	CPopupText myPlayerWon;
 

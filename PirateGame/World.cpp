@@ -66,6 +66,11 @@ void CWorld::Render()
 	}
 }
 
+void CWorld::LootTreasure()
+{
+	myIslands[myTreasureIsland].SetHasTreasure(false);
+}
+
 void CWorld::PlaceTreasure(CUIMap& aUIMap)
 {
 	bool placedTreasure = false;
@@ -88,6 +93,7 @@ void CWorld::PlaceTreasure(CUIMap& aUIMap)
 		}
 	}
 
+	myTreasureIslandInMap = myIslands[islandToGetTreasure].GetIndexInMap();
 	myTreasureIsland = islandToGetTreasure;
 
 	myIslands[islandToGetTreasure].SetHasTreasure();
@@ -120,7 +126,7 @@ EPlayerAction CWorld::CheckPlayerWorldInteraction(CShip & aPlayerShip)
 					return EPlayerAction::Sell;
 				}
 
-				if (island.GetIndexInMap() == myTreasureIsland && !aPlayerShip.GetHasTreasure())
+				if (island.GetIndexInMap() == myTreasureIslandInMap && !aPlayerShip.GetHasTreasure())
 				{
 					return EPlayerAction::Loot;
 				}
@@ -192,6 +198,7 @@ void CWorld::PlaceSpawnPointAndGoldIsland()
 	myIslands.push_back(CIsland());
 	myIslands.back().SetIslandData(EIslandType::GoldIsland, TranslateMapPointToWorldPosition(myGoldIslandIndex));
 	myIslands.back().Init();
+	myIslands.back().SetIndexInMap(myGoldIslandIndex);
 }
 
 void CWorld::PlaceIslands()

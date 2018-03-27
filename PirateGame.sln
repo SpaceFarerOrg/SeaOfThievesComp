@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PirateGame", "PirateGame\PirateGame.vcxproj", "{A11A89BC-F9AA-431B-AA0B-C0B65BBFE9F2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PirateGameServer", "PirateGameServer\PirateGameServer.vcxproj", "{C248B52F-2B89-43D0-868F-242921B5BDFE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PirateGameNetworkingCommon", "PirateGameNetworkingCommon\PirateGameNetworkingCommon.vcxproj", "{EB7073AA-960D-481A-8D98-CA01F02EC43C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +25,22 @@ Global
 		{A11A89BC-F9AA-431B-AA0B-C0B65BBFE9F2}.Release|x64.Build.0 = Release|x64
 		{A11A89BC-F9AA-431B-AA0B-C0B65BBFE9F2}.Release|x86.ActiveCfg = Release|Win32
 		{A11A89BC-F9AA-431B-AA0B-C0B65BBFE9F2}.Release|x86.Build.0 = Release|Win32
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Debug|x64.ActiveCfg = Debug|x64
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Debug|x64.Build.0 = Debug|x64
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Debug|x86.ActiveCfg = Debug|Win32
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Debug|x86.Build.0 = Debug|Win32
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Release|x64.ActiveCfg = Release|x64
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Release|x64.Build.0 = Release|x64
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Release|x86.ActiveCfg = Release|Win32
+		{C248B52F-2B89-43D0-868F-242921B5BDFE}.Release|x86.Build.0 = Release|Win32
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Debug|x64.ActiveCfg = Debug|x64
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Debug|x64.Build.0 = Debug|x64
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Debug|x86.ActiveCfg = Debug|Win32
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Debug|x86.Build.0 = Debug|Win32
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Release|x64.ActiveCfg = Release|x64
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Release|x64.Build.0 = Release|x64
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Release|x86.ActiveCfg = Release|Win32
+		{EB7073AA-960D-481A-8D98-CA01F02EC43C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

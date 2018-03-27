@@ -17,6 +17,7 @@ public:
 	void Generate(CUIMap& aUIMap);
 	void Render();
 
+	void LootTreasure();
 	void PlaceTreasure(CUIMap& aUIMap);
 
 	EPlayerAction CheckPlayerWorldInteraction(CShip& aPlayerShip);
@@ -37,6 +38,7 @@ private:
 
 
 	size_t myTreasureIsland;
+	size_t myTreasureIslandInMap;
 	size_t myGoldIslandIndex;
 	size_t myPlayerSpawnIndex;
 

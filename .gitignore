@@ -9,6 +9,9 @@
 *.userosscache
 *.sln.docstates
 
+PirateGameNetworkingCommon_Debug.lib
+PirateGameNetworkingCommon_Release.lib
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 

@@ -16,11 +16,9 @@ void CGame::SetWindow(sf::RenderWindow * aWindow)
 
 void CGame::Init()
 {
-	myFont.loadFromFile("font/font.ttf");
-	myPressSpaceToLoot.setFont(myFont);
-	myYouAreOutsideOfMap.setFont(myFont);
-
 	myHasRegisteredPaus = false;
+
+	myPlayerActionPrompt.Init("Error", 0.5f);
 
 	myShip.Init();
 	myShip.SetWavesTextures(GET_TEXTURE(ETexture::ShipWavesBig), GET_TEXTURE(ETexture::ShipWavesBig));
@@ -59,7 +57,7 @@ void CGame::ReInit()
 	myShip.Respawn();
 	myWorld.Generate(myUIMap);
 	myShip.SetPosition(myWorld.GetSpawnPosition());
-	
+
 	CAudioSystem::GetInstance().StopAllMusic();
 
 	CAudioSystem::GetInstance().RandomizeSongBetween(EMusic::BgMusicOne, EMusic::BgMusicTwo);
@@ -98,6 +96,7 @@ bool CGame::Update()
 	myShip.Update(dt);
 
 	EPlayerAction possibleAction = myWorld.CheckPlayerWorldInteraction(myShip);
+	RespondToPlayerAction(possibleAction);
 
 	myShip.Render();
 
@@ -172,10 +171,8 @@ bool CGame::Update()
 	mySomeoneIsCloseToWinningTimer += dt;
 	if (!myPlayerHasWon)
 	{
-
 		myPlayerCloseToWinning.Render();
-
-		ShowPressButtonPrompt();
+		myPlayerActionPrompt.Render();
 	}
 	else
 	{
@@ -201,7 +198,7 @@ void CGame::DisplayOtherShips()
 	}
 
 	sf::Text otherPlayerName;
-	otherPlayerName.setFont(myFont);
+	otherPlayerName.setFont(CTextureBank::GetInstance().GetFont());
 
 	sf::Vector2f nudge;
 
@@ -269,46 +266,45 @@ void CGame::RespondToPlayerAction(EPlayerAction aPlayerAction)
 	switch (aPlayerAction)
 	{
 	case EPlayerAction::None:
+		myPlayerActionPrompt.Hide();
 		break;
 	case EPlayerAction::Loot:
+		myPlayerActionPrompt.SetString("Press space to loot");
+		myPlayerActionPrompt.Display();
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+		{
+			myWorld.LootTreasure();
+			myShip.SetHoldsTreasure(true);
+			CAudioSystem::GetInstance().PlaySound(ESound::Loot);
+		}
+
 		break;
 	case EPlayerAction::Sell:
+		myPlayerActionPrompt.SetString("Press space to sell");
+		myPlayerActionPrompt.Display();
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+		{
+			myWorld.PlaceTreasure(myUIMap);
+			myShip.SetHoldsTreasure(false);
+			myTreasury.GiveGold(100);
+			CAudioSystem::GetInstance().PlaySound(ESound::Sell);
+		}
+
 		break;
 	case EPlayerAction::Crash:
-		myShip.Sink();
+		if (!myShip.GetIsSinking())
+		{
+			CAudioSystem::GetInstance().PlaySound(ESound::ShipCrash);
+			myShip.Sink();
+		}
 		break;
 	case EPlayerAction::OutsideWorldBounds:
+		myPlayerActionPrompt.SetString("You are leaving chartered waters, turn back!");
+		myPlayerActionPrompt.Display();
 		break;
 	default:
 		break;
-	}
-}
-
-void CGame::ShowPressButtonPrompt()
-{
-	if (myShip.GetIsSinking())
-	{
-		return;
-	}
-
-	if (myPlayerCanLoot)
-	{
-		myPressSpaceToLoot.setString("Stop & Press Space To Loot");
-	}
-	else if (myPlayerCanSell)
-	{
-		myPressSpaceToLoot.setString("Stop & Press Space To Sell");
-	}
-
-	if (myPlayerCanLoot || myPlayerCanSell)
-	{
-		myPressSpaceToLoot.setOutlineColor(sf::Color::Black);
-		myPressSpaceToLoot.setOutlineThickness(5.f);
-		myPressSpaceToLoot.setCharacterSize(60);
-		myPressSpaceToLoot.setOrigin(myPressSpaceToLoot.getGlobalBounds().width / 2.f, myPressSpaceToLoot.getGlobalBounds().height / 2.f);
-		myPressSpaceToLoot.setPosition(myCamera.getCenter());
-
-		myWindow->draw(myPressSpaceToLoot);
 	}
 }
 
