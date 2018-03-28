@@ -4,6 +4,7 @@
 #include "World.h"
 #include "UIMap.h"
 #include "PopupText.h"
+#include "Compass.h"
 
 class CPlayer
 {
@@ -32,6 +33,7 @@ private:
 
 	bool myWasUsingMap;
 	CUIMap myMap;
+	CCompass myCompass;
 	CPopupText myPlayerActionPrompt;
 	CTreasury myTreasury;
 	CShip myShip;

@@ -76,8 +76,6 @@ private:
 	sf::RenderWindow* myWindow;
 	sf::Sprite myShipSprite;
 
-	sf::View myCamera;
-
 	CUIMap myUIMap;
 	
 	CWhirlwind testWW;

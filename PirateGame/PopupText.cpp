@@ -43,13 +43,13 @@ void CPopupText::Render()
 	if (!myShouldShow)
 		return;
 
-	myText.setPosition(CRenderer::GetInstance().GetViewCenter());
+	myText.setPosition(CRenderer::GetInstance().GetWindowCenter());
 
 	float dt = myTimer.getElapsedTime().asSeconds();
 	myTimer.restart();
 	myTimeShown += dt;
 
-	CRenderer::GetInstance().Render(myText);
+	CRenderer::GetInstance().RenderInScreenSpace(myText);
 
 	if (myTimeShown >= myTimeToShow)
 	{

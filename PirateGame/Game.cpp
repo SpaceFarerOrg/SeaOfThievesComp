@@ -78,9 +78,6 @@ bool CGame::Update()
 	myTimeWithNoMusic += dt;
 
 
-	myCamera.setSize((float)myWindow->getSize().x, (float)myWindow->getSize().y);
-	myWindow->setView(myCamera);
-
 	UpdateWhirlwinds(dt);
 
 	myWorld.Render();
@@ -96,7 +93,9 @@ bool CGame::Update()
 
 	myBirdSpawner.Render(myWindow);
 
-	myCamera.setCenter(myPlayer.GetPosition().x, myPlayer.GetPosition().y);
+	CRenderer::GetInstance().SetPosition(myPlayer.GetPosition().x, myPlayer.GetPosition().y);
+
+	CRenderer::GetInstance().SetRotation(myPlayer.GetShip().GetRotation() + 90.f);
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape))
 	{
@@ -291,7 +290,7 @@ void CGame::UpdateWhirlwinds(float aDT)
 
 		drag += myWhirlwindBuffer[i].first.GetDragTo(myPlayer.GetShip().GetPosition(), shouldKillPlayer);
 
-		myWhirlwindBuffer[i].first.Render(*myWindow);
+		myWhirlwindBuffer[i].first.Render();
 	}
 
 	if (shouldKillPlayer)

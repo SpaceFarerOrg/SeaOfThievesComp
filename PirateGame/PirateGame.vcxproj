@@ -135,6 +135,7 @@
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="BirdSpawner.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="Compass.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Island.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="AudioSystem.h" />
     <ClInclude Include="BirdSpawner.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="Compass.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />

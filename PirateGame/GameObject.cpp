@@ -34,6 +34,11 @@ void CGameObject::SetRotation(float aDegrees)
 	myTransform.setRotation(aDegrees);
 }
 
+float CGameObject::GetRotation() const
+{
+	return myTransform.getRotation();
+}
+
 void CGameObject::SetOriginMiddle()
 {
 	mySprite.setOrigin(mySprite.getLocalBounds().width / 2.f, mySprite.getLocalBounds().height / 2.f);

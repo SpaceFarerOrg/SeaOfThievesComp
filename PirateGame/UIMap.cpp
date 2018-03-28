@@ -48,9 +48,9 @@ void CUIMap::Render()
 
 	myGeneratedMapSprite.setColor(sf::Color(255,255,255, 255.f * myAlpha));
 	myGeneratedMapSprite.setOrigin(myGeneratedMapSprite.getGlobalBounds().width / 2, myGeneratedMapSprite.getGlobalBounds().height / 2.f);
-	myGeneratedMapSprite.setPosition(CRenderer::GetInstance().GetViewCenter());
+	myGeneratedMapSprite.setPosition(CRenderer::GetInstance().GetWindowCenter());
 
-	CRenderer::GetInstance().Render(myGeneratedMapSprite);
+	CRenderer::GetInstance().RenderInScreenSpace(myGeneratedMapSprite);
 }
 
 float CUIMap::GetWidth() const

@@ -211,9 +211,9 @@ bool CShip::GetIsStill() const
 	return mySpeed == 0.f;
 }
 
-void CShip::SetPosition(const sf::Vector2f & aPosition)
+float CShip::GetRotation() const
 {
-	myTransform.setPosition(aPosition);
+	return myRotation;
 }
 
 void CShip::SetWavesTextures(const sf::Texture & aSmallWaves,const sf::Texture & aBigWaves)

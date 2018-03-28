@@ -1,5 +1,6 @@
 #include "Whirlwind.h"
 #include <SFML\Graphics\RenderWindow.hpp>
+#include "Renderer.h"
 
 void CWhirlwind::Init(const sf::Texture & aWhirlwindTexture)
 {
@@ -64,9 +65,9 @@ bool CWhirlwind::GetCanChangePosition()
 	return myHasFadedOut;
 }
 
-void CWhirlwind::Render(sf::RenderWindow & aWindow)
+void CWhirlwind::Render()
 {
-	aWindow.draw(mySprite);
+	CRenderer::GetInstance().Render(mySprite);
 }
 
 void CWhirlwind::SetPosition(const sf::Vector2f & aPosition)

@@ -10,7 +10,7 @@ public:
 	void Update(float aDT);
 	void SetShouldFade(bool aOut);
 	bool GetCanChangePosition();
-	void Render(sf::RenderWindow& aWindow);
+	void Render();
 	void SetPosition(const sf::Vector2f& aPosition);
 	sf::Vector2f GetDragTo(const sf::Vector2f& aPosition, bool& aShouldKill);
 private:

@@ -56,6 +56,7 @@ void CApplication::Init()
 void CApplication::Update()
 {
 	CAudioSystem::GetInstance().Update();
+	CRenderer::GetInstance().Update();
 
 	if (myIsWindowActive)
 	{

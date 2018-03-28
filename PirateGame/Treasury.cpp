@@ -45,9 +45,9 @@ void CTreasury::Render()
 
 	myText.setOrigin(ox, oy);
 
-	sf::Vector2f wCenter = CRenderer::GetInstance().GetViewCenter();
+	sf::Vector2f wCenter = CRenderer::GetInstance().GetWindowCenter();
 	float wHeight = CRenderer::GetInstance().GetViewSize().y;
 	myText.setPosition(wCenter.x, wCenter.y - wHeight / 2.f + 10.f);
 
-	CRenderer::GetInstance().Render(myText);
+	CRenderer::GetInstance().RenderInScreenSpace(myText);
 }

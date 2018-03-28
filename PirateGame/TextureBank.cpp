@@ -33,6 +33,10 @@ void CTextureBank::LoadAllGraphicItems()
 	LoadTexture(ETexture::Slider, "slider");
 	LoadTexture(ETexture::Handle, "handle");
 
+	//Compass
+	LoadTexture(ETexture::CompassBase, "compassBase");
+	LoadTexture(ETexture::CompassPointer, "compassPointer");
+
 	//Fonts
 	myFont.loadFromFile("font/font.ttf");
 }

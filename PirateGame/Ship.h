@@ -52,8 +52,8 @@ public:
 
 	bool GetIsStill() const;
 
-	void SetPosition(const sf::Vector2f& aPosition);
-	
+	float GetRotation() const override;
+
 	void SetWavesTextures(const sf::Texture& aSmallWaves, const sf::Texture& aBigWaves);
 
 	bool GetIsInvincible() const;

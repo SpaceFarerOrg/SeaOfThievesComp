@@ -17,6 +17,7 @@ void CPlayer::SetSpawnPosition(const sf::Vector2f & aSpawnPosition)
 void CPlayer::Init()
 {
 	myShip.Init();
+	myCompass.Init();
 	myShip.SetWavesTextures(CTextureBank::GetInstance().GetTexture(ETexture::ShipWavesBig), CTextureBank::GetInstance().GetTexture(ETexture::ShipWavesBig));
 	myMap.Init();
 	myPlayerActionPrompt.Init("ERROR", 0.1f);
@@ -48,6 +49,8 @@ void CPlayer::Update(float aDT, CWorld& aWorld)
 		myWasUsingMap = false;
 	}
 
+	myCompass.Update(aDT, myShip.GetTransform().getRotation());
+
 }
 
 void CPlayer::Render()
@@ -60,6 +63,8 @@ void CPlayer::Render()
 	myPlayerActionPrompt.Render();
 
 	myTreasury.Render();
+
+	myCompass.Render();
 }
 
 void CPlayer::Respawn()

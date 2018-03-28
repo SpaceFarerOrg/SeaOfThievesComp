@@ -3,6 +3,7 @@
 #include <SFML\Window\Keyboard.hpp>
 #include "Application.h"
 #include <SFML\Window\Event.hpp>
+#include "Renderer.h"
 
 CMenu::EMenuState CMenu::myMenuState = CMenu::EMenuState::Controls;
 
@@ -32,9 +33,9 @@ void CMenu::Init()
 	myTotalTime = 0.f;
 
 	CButton button;
-	float x = (float)myWindow->getSize().x * 8.2f / 10.f;
-	float y = (float)myWindow->getSize().y / 3.5f;
-	float increment = (float)myWindow->getSize().y / 10.f;
+	float x = (float)CRenderer::GetInstance().GetWindowSize().x * 8.2f / 10.f;
+	float y = (float)CRenderer::GetInstance().GetWindowSize().y / 3.5f;
+	float increment = (float)CRenderer::GetInstance().GetWindowSize().y / 10.f;
 
 	button.Init("Enter Sea", { x-5.f, y }, []() { CMenu::myMenuState = CMenu::EMenuState::StartGame; });
 	myButtons.push_back(button);
@@ -117,7 +118,7 @@ bool CMenu::Update()
 	case EMenuState::Controls:
 		myTextBox.SetActive(false);
 		myNameBox.SetActive(false);
-		myWindow->draw(myMenuSprite);
+		CRenderer::GetInstance().RenderInScreenSpace(myMenuSprite);
 		break;
 	case EMenuState::Connect:
 		myWindow->draw(myConnectSprite);

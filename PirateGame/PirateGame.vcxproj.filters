@@ -49,6 +49,7 @@
     <ClCompile Include="World.cpp" />
     <ClCompile Include="AudioSystem.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Compass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -123,6 +124,9 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Compass.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

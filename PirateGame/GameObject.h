@@ -17,6 +17,8 @@ public:
 
 	void SetRotation(float aDegrees);
 
+	virtual float GetRotation() const;
+
 	void SetOriginMiddle();
 	void SetOriginUpperLeft();
 protected:

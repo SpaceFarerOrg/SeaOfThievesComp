@@ -42,10 +42,10 @@ void CButton::Render()
 	myTitle.setFillColor(myShadowColor);
 	myTitle.move(shadowOffset);
 	myTitle.setScale(shadowScale, shadowScale);
-	CRenderer::GetInstance().Render(myTitle);
+	CRenderer::GetInstance().RenderInScreenSpace(myTitle);
 
 	myTitle.setFillColor(myColor);
 	myTitle.move(-shadowOffset);
 	myTitle.setScale(1, 1);
-	CRenderer::GetInstance().Render(myTitle);
+	CRenderer::GetInstance().RenderInScreenSpace(myTitle);
 }
